@@ -1,0 +1,31 @@
+/* Minimal styles for placeholder screens */
+:root {
+  --bg: #0f0f13;
+  --panel: #17171d;
+  --text: #e5e7eb;
+  --muted: #9aa0a6;
+  --accent: #59c173;
+}
+
+html, body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+#root {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.topnav a { color: var(--accent); text-decoration: none; }
+.topnav a:hover { text-decoration: underline; }
+
+.screen { background: var(--panel); padding: 16px 20px; border-radius: 12px; margin-top: 16px; }
+.screen h1, .screen h2 { margin: 0 0 8px; }
+.screen p { color: var(--muted); }
