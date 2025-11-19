@@ -1,5 +1,5 @@
 import { createElement } from '../../framework/core.js';
-import { createPlayer, upsertPlayer } from '../../game/models.js';
+import { createPlayer, upsertPlayer, uid } from '../../game/models.js';
 
 export function NicknameScreen(state, store) {
   return createElement('section', { className: 'screen nickname' },
@@ -12,11 +12,21 @@ export function NicknameScreen(state, store) {
         const raw = input.value.trim();
         const nickname = raw.slice(0, 16);
         if (!nickname) return;
+
+        const playerId = uid('p_');
         const curr = store.getState();
-        const player = createPlayer({ nickname, x: 0, y: 0 });
+        const player = createPlayer({ id: playerId, nickname, x: 0, y: 0 });
+
+        // Send join message to server
+        window.sendMessage({
+          type: 'join',
+          player_id: playerId,
+          nickname: nickname
+        });
+
         store.setState({
           ...upsertPlayer(curr, player),
-          session: { ...curr.session, nickname, playerId: player.id, connected: true },
+          session: { ...curr.session, nickname, playerId, connected: true },
           route: '#/lobby'
         });
         window.location.hash = '#/lobby';
@@ -33,6 +43,6 @@ export function NicknameScreen(state, store) {
       }),
       createElement('button', { type: 'submit' }, 'Join')
     ),
-    createElement('p', { className: 'hint' }, 'Nickname max 16 chars. Local-only until multiplayer is enabled.')
+    createElement('p', { className: 'hint' }, 'Nickname max 16 chars. Connects to game server.')
   );
 }

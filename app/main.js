@@ -43,3 +43,85 @@ window.addEventListener('hashchange', () => {
 });
 
 window.__appStore = store;
+
+// WebSocket connection
+let ws = null;
+
+function connectWebSocket() {
+  if (ws && ws.readyState === WebSocket.OPEN) return;
+
+  ws = new WebSocket('ws://localhost:8765');
+
+  ws.onopen = () => {
+    console.log('WebSocket connected');
+    store.setState({ websocket: { connected: true } });
+  };
+
+  ws.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      handleWebSocketMessage(data);
+    } catch (error) {
+      console.error('Failed to parse WebSocket message:', error);
+    }
+  };
+
+  ws.onclose = () => {
+    console.log('WebSocket disconnected');
+    store.setState({ websocket: { connected: false } });
+    // Auto-reconnect after 1 second
+    setTimeout(connectWebSocket, 1000);
+  };
+
+  ws.onerror = (error) => {
+    console.error('WebSocket error:', error);
+  };
+}
+
+function handleWebSocketMessage(data) {
+  const state = store.getState();
+
+  if (data.type === 'state_sync') {
+    // Sync entire state from server
+    const newState = { ...state, ...data.state };
+    store.setState(newState);
+  } else if (data.type === 'players_update') {
+    store.setState({
+      lobby: { ...state.lobby, players: data.players }
+    });
+  } else if (data.type === 'chat') {
+    store.setState(pushChat(state, data.message));
+  } else if (data.type === 'countdown_start') {
+    store.setState({
+      lobby: {
+        ...state.lobby,
+        countdown: { phase: 'pre-start', remainingMs: data.countdown * 1000 }
+      }
+    });
+  } else if (data.type === 'countdown_update') {
+    store.setState({
+      lobby: {
+        ...state.lobby,
+        countdown: { phase: 'pre-start', remainingMs: data.countdown * 1000 }
+      }
+    });
+  } else if (data.type === 'game_start') {
+    store.setState(setRoute('#/game'));
+  } else if (data.type === 'input_ack') {
+    // Handle input acknowledgment if needed
+  }
+}
+
+function sendMessage(message) {
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify(message));
+  } else {
+    console.warn('WebSocket not connected, message not sent:', message);
+  }
+}
+
+// Make sendMessage available globally
+window.sendMessage = sendMessage;
+
+// Connect to WebSocket
+connectWebSocket();

@@ -180,7 +180,8 @@ export function initialRootState() {
 		session: createSessionState(),
 		lobby: createLobbyState(),
 		game: createEmptyGameState({ width: MAP_WIDTH, height: MAP_HEIGHT }),
-		chat: []
+		chat: [],
+		websocket: { connected: false }
 	};
 }
 
