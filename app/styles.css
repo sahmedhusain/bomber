@@ -29,3 +29,34 @@ body {
 .screen { background: var(--panel); padding: 16px 20px; border-radius: 12px; margin-top: 16px; }
 .screen h1, .screen h2 { margin: 0 0 8px; }
 .screen p { color: var(--muted); }
+
+/* Nickname screen */
+.nickname form { display: flex; flex-direction: column; gap: 8px; max-width: 300px; }
+.nickname input { padding: 8px; border: 1px solid #333; border-radius: 4px; background: var(--bg); color: var(--text); }
+.nickname button { padding: 8px 16px; background: var(--accent); border: none; border-radius: 4px; color: white; cursor: pointer; }
+.nickname button:hover { opacity: 0.9; }
+
+/* Lobby screen */
+.lobby .connection-status { margin-bottom: 16px; font-weight: bold; }
+.lobby .connected { color: #59c173; }
+.lobby .disconnected { color: #ff6b6b; }
+
+.lobby .players { margin-bottom: 16px; }
+.lobby .player-list { list-style: none; padding: 0; }
+.lobby .player { padding: 8px; margin-bottom: 4px; border-radius: 4px; background: rgba(255,255,255,0.05); }
+.lobby .player.ready { background: rgba(89, 193, 115, 0.2); }
+.lobby .player.self { border: 1px solid var(--accent); }
+
+.lobby .countdown { text-align: center; margin-bottom: 16px; }
+.lobby .countdown-timer { font-size: 2em; color: var(--accent); font-weight: bold; }
+
+.lobby .chat { margin-bottom: 16px; }
+.lobby .chat-messages { max-height: 200px; overflow-y: auto; border: 1px solid #333; border-radius: 4px; padding: 8px; margin-bottom: 8px; background: var(--bg); }
+.lobby .chat-message { margin-bottom: 4px; }
+.lobby .chat-form { display: flex; gap: 8px; }
+.lobby .chat-form input { flex: 1; padding: 8px; border: 1px solid #333; border-radius: 4px; background: var(--bg); color: var(--text); }
+
+.lobby .actions { text-align: center; }
+.lobby .ready-btn { padding: 12px 24px; background: var(--accent); border: none; border-radius: 4px; color: white; cursor: pointer; font-size: 1.1em; }
+.lobby .ready-btn.ready { background: #ff6b6b; }
+.lobby .ready-btn:disabled { opacity: 0.5; cursor: not-allowed; }

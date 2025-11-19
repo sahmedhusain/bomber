@@ -13,6 +13,33 @@ let gameState = {
   }
 };
 
+let lobbyTimer = null;
+
+function startLobbyTimer() {
+  if (lobbyTimer) clearInterval(lobbyTimer);
+  lobbyTimer = setInterval(() => {
+    const players = Object.values(gameState.players);
+    if (players.length >= 2 && gameState.room.status === 'waiting') {
+      gameState.room.status = 'countdown';
+      gameState.room.countdown = 10;
+      broadcast(JSON.stringify({
+        type: 'countdown_start',
+        countdown: 10
+      }));
+      startCountdown();
+      clearInterval(lobbyTimer);
+      lobbyTimer = null;
+    }
+  }, 1000);
+}
+
+function stopLobbyTimer() {
+  if (lobbyTimer) {
+    clearInterval(lobbyTimer);
+    lobbyTimer = null;
+  }
+}
+
 console.log('🚀 Starting Bomberman WebSocket Server');
 console.log('📡 Listening on ws://localhost:8765');
 
@@ -39,6 +66,11 @@ function handleMessage(ws, message) {
         ready: false
       };
       console.log(`Player ${nickname} (${playerId}) joined`);
+
+      // Start lobby timer if first player
+      if (Object.keys(gameState.players).length === 1) {
+        startLobbyTimer();
+      }
 
       // Broadcast updated player list
       broadcast(JSON.stringify({
@@ -151,6 +183,12 @@ wss.on('connection', function connection(ws) {
       delete gameState.players[playerId];
       console.log(`Player ${playerId} disconnected`);
     });
+
+    // Stop lobby timer if less than 2 players
+    if (Object.keys(gameState.players).length < 2) {
+      stopLobbyTimer();
+      gameState.room.status = 'waiting';
+    }
 
     // Broadcast updated player list
     broadcast(JSON.stringify({

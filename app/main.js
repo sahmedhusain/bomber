@@ -14,6 +14,8 @@ function Routes(state, store) {
   };
 }
 
+let store;
+
 function view(state) {
   const routes = Routes(state, store);
   const screen = routes[state.route] || routes['#/'];
@@ -35,7 +37,7 @@ const rootEl = document.getElementById('root');
 const initial = initialRootState();
 initial.route = window.location.hash || '#/';
 
-const store = createApp({ view, initialState: initial, rootElement: rootEl });
+store = createApp({ view, initialState: initial, rootElement: rootEl });
 
 window.addEventListener('hashchange', () => {
   const hash = window.location.hash || '#/';
