@@ -151,6 +151,79 @@ export function createEmptyGameState({ width = MAP_WIDTH, height = MAP_HEIGHT } 
 }
 
 /**
+ * Creates a classic Bomberman-style game map with walls, blocks, and safe corridors
+ * @param {Object} options - Map generation options
+ * @param {number} options.width - Map width
+ * @param {number} options.height - Map height
+ * @param {number} options.blockDensity - Density of destructible blocks (0-1)
+ * @returns {GameMap} Generated map
+ */
+export function generateGameMap({ width = MAP_WIDTH, height = MAP_HEIGHT, blockDensity = 0.75 } = {}) {
+	const tiles = new Array(width * height);
+
+	// Define spawn positions (corners and center for up to 4 players)
+	const spawnPositions = [
+		{ x: 1, y: 1 },           // Top-left
+		{ x: width - 2, y: 1 },   // Top-right
+		{ x: 1, y: height - 2 },  // Bottom-left
+		{ x: width - 2, y: height - 2 } // Bottom-right
+	];
+
+	for (let i = 0; i < tiles.length; i++) {
+		const { x, y } = pos(i, width);
+		let tileType = TileType.Floor;
+
+		// Create solid walls around perimeter
+		if (x === 0 || x === width - 1 || y === 0 || y === height - 1) {
+			tileType = TileType.Wall;
+		}
+		// Create checkerboard pattern of solid walls (every other tile, skipping edges)
+		else if (x % 2 === 0 && y % 2 === 0) {
+			tileType = TileType.Wall;
+		}
+		// Create destructible blocks, but leave safe corridors around spawn points
+		else {
+			// Check if this position is in a safe corridor around any spawn point
+			let isSafeCorridor = false;
+			for (const spawn of spawnPositions) {
+				// Create 3x3 safe zone around each spawn point
+				if (Math.abs(x - spawn.x) <= 1 && Math.abs(y - spawn.y) <= 1) {
+					isSafeCorridor = true;
+					break;
+				}
+			}
+
+			// If not in safe zone, randomly place destructible blocks
+			if (!isSafeCorridor && Math.random() < blockDensity) {
+				tileType = TileType.Block;
+			}
+		}
+
+		tiles[i] = createTile({ x, y, type: tileType });
+	}
+
+	return { width, height, tiles };
+}
+
+/**
+ * Creates a new game state with a generated map
+ * @param {Object} options - Game creation options
+ * @returns {GameState} New game state with generated map
+ */
+export function createGameState({ width = MAP_WIDTH, height = MAP_HEIGHT, blockDensity = 0.75 } = {}) {
+	const map = generateGameMap({ width, height, blockDensity });
+	return {
+		map,
+		players: Object.create(null),
+		bombs: Object.create(null),
+		powerUps: Object.create(null),
+		status: GameStatus.Waiting,
+		lastUpdate: now(),
+		winnerId: undefined
+	};
+}
+
+/**
  * @typedef {Object} LobbyState
  * @property {{id:string,nickname:string}[]} players
  * @property {number} joinedCount
@@ -179,7 +252,7 @@ export function initialRootState() {
 		route: '#/',
 		session: createSessionState(),
 		lobby: createLobbyState(),
-		game: createEmptyGameState({ width: MAP_WIDTH, height: MAP_HEIGHT }),
+		game: createGameState({ width: MAP_WIDTH, height: MAP_HEIGHT }),
 		chat: [],
 		websocket: { connected: false }
 	};

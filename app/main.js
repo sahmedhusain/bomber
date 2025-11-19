@@ -108,7 +108,13 @@ function handleWebSocketMessage(data) {
       }
     });
   } else if (data.type === 'game_start') {
-    store.setState(setRoute('#/game'));
+    // Update game state and navigate to game
+    const newState = {
+      ...state,
+      game: data.gameState || state.game,
+      route: '#/game'
+    };
+    store.setState(newState);
   } else if (data.type === 'input_ack') {
     // Handle input acknowledgment if needed
   }

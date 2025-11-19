@@ -2,6 +2,16 @@ const WebSocket = require('ws');
 
 const wss = new WebSocket.Server({ port: 8765 });
 
+// Import game models
+const {
+  createGameState,
+  createPlayer,
+  TILE_SIZE,
+  MAP_WIDTH,
+  MAP_HEIGHT,
+  TileType
+} = require('./game/models.js');
+
 // Game state (authoritative on server)
 let gameState = {
   players: {},
@@ -10,7 +20,8 @@ let gameState = {
     status: 'waiting', // waiting, countdown, playing, finished
     countdown: null,
     chat: []
-  }
+  },
+  game: createGameState()
 };
 
 let lobbyTimer = null;
@@ -144,13 +155,47 @@ function startCountdown() {
     if (gameState.room.countdown <= 0) {
       clearInterval(interval);
       // Countdown finished, start game
-      gameState.room.status = 'playing';
-      broadcast(JSON.stringify({
-        type: 'game_start'
-      }));
-      console.log('Game started!');
+      startGame();
     }
   }, 1000);
+}
+
+function startGame() {
+  gameState.room.status = 'playing';
+
+  // Place players at spawn positions
+  const players = Object.values(gameState.players);
+  const spawnPositions = [
+    { x: 1, y: 1 },           // Top-left
+    { x: MAP_WIDTH - 2, y: 1 },   // Top-right
+    { x: 1, y: MAP_HEIGHT - 2 },  // Bottom-left
+    { x: MAP_WIDTH - 2, y: MAP_HEIGHT - 2 } // Bottom-right
+  ];
+
+  players.forEach((player, index) => {
+    const spawn = spawnPositions[index % spawnPositions.length];
+    gameState.game.players[player.id] = {
+      id: player.id,
+      nickname: player.nickname,
+      x: spawn.x,
+      y: spawn.y,
+      dir: 'down',
+      speed: 1,
+      lives: 3,
+      bombCapacity: 1,
+      bombRange: 1,
+      activePowerUps: {},
+      status: 'alive'
+    };
+  });
+
+  // Broadcast game start with full state
+  broadcast(JSON.stringify({
+    type: 'game_start',
+    gameState: gameState.game
+  }));
+
+  console.log('🎮 Game started with', players.length, 'players!');
 }
 
 wss.on('connection', function connection(ws) {
