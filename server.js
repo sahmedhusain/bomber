@@ -1,15 +1,15 @@
-const WebSocket = require('ws');
+import { WebSocketServer } from 'ws';
 
-const wss = new WebSocket.Server({ port: 8765 });
+const wss = new WebSocketServer({ port: 8765 });
 
-const {
+import {
   createGameState,
   createPlayer,
   TILE_SIZE,
   MAP_WIDTH,
   MAP_HEIGHT,
   TileType
-} = require('./game/models.js');
+} from './game/models.js';
 
 let gameState = {
   players: {},
@@ -87,24 +87,44 @@ function handleMessage(ws, message) {
 
     } else if (msgType === 'chat') {
       const playerId = data.player_id;
-      const text = data.text;
-      if (gameState.players[playerId]) {
-        const nickname = gameState.players[playerId].nickname;
-        const chatMsg = {
-          player_id: playerId,
-          nickname: nickname,
-          text: text,
-          timestamp: new Date().toISOString()
-        };
-        gameState.room.chat.push(chatMsg);
-        console.log(`Chat: ${nickname}: ${text}`);
-
-        broadcast(JSON.stringify({
-          type: 'chat',
-          message: chatMsg
-        }));
+      const text = data.text?.trim();
+      
+      if (!text || text.length === 0) {
+        console.warn('Empty chat message ignored');
+        return;
       }
+      
+      if (!gameState.players[playerId]) {
+        console.warn('Chat message from unknown player:', playerId);
+        return;
+      }
+      
+      const nickname = gameState.players[playerId].nickname;
+      const chatMsg = {
+        player_id: playerId,
+        nickname: nickname,
+        text: text.slice(0, 200), // Limit message length
+        timestamp: new Date().toISOString()
+      };
+      
+      // Ensure chat array exists
+      if (!Array.isArray(gameState.room.chat)) {
+        gameState.room.chat = [];
+      }
+      
+      gameState.room.chat.push(chatMsg);
+      
+      // Keep only last 50 messages
+      if (gameState.room.chat.length > 50) {
+        gameState.room.chat = gameState.room.chat.slice(-50);
+      }
+      
+      console.log(`💬 ${nickname}: ${text}`);
 
+      broadcast(JSON.stringify({
+        type: 'chat',
+        message: chatMsg
+      }));
     } else if (msgType === 'ready') {
       const playerId = data.player_id;
       if (gameState.players[playerId]) {
@@ -127,6 +147,34 @@ function handleMessage(ws, message) {
 
     } else if (msgType === 'input') {
       broadcast(message, ws);
+    } else if (msgType === 'play_again') {
+      const playerId = data.player_id;
+      if (gameState.players[playerId]) {
+        // Reset player ready status for new game
+        gameState.players[playerId].ready = false;
+        console.log(`Player ${gameState.players[playerId].nickname} wants to play again`);
+        
+        // Reset game state for new round
+        gameState.game = createGameState();
+        gameState.room.status = 'waiting';
+        gameState.room.countdown = null;
+        
+        broadcast(JSON.stringify({
+          type: 'game_reset',
+          gameState: gameState.game
+        }));
+      }
+    } else if (msgType === 'disconnect') {
+      const playerId = data.player_id;
+      if (gameState.players[playerId]) {
+        console.log(`Player ${gameState.players[playerId].nickname} disconnected`);
+        delete gameState.players[playerId];
+        
+        broadcast(JSON.stringify({
+          type: 'players_update',
+          players: Object.values(gameState.players)
+        }));
+      }
     }
 
   } catch (error) {
@@ -152,8 +200,16 @@ function startCountdown() {
 
 function startGame() {
   gameState.room.status = 'playing';
+  gameState.room.countdown = null;
 
   const players = Object.values(gameState.players);
+  
+  // For testing: automatically end game after 5 seconds
+  setTimeout(() => {
+    if (gameState.room.status === 'playing') {
+      endGame();
+    }
+  }, 5000);
   const spawnPositions = [
     { x: 1, y: 1 },
     { x: MAP_WIDTH - 2, y: 1 },
@@ -178,6 +234,12 @@ function startGame() {
     };
   });
 
+  // Clear countdown first
+  broadcast(JSON.stringify({
+    type: 'countdown_end'
+  }));
+
+  // Then start game
   broadcast(JSON.stringify({
     type: 'game_start',
     gameState: gameState.game
@@ -186,13 +248,36 @@ function startGame() {
   console.log('🎮 Game started with', players.length, 'players!');
 }
 
+function endGame() {
+  gameState.room.status = 'finished';
+  
+  // Pick a random winner for testing
+  const alivePlayers = Object.values(gameState.players);
+  if (alivePlayers.length > 0) {
+    const randomWinner = alivePlayers[Math.floor(Math.random() * alivePlayers.length)];
+    gameState.game.winnerId = randomWinner.id;
+    gameState.game.status = 'finished';
+    
+    console.log(`🏆 Game ended! Winner: ${randomWinner.nickname}`);
+  }
+  
+  // Broadcast game end
+  broadcast(JSON.stringify({
+    type: 'game_end',
+    gameState: gameState.game
+  }));
+}
+
 wss.on('connection', function connection(ws) {
   const clientIp = ws._socket.remoteAddress || 'unknown';
   console.log(`Client connected from ${clientIp}`);
 
   ws.send(JSON.stringify({
     type: 'state_sync',
-    state: gameState
+    state: {
+      ...gameState,
+      chat: gameState.room.chat
+    }
   }));
 
   ws.on('message', function incoming(message) {

@@ -16,19 +16,85 @@ function Routes(state, store) {
 
 let store;
 
+function getValidRoute(state) {
+  const { session, websocket, lobby, game } = state;
+  
+  // If user has no nickname, must stay on home
+  if (!session?.nickname || !session?.playerId) {
+    return '#/';
+  }
+  
+  // If not connected to websocket, must stay on home
+  if (!websocket?.connected) {
+    return '#/';
+  }
+  
+  // If game is running or finished, must be on game/results screen
+  if (game?.status === 'running') {
+    return '#/game';
+  }
+  
+  if (game?.status === 'finished' || game?.winnerId) {
+    return '#/results';
+  }
+  
+  // If countdown is active, must be in lobby
+  if (lobby?.countdown?.phase === 'pre-start') {
+    return '#/lobby';
+  }
+  
+  // If user has session, default to lobby
+  if (session?.nickname && websocket?.connected) {
+    return '#/lobby';
+  }
+  
+  // Default to home
+  return '#/';
+}
+
 function view(state) {
   const routes = Routes(state, store);
-  const screen = routes[state.route] || routes['#/'];
+  const validRoute = getValidRoute(state);
+  
+  // Force correct route if user is on wrong screen
+  if (state.route !== validRoute) {
+    // Delay route correction to avoid infinite loops
+    setTimeout(() => {
+      store.setState({ route: validRoute });
+      window.location.hash = validRoute;
+    }, 0);
+  }
+  
+  const currentRoute = validRoute;
+  const screen = routes[currentRoute] || routes['#/'];
 
   return createElement('main', { className: 'app' },
     createElement('nav', { className: 'topnav' },
-      createElement('a', { href: '#/' }, 'Home'), ' | ',
-      createElement('a', { href: '#/lobby' }, 'Lobby'), ' | ',
-      createElement('a', { href: '#/game' }, 'Game'), ' | ',
-      createElement('a', { href: '#/results' }, 'Results')
+      createElement('div', { 
+        className: `nav-item ${currentRoute === '#/' ? 'active' : 'disabled'}`,
+        title: currentRoute !== '#/' ? 'Navigation restricted during game' : ''
+      }, '🏠 Home'),
+      createElement('div', { 
+        className: `nav-item ${currentRoute === '#/lobby' ? 'active' : 'disabled'}`,
+        title: currentRoute !== '#/lobby' ? 'Navigation restricted during game' : ''
+      }, '🎮 Lobby'),
+      createElement('div', { 
+        className: `nav-item ${currentRoute === '#/game' ? 'active' : 'disabled'}`,
+        title: currentRoute !== '#/game' ? 'Navigation restricted during game' : ''
+      }, '⚔️ Game'),
+      createElement('div', { 
+        className: `nav-item ${currentRoute === '#/results' ? 'active' : 'disabled'}`,
+        title: currentRoute !== '#/results' ? 'Navigation restricted during game' : ''
+      }, '🏆 Results')
     ),
     state.session?.nickname ?
-      createElement('div', { className: 'session-bar' }, 'You are ', createElement('strong', {}, state.session.nickname)) : null,
+      createElement('div', { className: 'session-bar' }, 
+        '👤 Welcome back, ', 
+        createElement('strong', {}, state.session.nickname),
+        state.websocket?.connected ? 
+          createElement('span', { className: 'connection-indicator' }, ' • 🟢 Online') :
+          createElement('span', { className: 'connection-indicator' }, ' • 🔴 Offline')
+      ) : null,
     screen()
   );
 }
@@ -39,12 +105,33 @@ initial.route = window.location.hash || '#/';
 
 store = createApp({ view, initialState: initial, rootElement: rootEl });
 
-window.addEventListener('hashchange', () => {
-  const hash = window.location.hash || '#/';
-  store.setState(setRoute(hash));
+// Prevent manual navigation - routes are controlled by game state
+window.addEventListener('hashchange', (event) => {
+  const newHash = window.location.hash || '#/';
+  const currentState = store.getState();
+  const validRoute = getValidRoute(currentState);
+  
+  // If user tries to navigate to invalid route, redirect to valid one
+  if (newHash !== validRoute) {
+    event.preventDefault();
+    window.location.hash = validRoute;
+    return false;
+  }
+  
+  store.setState(setRoute(newHash));
 });
 
 window.__appStore = store;
+
+// Helper function to add chat messages to state
+function pushChat(state, message) {
+  const newChat = [...(state.chat || []), message];
+  // Keep only last 50 messages
+  if (newChat.length > 50) {
+    return { chat: newChat.slice(-50) };
+  }
+  return { chat: newChat };
+}
 
 // WebSocket connection
 let ws = null;
@@ -92,7 +179,8 @@ function handleWebSocketMessage(data) {
       lobby: { ...state.lobby, players: data.players }
     });
   } else if (data.type === 'chat') {
-    store.setState(pushChat(state, data.message));
+    const chatUpdate = pushChat(state, data.message);
+    store.setState({ ...state, ...chatUpdate });
   } else if (data.type === 'countdown_start') {
     store.setState({
       lobby: {
@@ -107,14 +195,42 @@ function handleWebSocketMessage(data) {
         countdown: { phase: 'pre-start', remainingMs: data.countdown * 1000 }
       }
     });
+  } else if (data.type === 'countdown_end') {
+    store.setState({
+      lobby: {
+        ...state.lobby,
+        countdown: { phase: 'waiting', remainingMs: 0 }
+      }
+    });
   } else if (data.type === 'game_start') {
-    // Update game state and navigate to game
+    // Update game state and navigate to game automatically
     const newState = {
       ...state,
-      game: data.gameState || state.game,
+      game: { ...data.gameState, status: 'running' },
+      lobby: { ...state.lobby, countdown: { phase: 'waiting', remainingMs: 0 } },
       route: '#/game'
     };
     store.setState(newState);
+    window.location.hash = '#/game';
+  } else if (data.type === 'game_end') {
+    // Game finished, navigate to results
+    const newState = {
+      ...state,
+      game: { ...state.game, ...data.gameState, status: 'finished' },
+      route: '#/results'
+    };
+    store.setState(newState);
+    window.location.hash = '#/results';
+  } else if (data.type === 'game_reset') {
+    // Game reset, return to lobby
+    const newState = {
+      ...state,
+      game: data.gameState,
+      lobby: { ...state.lobby, countdown: { phase: 'waiting', remainingMs: 0 } },
+      route: '#/lobby'
+    };
+    store.setState(newState);
+    window.location.hash = '#/lobby';
   } else if (data.type === 'input_ack') {
     // Handle input acknowledgment if needed
   }
