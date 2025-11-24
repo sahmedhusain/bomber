@@ -329,6 +329,14 @@ button:disabled {
   font-size: 18px;
   padding: 20px;
   font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.leave-lobby-btn {
+  width: 100%;
+  font-size: 16px;
+  padding: 12px;
+  font-weight: 600;
 }
 
 /* Chat Styles */
@@ -1933,6 +1941,56 @@ button:disabled {
 .testing-notice p {
   color: var(--text-secondary);
   margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Lobby Timer Styles */
+.lobby-timer-display {
+  margin: 20px 0;
+  padding: 20px;
+  background: rgba(0, 212, 255, 0.1);
+  border: 2px solid rgba(0, 212, 255, 0.3);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  animation: lobby-timer-pulse 2s ease-in-out infinite;
+}
+
+@keyframes lobby-timer-pulse {
+  0%, 100% { 
+    border-color: rgba(0, 212, 255, 0.3);
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+  }
+  50% { 
+    border-color: rgba(0, 212, 255, 0.6);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+  }
+}
+
+.timer-title {
+  color: var(--accent-primary);
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.timer-countdown {
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--accent-primary);
+  text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+  margin: 12px 0;
+  animation: timer-tick 1s ease-in-out infinite;
+}
+
+@keyframes timer-tick {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.timer-description {
+  color: var(--text-secondary);
+  margin: 12px 0 0 0;
   font-size: 14px;
   line-height: 1.4;
 }

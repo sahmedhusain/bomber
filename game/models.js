@@ -148,7 +148,8 @@ export function createLobbyState() {
   return {
     players: [],
     joinedCount: 0,
-    countdown: { phase: 'waiting', remainingMs: 0 }
+    countdown: { phase: 'waiting', remainingMs: 0 },
+    lobbyTimer: { active: false, remainingMs: 0 }
   };
 }
 

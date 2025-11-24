@@ -6,6 +6,8 @@ export function LobbyScreen(state, store) {
   const playerCount = players.length;
   const isReady = players.find(p => p.id === session.playerId)?.ready || false;
   const minPlayers = playerCount >= 2;
+  const lobbyTimerActive = lobby.lobbyTimer?.active || false;
+  const lobbyTimeLeft = Math.ceil((lobby.lobbyTimer?.remainingMs || 0) / 1000);
 
   return createElement('section', { className: 'screen lobby' },
     createElement('h2', {}, '🏟️ Game Lobby'),
@@ -69,11 +71,43 @@ export function LobbyScreen(state, store) {
               }
             },
             disabled: !websocket.connected
-          }, isReady ? '❌ Cancel Ready' : '✅ Ready to Play')
+          }, isReady ? '❌ Cancel Ready' : '✅ Ready to Play'),
+          createElement('button', {
+            className: 'button-secondary leave-lobby-btn',
+            onclick: () => {
+              if (session.playerId && confirm('Are you sure you want to leave the lobby?')) {
+                // Send disconnect message to server
+                window.sendMessage({
+                  type: 'disconnect',
+                  player_id: session.playerId
+                });
+                // Reset local state and go back to nickname screen
+                store.setState({
+                  session: { connected: false },
+                  route: '#/',
+                  lobby: { players: [], countdown: { phase: 'waiting', remainingMs: 0 } }
+                });
+                window.location.hash = '#/';
+              }
+            },
+            disabled: !websocket.connected
+          }, '🚪 Leave Lobby')
         ),
         !minPlayers ? createElement('p', { className: 'hint' }, 
           '⚠️ Need at least 2 players to start the game'
         ) : null,
+        
+        // Show lobby timer when active
+        lobbyTimerActive ? createElement('div', { className: 'lobby-timer-display' },
+          createElement('h4', { className: 'timer-title' }, '⏱️ Waiting for More Players'),
+          createElement('div', { className: 'timer-countdown' }, `${lobbyTimeLeft}s`),
+          createElement('p', { className: 'timer-description' }, 
+            playerCount < 4 ? 
+              `Game starts in ${lobbyTimeLeft} seconds, or when 4 players join` :
+              'Starting game countdown...'
+          )
+        ) : null,
+        
         createElement('p', { className: 'navigation-info' },
           '🔒 Navigation is restricted during the game - you will be moved automatically'
         )

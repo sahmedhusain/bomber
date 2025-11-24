@@ -202,6 +202,51 @@ function handleWebSocketMessage(data) {
         countdown: { phase: 'waiting', remainingMs: 0 }
       }
     });
+  } else if (data.type === 'lobby_timer_start') {
+    store.setState({
+      lobby: {
+        ...state.lobby,
+        lobbyTimer: { active: true, remainingMs: data.lobbyTimeLeft * 1000 }
+      }
+    });
+  } else if (data.type === 'lobby_timer_update') {
+    store.setState({
+      lobby: {
+        ...state.lobby,
+        lobbyTimer: { active: true, remainingMs: data.lobbyTimeLeft * 1000 }
+      }
+    });
+  } else if (data.type === 'lobby_timer_cancelled') {
+    store.setState({
+      lobby: {
+        ...state.lobby,
+        lobbyTimer: { active: false, remainingMs: 0 }
+      }
+    });
+  } else if (data.type === 'countdown_cancelled') {
+    store.setState({
+      lobby: {
+        ...state.lobby,
+        countdown: { phase: 'waiting', remainingMs: 0 }
+      }
+    });
+  } else if (data.type === 'game_cancelled') {
+    store.setState({
+      lobby: {
+        ...state.lobby,
+        countdown: { phase: 'waiting', remainingMs: 0 },
+        lobbyTimer: { active: false, remainingMs: 0 }
+      }
+    });
+  } else if (data.type === 'lobby_cancelled') {
+    // Reset to waiting state when lobby is cancelled due to insufficient players
+    store.setState({
+      lobby: {
+        ...state.lobby,
+        countdown: { phase: 'waiting', remainingMs: 0 },
+        lobbyTimer: { active: false, remainingMs: 0 }
+      }
+    });
   } else if (data.type === 'game_start') {
     // Update game state and navigate to game automatically
     const newState = {
@@ -233,6 +278,30 @@ function handleWebSocketMessage(data) {
     window.location.hash = '#/lobby';
   } else if (data.type === 'input_ack') {
     // Handle input acknowledgment if needed
+  } else if (data.type === 'player_disconnected') {
+    // Show notification that player disconnected and has grace period to reconnect
+    console.log(`Player ${data.playerId} disconnected, ${data.gracePeriod}s to reconnect`);
+  } else if (data.type === 'player_reconnected') {
+    // Show notification that player reconnected
+    console.log(`Player ${data.playerId} reconnected successfully`);
+  } else if (data.type === 'player_eliminated') {
+    // Show notification that player was eliminated
+    console.log(`Player ${data.playerId} eliminated: ${data.reason}`);
+  } else if (data.type === 'reconnected') {
+    // Handle successful reconnection - restore session
+    console.log('Successfully reconnected to ongoing game');
+    const newState = {
+      ...state,
+      session: { ...state.session, playerId: data.playerId },
+      game: data.gameState,
+      route: data.roomState.status === 'playing' ? '#/game' : '#/lobby'
+    };
+    store.setState(newState);
+    window.location.hash = newState.route;
+  } else if (data.type === 'game_update') {
+    // Update game state
+    const newState = { ...state, game: data.gameState };
+    store.setState(newState);
   }
 }
 
