@@ -13,6 +13,7 @@ import {
 
 let gameState = {
   players: {},
+  spectators: {},
   room: {
     id: 'main',
     status: 'waiting',
@@ -24,15 +25,12 @@ let gameState = {
 
 let lobbyTimer = null;
 let countdownTimer = null;
-let disconnectedPlayers = new Map(); // playerId -> { player, disconnectTime, timer }
-let reconnectTimers = new Map(); // playerId -> timeout
 
 // Map WebSocket connections to player IDs
 const wsToPlayer = new Map();
 const playerToWs = new Map();
 const LOBBY_WAIT_TIME = 20; // 20 seconds to wait for more players
 const COUNTDOWN_TIME = 10;  // 10 seconds countdown before game starts
-const RECONNECT_GRACE_PERIOD = 30;  // 30 seconds grace period for reconnection during game
 
 function startLobbyTimer() {
   if (lobbyTimer) clearInterval(lobbyTimer);
@@ -124,37 +122,46 @@ function handleMessage(ws, message) {
 
     if (msgType === 'join') {
       const playerId = data.player_id;
-      const nickname = data.nickname;
+      let nickname = data.nickname;
       
-      // Check if this is a reconnection attempt during game
-      let isReconnection = false;
-      let reconnectPlayerId = null;
+      // Normal join process - ensure unique nickname
+      nickname = getUniqueNickname(nickname);
       
-      // Look for disconnected player with matching nickname
-      for (const [disconnectedId, info] of disconnectedPlayers.entries()) {
-        if (info.lobbyPlayer.nickname === nickname) {
-          isReconnection = true;
-          reconnectPlayerId = disconnectedId;
-          break;
-        }
-      }
-      
-      if (isReconnection && handlePlayerReconnect(reconnectPlayerId, ws, nickname)) {
-        // Reconnection successful, send current state
-        ws.send(JSON.stringify({
-          type: 'reconnected',
-          playerId: reconnectPlayerId,
-          gameState: gameState.game,
-          roomState: gameState.room
-        }));
-        return;
-      }
-      
-      // Normal join process
       // Map this WebSocket to the player
       wsToPlayer.set(ws, playerId);
       playerToWs.set(playerId, ws);
       
+      const currentPlayerCount = Object.keys(gameState.players).length;
+      
+      // If game is active or lobby is full (4 players), join as spectator
+      if (gameState.room.status === 'playing' || gameState.room.status === 'countdown' || currentPlayerCount >= 4) {
+        gameState.spectators[playerId] = {
+          id: playerId,
+          nickname: nickname,
+          connected: true
+        };
+        console.log(`Player ${nickname} (${playerId}) joined as spectator`);
+        
+        // Send spectator state
+        ws.send(JSON.stringify({
+          type: 'joined_as_spectator',
+          playerId: playerId,
+          gameState: gameState.game,
+          roomState: gameState.room,
+          players: Object.values(gameState.players),
+          spectators: Object.values(gameState.spectators)
+        }));
+        
+        // Broadcast updated spectator list
+        broadcast(JSON.stringify({
+          type: 'spectators_update',
+          spectators: Object.values(gameState.spectators)
+        }));
+        
+        return;
+      }
+      
+      // Join as regular player
       gameState.players[playerId] = {
         id: playerId,
         nickname: nickname,
@@ -166,8 +173,13 @@ function handleMessage(ws, message) {
       const playerCount = Object.keys(gameState.players).length;
       
       // Start lobby timer when we reach 2 players
-      if (playerCount === 2 && gameState.room.status === 'waiting') {
+      if (playerCount === 2 && gameState.room.status === 'waiting' && !lobbyTimer) {
         startLobbyTimer();
+      }
+      // Reset lobby timer when 3rd player joins
+      else if (playerCount === 3 && gameState.room.status === 'waiting' && lobbyTimer) {
+        console.log('🔄 3rd player joined, resetting lobby timer');
+        startLobbyTimer(); // This will clear the existing timer and start a new one
       }
       // If we reach 4 players and lobby timer is running, let the timer handle it
       // (it will immediately trigger countdown when it sees 4 players)
@@ -186,17 +198,25 @@ function handleMessage(ws, message) {
         return;
       }
       
-      if (!gameState.players[playerId]) {
-        console.warn('Chat message from unknown player:', playerId);
+      let nickname = null;
+      let isSpectator = false;
+      
+      // Check if it's a player or spectator
+      if (gameState.players[playerId]) {
+        nickname = gameState.players[playerId].nickname;
+      } else if (gameState.spectators[playerId]) {
+        nickname = gameState.spectators[playerId].nickname;
+        isSpectator = true;
+      } else {
+        console.warn('Chat message from unknown user:', playerId);
         return;
       }
-      
-      const nickname = gameState.players[playerId].nickname;
       const chatMsg = {
         player_id: playerId,
         nickname: nickname,
         text: text.slice(0, 200), // Limit message length
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        isSpectator: isSpectator
       };
       
       // Ensure chat array exists
@@ -232,32 +252,9 @@ function handleMessage(ws, message) {
 
     } else if (msgType === 'input') {
       broadcast(message, ws);
-    } else if (msgType === 'play_again') {
-      const playerId = data.player_id;
-      if (gameState.players[playerId]) {
-        // Reset player ready status for new game
-        gameState.players[playerId].ready = false;
-        console.log(`Player ${gameState.players[playerId].nickname} wants to play again`);
-        
-        // Reset game state for new round
-        stopAllTimers();
-        gameState.game = createGameState();
-        gameState.room.status = 'waiting';
-        gameState.room.countdown = null;
-        
-        // Restart lobby timer if we have 2+ players
-        const playerCount = Object.keys(gameState.players).length;
-        if (playerCount >= 2) {
-          startLobbyTimer();
-        }
-        
-        broadcast(JSON.stringify({
-          type: 'game_reset',
-          gameState: gameState.game
-        }));
-      }
     } else if (msgType === 'disconnect') {
       const playerId = data.player_id;
+      
       if (gameState.players[playerId]) {
         console.log(`Player ${gameState.players[playerId].nickname} requested to leave`);
         
@@ -270,6 +267,22 @@ function handleMessage(ws, message) {
         }
         
         handlePlayerLeave();
+      } else if (gameState.spectators[playerId]) {
+        console.log(`Spectator ${gameState.spectators[playerId].nickname} requested to leave`);
+        
+        // Remove spectator and WebSocket mappings
+        delete gameState.spectators[playerId];
+        const spectatorWs = playerToWs.get(playerId);
+        if (spectatorWs) {
+          wsToPlayer.delete(spectatorWs);
+          playerToWs.delete(playerId);
+        }
+        
+        // Broadcast updated spectator list
+        broadcast(JSON.stringify({
+          type: 'spectators_update',
+          spectators: Object.values(gameState.spectators)
+        }));
       }
     }
 
@@ -302,6 +315,17 @@ function handlePlayerLeave() {
       type: 'countdown_cancelled',
       reason: 'Player left during countdown'
     }));
+  }
+  // If we still have 2+ players and lobby timer was running, reset it
+  else if (playerCount >= 2 && gameState.room.status === 'waiting' && lobbyTimer) {
+    console.log('🔄 Player left but still have enough players, resetting lobby timer');
+    startLobbyTimer(); // This will reset the timer
+  }
+
+  // If we went from 1 to 2 players (someone joined after everyone left), start timer
+  else if (playerCount === 2 && gameState.room.status === 'waiting' && !lobbyTimer) {
+    console.log('👥 Back to 2 players, starting lobby timer');
+    startLobbyTimer();
   }
   
   // Update all clients with new player list
@@ -358,12 +382,12 @@ function startGame() {
 
   const players = Object.values(gameState.players);
   
-  // For testing: automatically end game after 5 seconds
+  // For testing: automatically end game after 30 seconds
   setTimeout(() => {
     if (gameState.room.status === 'playing') {
       endGame();
     }
-  }, 5000);
+  }, 30000);
   const spawnPositions = [
     { x: 1, y: 1 },
     { x: MAP_WIDTH - 2, y: 1 },
@@ -408,54 +432,14 @@ function handleInGameDisconnect(playerId) {
   
   if (!gamePlayer || !lobbyPlayer) return;
   
-  console.log(`🔌 Player ${lobbyPlayer.nickname} disconnected during game, starting ${RECONNECT_GRACE_PERIOD}s grace period`);
+  console.log(`💀 Player ${lobbyPlayer.nickname} disconnected during game - immediate elimination`);
   
-  // Mark player as disconnected in game state
-  gamePlayer.disconnected = true;
-  gamePlayer.disconnectTime = Date.now();
+  // Eliminate player immediately
+  gamePlayer.status = 'eliminated';
+  gamePlayer.lives = 0;
   
-  // Store disconnected player info
-  disconnectedPlayers.set(playerId, {
-    gamePlayer: { ...gamePlayer },
-    lobbyPlayer: { ...lobbyPlayer },
-    disconnectTime: Date.now()
-  });
-  
-  // Remove from active lobby players but keep in game
+  // Remove from lobby players
   delete gameState.players[playerId];
-  
-  // Set timer to eliminate player after grace period
-  const timer = setTimeout(() => {
-    eliminateDisconnectedPlayer(playerId);
-  }, RECONNECT_GRACE_PERIOD * 1000);
-  
-  reconnectTimers.set(playerId, timer);
-  
-  // Broadcast updated game state
-  broadcast(JSON.stringify({
-    type: 'player_disconnected',
-    playerId: playerId,
-    gracePeriod: RECONNECT_GRACE_PERIOD
-  }));
-  
-  broadcast(JSON.stringify({
-    type: 'game_update',
-    gameState: gameState.game
-  }));
-}
-
-function eliminateDisconnectedPlayer(playerId) {
-  console.log(`💀 Eliminating disconnected player ${playerId} - grace period expired`);
-  
-  // Remove from game
-  if (gameState.game.players[playerId]) {
-    gameState.game.players[playerId].status = 'eliminated';
-    gameState.game.players[playerId].lives = 0;
-  }
-  
-  // Clean up tracking
-  disconnectedPlayers.delete(playerId);
-  reconnectTimers.delete(playerId);
   
   // Broadcast elimination
   broadcast(JSON.stringify({
@@ -469,61 +453,16 @@ function eliminateDisconnectedPlayer(playerId) {
     gameState: gameState.game
   }));
   
-  // Check if game should end
-  checkGameEnd();
-}
-
-function handlePlayerReconnect(playerId, ws, nickname) {
-  const disconnectedInfo = disconnectedPlayers.get(playerId);
-  
-  if (!disconnectedInfo) {
-    console.log(`⚠️ Player ${nickname} tried to reconnect but no disconnect info found`);
-    return false;
-  }
-  
-  console.log(`🔄 Player ${nickname} reconnected within grace period!`);
-  
-  // Cancel elimination timer
-  const timer = reconnectTimers.get(playerId);
-  if (timer) {
-    clearTimeout(timer);
-    reconnectTimers.delete(playerId);
-  }
-  
-  // Restore player to lobby state
-  gameState.players[playerId] = disconnectedInfo.lobbyPlayer;
-  
-  // Update WebSocket mappings
-  wsToPlayer.set(ws, playerId);
-  playerToWs.set(playerId, ws);
-  
-  // Update game player state - remove disconnect flag
-  if (gameState.game.players[playerId]) {
-    delete gameState.game.players[playerId].disconnected;
-    delete gameState.game.players[playerId].disconnectTime;
-  }
-  
-  // Clean up tracking
-  disconnectedPlayers.delete(playerId);
-  
-  // Broadcast reconnection
-  broadcast(JSON.stringify({
-    type: 'player_reconnected',
-    playerId: playerId
-  }));
-  
   broadcast(JSON.stringify({
     type: 'players_update',
     players: Object.values(gameState.players)
   }));
   
-  broadcast(JSON.stringify({
-    type: 'game_update',
-    gameState: gameState.game
-  }));
-  
-  return true;
+  // Check if game should end
+  checkGameEnd();
 }
+
+
 
 function checkGameEnd() {
   if (gameState.room.status !== 'playing') return;
@@ -536,29 +475,139 @@ function checkGameEnd() {
   }
 }
 
-function endGame() {
-  gameState.room.status = 'finished';
+function resetGameToLobby() {
+  console.log(`🔄 Resetting game back to lobby`);
   
-  // Clear all disconnect timers
-  reconnectTimers.forEach(timer => clearTimeout(timer));
-  reconnectTimers.clear();
-  disconnectedPlayers.clear();
+  // Stop all timers
+  stopAllTimers();
   
-  // Pick a random winner for testing
-  const alivePlayers = Object.values(gameState.players);
-  if (alivePlayers.length > 0) {
-    const randomWinner = alivePlayers[Math.floor(Math.random() * alivePlayers.length)];
-    gameState.game.winnerId = randomWinner.id;
-    gameState.game.status = 'finished';
-    
-    console.log(`🏆 Game ended! Winner: ${randomWinner.nickname}`);
+  // Reset game state
+  gameState.game = createGameState();
+  gameState.room.status = 'waiting';
+  gameState.room.countdown = null;
+  
+  // Reset all player ready status
+  Object.values(gameState.players).forEach(player => {
+    player.ready = false;
+  });
+  
+  // Move spectators back to players if there's room
+  const spectatorIds = Object.keys(gameState.spectators);
+  
+  for (const spectatorId of spectatorIds) {
+    const currentPlayerCount = Object.keys(gameState.players).length;
+    if (currentPlayerCount < 4) {
+      const spectator = gameState.spectators[spectatorId];
+      gameState.players[spectatorId] = {
+        id: spectatorId,
+        nickname: spectator.nickname,
+        connected: true,
+        ready: false
+      };
+      delete gameState.spectators[spectatorId];
+      console.log(`Spectator ${spectator.nickname} moved back to player`);
+    } else {
+      break; // No more room for players
+    }
   }
   
-  // Broadcast game end
+  // Restart lobby timer if we have 2+ players
+  const playerCount = Object.keys(gameState.players).length;
+  if (playerCount >= 2) {
+    startLobbyTimer();
+  }
+  
+  // Broadcast reset to all clients
+  broadcast(JSON.stringify({
+    type: 'return_to_lobby',
+    gameState: gameState.game,
+    roomState: gameState.room,
+    players: Object.values(gameState.players),
+    spectators: Object.values(gameState.spectators)
+  }));
+}
+
+function getUniqueNickname(desiredNickname) {
+  const existingNicknames = new Set();
+  
+  // Collect all existing nicknames from active players
+  Object.values(gameState.players).forEach(player => {
+    existingNicknames.add(player.nickname);
+  });
+  
+  // Collect all existing nicknames from spectators
+  Object.values(gameState.spectators).forEach(spectator => {
+    existingNicknames.add(spectator.nickname);
+  });
+  
+  // If nickname is unique, return as-is
+  if (!existingNicknames.has(desiredNickname)) {
+    return desiredNickname;
+  }
+  
+  // Find the next available number suffix
+  let counter = 2;
+  let uniqueNickname = `${desiredNickname}${counter}`;
+  
+  while (existingNicknames.has(uniqueNickname)) {
+    counter++;
+    uniqueNickname = `${desiredNickname}${counter}`;
+  }
+  
+  console.log(`Nickname "${desiredNickname}" taken, assigned "${uniqueNickname}"`);
+  return uniqueNickname;
+}
+
+function endGame() {
+  gameState.room.status = 'game_ending';
+  
+  // Pick a random winner for testing from game players
+  const alivePlayers = Object.values(gameState.game.players).filter(p => p.status === 'alive');
+  const allGamePlayers = Object.values(gameState.game.players);
+  
+  let winner = null;
+  if (alivePlayers.length === 1) {
+    winner = alivePlayers[0];
+  } else if (alivePlayers.length > 1) {
+    // Multiple survivors, pick random
+    winner = alivePlayers[Math.floor(Math.random() * alivePlayers.length)];
+  } else if (allGamePlayers.length > 0) {
+    // No survivors, pick random from all players
+    winner = allGamePlayers[Math.floor(Math.random() * allGamePlayers.length)];
+  }
+  
+  if (winner) {
+    gameState.game.winnerId = winner.id;
+    console.log(`🏆 Game ended! Winner: ${winner.nickname}`);
+  } else {
+    console.log(`🏆 Game ended with no winner`);
+  }
+  
+  gameState.game.status = 'finished';
+  
+  // Broadcast game end (but not results yet)
   broadcast(JSON.stringify({
     type: 'game_end',
     gameState: gameState.game
   }));
+  
+  // Wait 30 seconds before showing results
+  setTimeout(() => {
+    gameState.room.status = 'results';
+    
+    console.log(`📊 Showing results screen`);
+    
+    broadcast(JSON.stringify({
+      type: 'show_results',
+      gameState: gameState.game,
+      winner: winner
+    }));
+    
+    // After showing results for 10 seconds, return to lobby
+    setTimeout(() => {
+      resetGameToLobby();
+    }, 10000);
+  }, 30000);
 }
 
 wss.on('connection', function connection(ws) {
@@ -582,6 +631,8 @@ wss.on('connection', function connection(ws) {
 
     // Only remove the specific player associated with this WebSocket
     const playerId = wsToPlayer.get(ws);
+    
+    // Check if it's a regular player
     if (playerId && gameState.players[playerId]) {
       const playerName = gameState.players[playerId].nickname;
       console.log(`Player ${playerName} (${playerId}) disconnected`);
@@ -594,11 +645,23 @@ wss.on('connection', function connection(ws) {
         delete gameState.players[playerId];
         handlePlayerLeave();
       }
-      
-      // Always clean up WebSocket mappings
-      wsToPlayer.delete(ws);
-      playerToWs.delete(playerId);
     }
+    // Check if it's a spectator
+    else if (playerId && gameState.spectators[playerId]) {
+      const spectatorName = gameState.spectators[playerId].nickname;
+      console.log(`Spectator ${spectatorName} (${playerId}) disconnected`);
+      delete gameState.spectators[playerId];
+      
+      // Broadcast updated spectator list
+      broadcast(JSON.stringify({
+        type: 'spectators_update',
+        spectators: Object.values(gameState.spectators)
+      }));
+    }
+    
+    // Always clean up WebSocket mappings
+    wsToPlayer.delete(ws);
+    playerToWs.delete(playerId);
   });
 });
 

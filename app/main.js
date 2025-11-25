@@ -175,9 +175,22 @@ function handleWebSocketMessage(data) {
     const newState = { ...state, ...data.state };
     store.setState(newState);
   } else if (data.type === 'players_update') {
-    store.setState({
+    const newState = {
+      ...state,
       lobby: { ...state.lobby, players: data.players }
-    });
+    };
+    
+    // Update session nickname if server assigned a different one
+    const currentPlayer = data.players.find(p => p.id === state.session?.playerId);
+    if (currentPlayer && currentPlayer.nickname !== state.session?.nickname) {
+      newState.session = { 
+        ...state.session, 
+        nickname: currentPlayer.nickname 
+      };
+      console.log(`Nickname updated to: ${currentPlayer.nickname}`);
+    }
+    
+    store.setState(newState);
   } else if (data.type === 'chat') {
     const chatUpdate = pushChat(state, data.message);
     store.setState({ ...state, ...chatUpdate });
