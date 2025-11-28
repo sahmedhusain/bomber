@@ -140,7 +140,11 @@ let ws = null;
 function connectWebSocket() {
   if (ws && ws.readyState === WebSocket.OPEN) return;
 
-  ws = new WebSocket('ws://localhost:8765');
+  // Use the current host (IP or hostname) instead of hardcoded localhost
+  const wsHost = window.location.hostname;
+  const wsUrl = `ws://${wsHost}:8765`;
+  
+  ws = new WebSocket(wsUrl);
 
   ws.onopen = () => {
     console.log('WebSocket connected');
