@@ -6,6 +6,9 @@ export function GameScreen(state, store) {
   const { width, height, tiles } = map;
   const playersArray = Object.values(players);
   const alivePlayers = playersArray.filter(p => p.status === 'alive');
+  const { session, lobby } = state;
+  const spectators = lobby?.spectators || [];
+  const isSpectator = session?.isSpectator || false;
 
   // Create tile grid
   const tileElements = tiles.map((tile, index) => {
@@ -146,19 +149,48 @@ export function GameScreen(state, store) {
           )
         ),
         createElement('div', { className: 'card game-controls' },
-          createElement('h3', {}, '🎮 Controls'),
-          createElement('div', { className: 'controls-grid' }, [
-            createElement('div', { className: 'control-item' }, '⬆️ W - Move Up'),
-            createElement('div', { className: 'control-item' }, '⬇️ S - Move Down'),
-            createElement('div', { className: 'control-item' }, '⬅️ A - Move Left'),
-            createElement('div', { className: 'control-item' }, '➡️ D - Move Right'),
-            createElement('div', { className: 'control-item' }, '💣 Space - Drop Bomb')
-          ]),
+          createElement('h3', {}, isSpectator ? '👁️ Spectator Mode' : '🎮 Controls'),
+          isSpectator ? 
+            createElement('div', { className: 'spectator-info' },
+              createElement('p', {}, '🔍 You are watching this game as a spectator'),
+              createElement('p', {}, '💬 You can still use chat to communicate'),
+              createElement('div', { className: 'spectator-controls' },
+                createElement('div', { className: 'control-item' }, '📹 Watch the action unfold'),
+                createElement('div', { className: 'control-item' }, '💬 Chat with other viewers')
+              )
+            ) :
+            createElement('div', { className: 'controls-grid' }, [
+              createElement('div', { className: 'control-item' }, '⬆️ W - Move Up'),
+              createElement('div', { className: 'control-item' }, '⬇️ S - Move Down'),
+              createElement('div', { className: 'control-item' }, '⬅️ A - Move Left'),
+              createElement('div', { className: 'control-item' }, '➡️ D - Move Right'),
+              createElement('div', { className: 'control-item' }, '💣 Space - Drop Bomb')
+            ]),
           createElement('div', { className: 'testing-notice' },
             createElement('h4', {}, '🧪 Testing Mode'),
             createElement('p', {}, 'Game will automatically end after 5 seconds with a random winner for testing purposes.')
           )
-        )
+        ),
+        
+        // Spectators section (show if there are spectators)
+        spectators.length > 0 ? createElement('div', { className: 'card spectators-card' },
+          createElement('h3', {}, `👥 Spectators (${spectators.length})`),
+          createElement('div', { className: 'spectator-list' },
+            spectators.map(spectator =>
+              createElement('div', {
+                className: `spectator-item ${spectator.id === session.playerId ? 'self' : ''}`,
+                key: spectator.id
+              },
+                createElement('div', { className: 'spectator-info' },
+                createElement('span', { className: 'spectator-nickname' }, spectator.nickname),
+                createElement('span', { className: 'spectator-status' }, '👁️ Watching'),
+                spectator.id === session.playerId ? 
+                  createElement('span', { className: 'you-badge' }, 'YOU') : null
+                )
+              )
+            )
+          )
+        ) : null
       ),
       
       // Center - Game map

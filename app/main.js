@@ -30,7 +30,8 @@ function getValidRoute(state) {
   }
   
   // If game is running or finished, must be on game/results screen
-  if (game?.status === 'running') {
+  // This includes both players and spectators
+  if (game?.status === 'running' || session?.isSpectator) {
     return '#/game';
   }
   
@@ -315,6 +316,60 @@ function handleWebSocketMessage(data) {
     // Update game state
     const newState = { ...state, game: data.gameState };
     store.setState(newState);
+  } else if (data.type === 'joined_as_spectator') {
+    // Handle joining as spectator - always go to game screen when game is playing
+    console.log('Joined as spectator');
+    const newState = {
+      ...state,
+      session: { 
+        ...state.session, 
+        playerId: data.playerId,
+        isSpectator: true
+      },
+      game: data.gameState,
+      lobby: { 
+        ...state.lobby, 
+        players: data.players || [],
+        spectators: data.spectators || []
+      },
+      route: '#/game'  // Always go to game screen as spectator
+    };
+    store.setState(newState);
+    window.location.hash = '#/game';
+  } else if (data.type === 'spectators_update') {
+    // Update spectator list
+    const newState = {
+      ...state,
+      lobby: { 
+        ...state.lobby, 
+        spectators: data.spectators || []
+      }
+    };
+    store.setState(newState);
+  } else if (data.type === 'return_to_lobby') {
+    // Game ended, return to lobby
+    const newState = {
+      ...state,
+      game: data.gameState,
+      lobby: { 
+        ...state.lobby, 
+        players: data.players || [],
+        spectators: data.spectators || [],
+        countdown: { phase: 'waiting', remainingMs: 0 } 
+      },
+      route: '#/lobby'
+    };
+    store.setState(newState);
+    window.location.hash = '#/lobby';
+  } else if (data.type === 'show_results') {
+    // Show results screen
+    const newState = {
+      ...state,
+      game: { ...data.gameState, winner: data.winner },
+      route: '#/results'
+    };
+    store.setState(newState);
+    window.location.hash = '#/results';
   }
 }
 
