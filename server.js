@@ -20,7 +20,10 @@ let gameState = {
     countdown: null,
     chat: []
   },
-  game: createGameState()
+  game: createGameState(),
+  userIntentions: {}, // Track post-game intentions: { userId: 'play_again' | 'join_game' | 'leave' }
+  userRoles: {}, // Track current user roles: { userId: 'player' | 'spectator' | null }
+  userPriorities: {} // Track role assignment priorities: { userId: number }
 };
 
 let lobbyTimer = null;
@@ -140,6 +143,10 @@ function handleMessage(ws, message) {
           nickname: nickname,
           connected: true
         };
+        
+        // Track user role
+        gameState.userRoles[playerId] = 'spectator';
+        
         console.log(`Player ${nickname} (${playerId}) joined as spectator`);
         
         // Send spectator state
@@ -168,6 +175,10 @@ function handleMessage(ws, message) {
         connected: true,
         ready: false
       };
+      
+      // Track user role
+      gameState.userRoles[playerId] = 'player';
+      
       console.log(`Player ${nickname} (${playerId}) joined`);
 
       const playerCount = Object.keys(gameState.players).length;
@@ -252,6 +263,68 @@ function handleMessage(ws, message) {
 
     } else if (msgType === 'input') {
       broadcast(message, ws);
+    } else if (msgType === 'play_again') {
+      const playerId = data.player_id;
+      console.log(`Player ${playerId} wants to play again`);
+      
+      // Record intention and set high priority (previous players get priority 1)
+      gameState.userIntentions[playerId] = 'play_again';
+      gameState.userPriorities[playerId] = 1; // Highest priority
+      
+      // Acknowledge the intention
+      const playerWs = playerToWs.get(playerId);
+      if (playerWs) {
+        playerWs.send(JSON.stringify({
+          type: 'intention_recorded',
+          intention: 'play_again'
+        }));
+      }
+      
+    } else if (msgType === 'join_game') {
+      const playerId = data.player_id;
+      console.log(`Spectator ${playerId} wants to join game`);
+      
+      // Record intention and set medium priority (spectators get priority 2)
+      gameState.userIntentions[playerId] = 'join_game';
+      gameState.userPriorities[playerId] = 2; // Lower priority than previous players
+      
+      // Acknowledge the intention
+      const playerWs = playerToWs.get(playerId);
+      if (playerWs) {
+        playerWs.send(JSON.stringify({
+          type: 'intention_recorded',
+          intention: 'join_game'
+        }));
+      }
+      
+    } else if (msgType === 'leave_lobby') {
+      const playerId = data.player_id;
+      console.log(`User ${playerId} wants to leave lobby`);
+      
+      // Clean up all data for this user
+      delete gameState.userIntentions[playerId];
+      delete gameState.userRoles[playerId];
+      delete gameState.userPriorities[playerId];
+      
+      // Remove from players or spectators
+      if (gameState.players[playerId]) {
+        delete gameState.players[playerId];
+        handlePlayerLeave();
+      } else if (gameState.spectators[playerId]) {
+        delete gameState.spectators[playerId];
+        broadcast(JSON.stringify({
+          type: 'spectators_update',
+          spectators: Object.values(gameState.spectators)
+        }));
+      }
+      
+      // Remove WebSocket mappings
+      const userWs = playerToWs.get(playerId);
+      if (userWs) {
+        wsToPlayer.delete(userWs);
+        playerToWs.delete(playerId);
+      }
+      
     } else if (msgType === 'disconnect') {
       const playerId = data.player_id;
       
@@ -475,6 +548,97 @@ function checkGameEnd() {
   }
 }
 
+function resetUserRoles() {
+  console.log(`🔄 Resetting user roles and applying priority logic`);
+  
+  // Step 1: Temporarily reset all user roles to null
+  const allUserIds = [...Object.keys(gameState.players), ...Object.keys(gameState.spectators)];
+  
+  allUserIds.forEach(userId => {
+    gameState.userRoles[userId] = null;
+  });
+  
+  // Step 2: Collect all users with their intentions and priorities
+  const usersByPriority = allUserIds
+    .filter(userId => gameState.userIntentions[userId] !== 'leave') // Exclude users who want to leave
+    .map(userId => {
+      const isCurrentPlayer = gameState.players[userId] !== undefined;
+      const isCurrentSpectator = gameState.spectators[userId] !== undefined;
+      
+      let nickname = '';
+      if (isCurrentPlayer) {
+        nickname = gameState.players[userId].nickname;
+      } else if (isCurrentSpectator) {
+        nickname = gameState.spectators[userId].nickname;
+      }
+      
+      return {
+        id: userId,
+        nickname: nickname,
+        intention: gameState.userIntentions[userId],
+        priority: gameState.userPriorities[userId] || 999, // Default to lowest priority
+        wasPlayer: isCurrentPlayer,
+        wasSpectator: isCurrentSpectator
+      };
+    })
+    .sort((a, b) => {
+      // Sort by priority (lower number = higher priority), then by user ID for consistency
+      if (a.priority !== b.priority) {
+        return a.priority - b.priority;
+      }
+      return a.id.localeCompare(b.id);
+    });
+  
+  console.log('Users by priority:', usersByPriority.map(u => `${u.nickname}(${u.intention},p:${u.priority})`));
+  
+  // Step 3: Clear current players and spectators
+  const newPlayers = {};
+  const newSpectators = {};
+  
+  // Step 4: Reassign roles based on priorities
+  let playersAssigned = 0;
+  const maxPlayers = 4;
+  
+  usersByPriority.forEach(user => {
+    if (user.intention === 'leave') {
+      return; // Skip users who want to leave
+    }
+    
+    // Assign to players if there's room and user wants to play
+    if (playersAssigned < maxPlayers && 
+        (user.intention === 'play_again' || user.intention === 'join_game')) {
+      newPlayers[user.id] = {
+        id: user.id,
+        nickname: user.nickname,
+        connected: true,
+        ready: false
+      };
+      gameState.userRoles[user.id] = 'player';
+      playersAssigned++;
+      console.log(`✅ Assigned ${user.nickname} as player (priority ${user.priority})`);
+    } else {
+      // Assign remaining users as spectators
+      newSpectators[user.id] = {
+        id: user.id,
+        nickname: user.nickname,
+        connected: true
+      };
+      gameState.userRoles[user.id] = 'spectator';
+      console.log(`👁️ Assigned ${user.nickname} as spectator`);
+    }
+  });
+  
+  // Step 5: Update game state
+  gameState.players = newPlayers;
+  gameState.spectators = newSpectators;
+  
+  // Step 6: Clear intentions and priorities (they've been processed)
+  gameState.userIntentions = {};
+  gameState.userPriorities = {};
+  
+  console.log(`🎭 Role reassignment complete: ${Object.keys(newPlayers).length} players, ${Object.keys(newSpectators).length} spectators`);
+}
+
 function resetGameToLobby() {
   console.log(`🔄 Resetting game back to lobby`);
   
@@ -486,30 +650,8 @@ function resetGameToLobby() {
   gameState.room.status = 'waiting';
   gameState.room.countdown = null;
   
-  // Reset all player ready status
-  Object.values(gameState.players).forEach(player => {
-    player.ready = false;
-  });
-  
-  // Move spectators back to players if there's room
-  const spectatorIds = Object.keys(gameState.spectators);
-  
-  for (const spectatorId of spectatorIds) {
-    const currentPlayerCount = Object.keys(gameState.players).length;
-    if (currentPlayerCount < 4) {
-      const spectator = gameState.spectators[spectatorId];
-      gameState.players[spectatorId] = {
-        id: spectatorId,
-        nickname: spectator.nickname,
-        connected: true,
-        ready: false
-      };
-      delete gameState.spectators[spectatorId];
-      console.log(`Spectator ${spectator.nickname} moved back to player`);
-    } else {
-      break; // No more room for players
-    }
-  }
+  // Apply role reset and priority logic
+  resetUserRoles();
   
   // Restart lobby timer if we have 2+ players
   const playerCount = Object.keys(gameState.players).length;

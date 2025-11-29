@@ -374,6 +374,17 @@ function handleWebSocketMessage(data) {
     };
     store.setState(newState);
     window.location.hash = '#/results';
+  } else if (data.type === 'intention_recorded') {
+    // Server acknowledged our post-game intention
+    console.log(`Intention "${data.intention}" recorded by server`);
+    const newState = {
+      ...state,
+      session: { 
+        ...state.session, 
+        intention: data.intention 
+      }
+    };
+    store.setState(newState);
   }
 }
 

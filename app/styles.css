@@ -999,6 +999,76 @@ button:disabled {
   min-width: 160px;
 }
 
+/* Results Intention Confirmation */
+.intention-confirmed {
+  text-align: center;
+  padding: 32px;
+  background: var(--bg-panel);
+  border: 2px solid var(--accent-primary);
+  border-radius: var(--radius-lg);
+  margin-top: 32px;
+}
+
+.confirmation-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.confirmation-icon {
+  font-size: 3rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.1); }
+}
+
+.confirmation-text {
+  font-size: 1.2rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  margin: 0;
+}
+
+.priority-info {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin: 16px 0 0 0;
+  padding: 12px;
+  background: rgba(0, 212, 255, 0.1);
+  border-radius: var(--radius);
+  border: 1px solid var(--accent-primary);
+}
+
+.action-hint {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.player-actions, .spectator-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.player-actions .button-primary,
+.spectator-actions .button-primary {
+  background: var(--accent-success);
+  border-color: var(--accent-success);
+}
+
+.player-actions .button-primary:hover,
+.spectator-actions .button-primary:hover {
+  background: #00cc77;
+  border-color: #00cc77;
+  box-shadow: var(--shadow-green);
+}
+
 /* Connection Indicator */
 .connection-indicator {
   font-size: 12px;
