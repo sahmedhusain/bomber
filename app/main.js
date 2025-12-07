@@ -29,14 +29,16 @@ function getValidRoute(state) {
     return '#/';
   }
   
-  // If game is running or finished, must be on game/results screen
+  // If game is finished, must be on results screen (includes both players and spectators)
+  // CHECK THIS FIRST before the "if game is running or spectator" check!
+  if (game?.status === 'finished' || game?.winnerId) {
+    return '#/results';
+  }
+  
+  // If game is running or user is spectator, must be on game screen
   // This includes both players and spectators
   if (game?.status === 'running' || session?.isSpectator) {
     return '#/game';
-  }
-  
-  if (game?.status === 'finished' || game?.winnerId) {
-    return '#/results';
   }
   
   // If countdown is active, must be in lobby
@@ -267,10 +269,18 @@ function handleWebSocketMessage(data) {
     });
   } else if (data.type === 'game_start') {
     // Update game state and navigate to game automatically
+    // Determine if current user is a player or spectator based on server's lists
+    const isPlayerInGame = data.playerIds && data.playerIds.includes(state.session?.playerId);
+    const isSpectatorInGame = data.spectatorIds && data.spectatorIds.includes(state.session?.playerId);
+    
     const newState = {
       ...state,
       game: { ...data.gameState, status: 'running' },
       lobby: { ...state.lobby, countdown: { phase: 'waiting', remainingMs: 0 } },
+      session: {
+        ...state.session,
+        isSpectator: isSpectatorInGame  // Update isSpectator based on actual role in game
+      },
       route: '#/game'
     };
     store.setState(newState);
@@ -352,8 +362,17 @@ function handleWebSocketMessage(data) {
     store.setState(newState);
   } else if (data.type === 'return_to_lobby') {
     // Game ended, return to lobby
+    // Update user's role based on server's role assignments
+    const userNewRole = data.userRoles?.[state.session?.playerId];
+    const isNowSpectator = userNewRole === 'spectator';
+    
     const newState = {
       ...state,
+      session: {
+        ...state.session,
+        isSpectator: isNowSpectator,
+        intention: undefined  // Clear any pending intention
+      },
       game: data.gameState,
       lobby: { 
         ...state.lobby, 
@@ -385,6 +404,31 @@ function handleWebSocketMessage(data) {
       }
     };
     store.setState(newState);
+  } else if (data.type === 'role_updated') {
+    // User's role changed (e.g., spectator became player)
+    console.log(`Role updated: isSpectator = ${data.isSpectator}`);
+    const newState = {
+      ...state,
+      session: { 
+        ...state.session, 
+        isSpectator: data.isSpectator 
+      }
+    };
+    
+    store.setState(newState);
+  } else if (data.type === 'forced_logout') {
+    // Server removed user from lobby (spectator inactivity)
+    console.log(`Forced logout: ${data.message}`);
+    alert(data.message);
+    
+    // Reset state and return to nickname screen
+    store.setState({
+      session: { connected: false },
+      route: '#/',
+      lobby: { players: [], countdown: { phase: 'waiting', remainingMs: 0 }, spectators: [] },
+      game: { status: 'waiting', players: {}, winnerId: undefined }
+    });
+    window.location.hash = '#/';
   }
 }
 

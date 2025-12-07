@@ -284,17 +284,73 @@ function handleMessage(ws, message) {
       const playerId = data.player_id;
       console.log(`Spectator ${playerId} wants to join game`);
       
-      // Record intention and set medium priority (spectators get priority 2)
-      gameState.userIntentions[playerId] = 'join_game';
-      gameState.userPriorities[playerId] = 2; // Lower priority than previous players
+      // Check if there's any empty space to join as a player (max 4 players)
+      const currentPlayerCount = Object.keys(gameState.players).length;
+      const maxPlayers = 4;
       
-      // Acknowledge the intention
-      const playerWs = playerToWs.get(playerId);
-      if (playerWs) {
-        playerWs.send(JSON.stringify({
-          type: 'intention_recorded',
-          intention: 'join_game'
-        }));
+      if (currentPlayerCount < maxPlayers) {
+        // There's space! Move spectator to player slot
+        console.log(`✅ Found empty player slot for ${playerId}. Converting spectator to player.`);
+        
+        // Get spectator info
+        const spectatorInfo = gameState.spectators[playerId];
+        
+        if (spectatorInfo) {
+          // Move from spectators to players
+          delete gameState.spectators[playerId];
+          gameState.players[playerId] = {
+            id: playerId,
+            nickname: spectatorInfo.nickname,
+            connected: true,
+            ready: false
+          };
+          gameState.userRoles[playerId] = 'player';
+          
+          // Update the user's isSpectator flag and send current countdown state
+          const playerWs = playerToWs.get(playerId);
+          if (playerWs) {
+            playerWs.send(JSON.stringify({
+              type: 'role_updated',
+              isSpectator: false,
+              role: 'player'
+            }));
+            
+            // If we're in countdown, immediately send the current countdown state
+            if (gameState.room.status === 'countdown') {
+              playerWs.send(JSON.stringify({
+                type: 'countdown_start',
+                countdown: gameState.room.countdown
+              }));
+            }
+          }
+          
+          // Broadcast updated players and spectators to all users
+          broadcast(JSON.stringify({
+            type: 'players_update',
+            players: Object.values(gameState.players)
+          }));
+          
+          broadcast(JSON.stringify({
+            type: 'spectators_update',
+            spectators: Object.values(gameState.spectators)
+          }));
+          
+          console.log(`🎭 Spectator ${playerId} is now a player! Players: ${Object.keys(gameState.players).length}/4`);
+        }
+      } else {
+        // No space available, record as waiting intention
+        console.log(`⏳ No empty player slots for ${playerId}. Currently ${currentPlayerCount}/${maxPlayers} players.`);
+        gameState.userIntentions[playerId] = 'join_game';
+        gameState.userPriorities[playerId] = 2; // Lower priority than previous players
+        
+        const playerWs = playerToWs.get(playerId);
+        if (playerWs) {
+          playerWs.send(JSON.stringify({
+            type: 'intention_recorded',
+            intention: 'join_game',
+            message: 'No player slots available. You are in the waiting queue.'
+          }));
+        }
       }
       
     } else if (msgType === 'leave_lobby') {
@@ -493,7 +549,9 @@ function startGame() {
   // Then start game
   broadcast(JSON.stringify({
     type: 'game_start',
-    gameState: gameState.game
+    gameState: gameState.game,
+    playerIds: Object.keys(gameState.players),
+    spectatorIds: Object.keys(gameState.spectators)
   }));
 
   console.log('🎮 Game started with', players.length, 'players!');
@@ -589,20 +647,45 @@ function resetUserRoles() {
       return a.id.localeCompare(b.id);
     });
   
-  console.log('Users by priority:', usersByPriority.map(u => `${u.nickname}(${u.intention},p:${u.priority})`));
+  console.log('Users by priority:', usersByPriority.map(u => `${u.nickname}(intention:${u.intention},p:${u.priority},wasSpectator:${u.wasSpectator})`));
   
   // Step 3: Clear current players and spectators
   const newPlayers = {};
   const newSpectators = {};
+  const spectatorsToRemove = []; // Track spectators being removed
   
   // Step 4: Reassign roles based on priorities
   let playersAssigned = 0;
   const maxPlayers = 4;
   
   usersByPriority.forEach(user => {
+    console.log(`\n>>> Processing ${user.nickname}:`);
+    console.log(`    - wasSpectator: ${user.wasSpectator}`);
+    console.log(`    - intention: ${user.intention}`);
+    console.log(`    - intention === undefined: ${user.intention === undefined}`);
+    console.log(`    - intention == null: ${user.intention == null}`);
+    console.log(`    - typeof intention: ${typeof user.intention}`);
+    
     if (user.intention === 'leave') {
+      console.log(`🚪 ${user.nickname} wants to leave`);
       return; // Skip users who want to leave
     }
+    
+    // If spectator didn't make a choice (no intention), default to leaving
+    if (user.wasSpectator && user.intention === undefined) {
+      console.log(`👁️ Spectator ${user.nickname} didn't choose - defaulting to leave (wasSpectator:${user.wasSpectator}, intention:${user.intention})`);
+      spectatorsToRemove.push(user.id); // Mark for removal
+      return; // Don't add them to players or spectators
+    }
+    
+    // If player didn't make a choice (no intention), default to leaving
+    if (user.wasPlayer && user.intention === undefined) {
+      console.log(`🎮 Player ${user.nickname} didn't choose - defaulting to leave`);
+      spectatorsToRemove.push(user.id); // Mark for removal (same as spectator)
+      return; // Don't add them to players or spectators
+    }
+    
+    console.log(`>> Continuing with assignment...`);
     
     // Assign to players if there's room and user wants to play
     if (playersAssigned < maxPlayers && 
@@ -632,11 +715,25 @@ function resetUserRoles() {
   gameState.players = newPlayers;
   gameState.spectators = newSpectators;
   
-  // Step 6: Clear intentions and priorities (they've been processed)
+  // Step 6: Send removal message to spectators who didn't choose
+  spectatorsToRemove.forEach(userId => {
+    const playerWs = playerToWs.get(userId);
+    if (playerWs) {
+      playerWs.send(JSON.stringify({
+        type: 'forced_logout',
+        message: 'You were removed from the lobby for inactivity on the results screen. Please rejoin if you want to play.'
+      }));
+    }
+    // Remove from WebSocket mapping
+    playerToWs.delete(userId);
+    wsToPlayer.delete(playerToWs.get(userId));
+  });
+  
+  // Step 7: Clear intentions and priorities (they've been processed)
   gameState.userIntentions = {};
   gameState.userPriorities = {};
   
-  console.log(`🎭 Role reassignment complete: ${Object.keys(newPlayers).length} players, ${Object.keys(newSpectators).length} spectators`);
+  console.log(`🎭 Role reassignment complete: ${Object.keys(newPlayers).length} players, ${Object.keys(newSpectators).length} spectators, ${spectatorsToRemove.length} removed`);
 }
 
 function resetGameToLobby() {
@@ -665,7 +762,8 @@ function resetGameToLobby() {
     gameState: gameState.game,
     roomState: gameState.room,
     players: Object.values(gameState.players),
-    spectators: Object.values(gameState.spectators)
+    spectators: Object.values(gameState.spectators),
+    userRoles: gameState.userRoles  // Send role assignments so clients know their new status
   }));
 }
 
