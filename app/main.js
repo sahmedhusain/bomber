@@ -29,13 +29,16 @@ function getValidRoute(state) {
     return '#/';
   }
   
-  // If game is running or finished, must be on game/results screen
-  if (game?.status === 'running') {
-    return '#/game';
-  }
-  
+  // If game is finished, must be on results screen (includes both players and spectators)
+  // CHECK THIS FIRST before the "if game is running or spectator" check!
   if (game?.status === 'finished' || game?.winnerId) {
     return '#/results';
+  }
+  
+  // If game is running or user is spectator, must be on game screen
+  // This includes both players and spectators
+  if (game?.status === 'running' || session?.isSpectator) {
+    return '#/game';
   }
   
   // If countdown is active, must be in lobby
@@ -139,7 +142,11 @@ let ws = null;
 function connectWebSocket() {
   if (ws && ws.readyState === WebSocket.OPEN) return;
 
-  ws = new WebSocket('ws://localhost:8765');
+  // Use the current host (IP or hostname) instead of hardcoded localhost
+  const wsHost = window.location.hostname;
+  const wsUrl = `ws://${wsHost}:8765`;
+  
+  ws = new WebSocket(wsUrl);
 
   ws.onopen = () => {
     console.log('WebSocket connected');
@@ -175,9 +182,22 @@ function handleWebSocketMessage(data) {
     const newState = { ...state, ...data.state };
     store.setState(newState);
   } else if (data.type === 'players_update') {
-    store.setState({
+    const newState = {
+      ...state,
       lobby: { ...state.lobby, players: data.players }
-    });
+    };
+    
+    // Update session nickname if server assigned a different one
+    const currentPlayer = data.players.find(p => p.id === state.session?.playerId);
+    if (currentPlayer && currentPlayer.nickname !== state.session?.nickname) {
+      newState.session = { 
+        ...state.session, 
+        nickname: currentPlayer.nickname 
+      };
+      console.log(`Nickname updated to: ${currentPlayer.nickname}`);
+    }
+    
+    store.setState(newState);
   } else if (data.type === 'chat') {
     const chatUpdate = pushChat(state, data.message);
     store.setState({ ...state, ...chatUpdate });
@@ -202,12 +222,65 @@ function handleWebSocketMessage(data) {
         countdown: { phase: 'waiting', remainingMs: 0 }
       }
     });
+  } else if (data.type === 'lobby_timer_start') {
+    store.setState({
+      lobby: {
+        ...state.lobby,
+        lobbyTimer: { active: true, remainingMs: data.lobbyTimeLeft * 1000 }
+      }
+    });
+  } else if (data.type === 'lobby_timer_update') {
+    store.setState({
+      lobby: {
+        ...state.lobby,
+        lobbyTimer: { active: true, remainingMs: data.lobbyTimeLeft * 1000 }
+      }
+    });
+  } else if (data.type === 'lobby_timer_cancelled') {
+    store.setState({
+      lobby: {
+        ...state.lobby,
+        lobbyTimer: { active: false, remainingMs: 0 }
+      }
+    });
+  } else if (data.type === 'countdown_cancelled') {
+    store.setState({
+      lobby: {
+        ...state.lobby,
+        countdown: { phase: 'waiting', remainingMs: 0 }
+      }
+    });
+  } else if (data.type === 'game_cancelled') {
+    store.setState({
+      lobby: {
+        ...state.lobby,
+        countdown: { phase: 'waiting', remainingMs: 0 },
+        lobbyTimer: { active: false, remainingMs: 0 }
+      }
+    });
+  } else if (data.type === 'lobby_cancelled') {
+    // Reset to waiting state when lobby is cancelled due to insufficient players
+    store.setState({
+      lobby: {
+        ...state.lobby,
+        countdown: { phase: 'waiting', remainingMs: 0 },
+        lobbyTimer: { active: false, remainingMs: 0 }
+      }
+    });
   } else if (data.type === 'game_start') {
     // Update game state and navigate to game automatically
+    // Determine if current user is a player or spectator based on server's lists
+    const isPlayerInGame = data.playerIds && data.playerIds.includes(state.session?.playerId);
+    const isSpectatorInGame = data.spectatorIds && data.spectatorIds.includes(state.session?.playerId);
+    
     const newState = {
       ...state,
       game: { ...data.gameState, status: 'running' },
       lobby: { ...state.lobby, countdown: { phase: 'waiting', remainingMs: 0 } },
+      session: {
+        ...state.session,
+        isSpectator: isSpectatorInGame  // Update isSpectator based on actual role in game
+      },
       route: '#/game'
     };
     store.setState(newState);
@@ -233,6 +306,129 @@ function handleWebSocketMessage(data) {
     window.location.hash = '#/lobby';
   } else if (data.type === 'input_ack') {
     // Handle input acknowledgment if needed
+  } else if (data.type === 'player_disconnected') {
+    // Show notification that player disconnected and has grace period to reconnect
+    console.log(`Player ${data.playerId} disconnected, ${data.gracePeriod}s to reconnect`);
+  } else if (data.type === 'player_reconnected') {
+    // Show notification that player reconnected
+    console.log(`Player ${data.playerId} reconnected successfully`);
+  } else if (data.type === 'player_eliminated') {
+    // Show notification that player was eliminated
+    console.log(`Player ${data.playerId} eliminated: ${data.reason}`);
+  } else if (data.type === 'reconnected') {
+    // Handle successful reconnection - restore session
+    console.log('Successfully reconnected to ongoing game');
+    const newState = {
+      ...state,
+      session: { ...state.session, playerId: data.playerId },
+      game: data.gameState,
+      route: data.roomState.status === 'playing' ? '#/game' : '#/lobby'
+    };
+    store.setState(newState);
+    window.location.hash = newState.route;
+  } else if (data.type === 'game_update') {
+    // Update game state
+    const newState = { ...state, game: data.gameState };
+    store.setState(newState);
+  } else if (data.type === 'joined_as_spectator') {
+    // Handle joining as spectator - always go to game screen when game is playing
+    console.log('Joined as spectator');
+    const newState = {
+      ...state,
+      session: { 
+        ...state.session, 
+        playerId: data.playerId,
+        isSpectator: true
+      },
+      game: data.gameState,
+      lobby: { 
+        ...state.lobby, 
+        players: data.players || [],
+        spectators: data.spectators || []
+      },
+      route: '#/game'  // Always go to game screen as spectator
+    };
+    store.setState(newState);
+    window.location.hash = '#/game';
+  } else if (data.type === 'spectators_update') {
+    // Update spectator list
+    const newState = {
+      ...state,
+      lobby: { 
+        ...state.lobby, 
+        spectators: data.spectators || []
+      }
+    };
+    store.setState(newState);
+  } else if (data.type === 'return_to_lobby') {
+    // Game ended, return to lobby
+    // Update user's role based on server's role assignments
+    const userNewRole = data.userRoles?.[state.session?.playerId];
+    const isNowSpectator = userNewRole === 'spectator';
+    
+    const newState = {
+      ...state,
+      session: {
+        ...state.session,
+        isSpectator: isNowSpectator,
+        intention: undefined  // Clear any pending intention
+      },
+      game: data.gameState,
+      lobby: { 
+        ...state.lobby, 
+        players: data.players || [],
+        spectators: data.spectators || [],
+        countdown: { phase: 'waiting', remainingMs: 0 } 
+      },
+      route: '#/lobby'
+    };
+    store.setState(newState);
+    window.location.hash = '#/lobby';
+  } else if (data.type === 'show_results') {
+    // Show results screen
+    const newState = {
+      ...state,
+      game: { ...data.gameState, winner: data.winner },
+      route: '#/results'
+    };
+    store.setState(newState);
+    window.location.hash = '#/results';
+  } else if (data.type === 'intention_recorded') {
+    // Server acknowledged our post-game intention
+    console.log(`Intention "${data.intention}" recorded by server`);
+    const newState = {
+      ...state,
+      session: { 
+        ...state.session, 
+        intention: data.intention 
+      }
+    };
+    store.setState(newState);
+  } else if (data.type === 'role_updated') {
+    // User's role changed (e.g., spectator became player)
+    console.log(`Role updated: isSpectator = ${data.isSpectator}`);
+    const newState = {
+      ...state,
+      session: { 
+        ...state.session, 
+        isSpectator: data.isSpectator 
+      }
+    };
+    
+    store.setState(newState);
+  } else if (data.type === 'forced_logout') {
+    // Server removed user from lobby (spectator inactivity)
+    console.log(`Forced logout: ${data.message}`);
+    alert(data.message);
+    
+    // Reset state and return to nickname screen
+    store.setState({
+      session: { connected: false },
+      route: '#/',
+      lobby: { players: [], countdown: { phase: 'waiting', remainingMs: 0 }, spectators: [] },
+      game: { status: 'waiting', players: {}, winnerId: undefined }
+    });
+    window.location.hash = '#/';
   }
 }
 

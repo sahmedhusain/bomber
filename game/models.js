@@ -148,12 +148,20 @@ export function createLobbyState() {
   return {
     players: [],
     joinedCount: 0,
-    countdown: { phase: 'waiting', remainingMs: 0 }
+    countdown: { phase: 'waiting', remainingMs: 0 },
+    lobbyTimer: { active: false, remainingMs: 0 },
+    userIntentions: {}, // Track user post-game intentions: 'play_again', 'join_game', 'leave'
+    rolePriorities: {}, // Track role assignment priorities for users
   };
 }
 
 export function createSessionState() {
-  return { connected: false };
+  return { 
+    connected: false,
+    role: null, // 'player' | 'spectator' | null (during role reset)
+    priority: 0, // Higher number = higher priority for role assignment
+    intention: null // 'play_again' | 'join_game' | 'leave' | null
+  };
 }
 
 export function initialRootState() {
