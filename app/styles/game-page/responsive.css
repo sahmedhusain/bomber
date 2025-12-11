@@ -1,0 +1,178 @@
+/* ===========================================
+   RESPONSIVE DESIGN
+   =========================================== */
+@media (max-width: 1100px) {
+  .game-page {
+    grid-template-columns: 280px 1fr;
+    padding: 12px 12px 12px 0;
+    gap: 12px;
+  }
+
+  .sidebar {
+    padding: 16px 14px;
+    gap: 10px;
+    margin: 12px 0 12px 12px;
+    height: calc(100% - 24px);
+  }
+
+  .game-title {
+    font-size: 14px;
+  }
+
+  .arena-container {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 900px) {
+  .game-page {
+    grid-template-columns: 240px 1fr;
+    padding: 10px 10px 10px 0;
+    gap: 10px;
+  }
+
+  .sidebar {
+    padding: 14px 12px;
+    gap: 8px;
+    margin: 10px 0 10px 10px;
+    height: calc(100% - 20px);
+  }
+
+  .sidebar-section {
+    padding: 14px;
+  }
+
+  .arena-container {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .game-page {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    padding: 0;
+  }
+
+  .sidebar {
+    border-radius: 0;
+    margin: 0;
+    border-right: none;
+    border-left: none;
+    border-top: none;
+    border-bottom: 3px solid var(--line);
+    max-height: 180px;
+    height: auto;
+    overflow-y: auto;
+  }
+
+  .sidebar::before,
+  .sidebar::after {
+    display: none;
+  }
+
+  .sidebar-left {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 14px;
+    align-items: flex-start;
+  }
+
+  .sidebar-section {
+    flex: 1;
+    min-width: 140px;
+    max-width: calc(50% - 5px);
+  }
+
+  .chat-section {
+    flex: 2;
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  .chat-messages {
+    max-height: 80px;
+    min-height: 60px;
+  }
+
+  .game-main {
+    padding: 10px;
+  }
+
+  .arena-container {
+    padding: 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  .sidebar-left {
+    padding: 10px;
+    gap: 8px;
+    max-height: 160px;
+  }
+
+  .sidebar-section {
+    padding: 10px;
+  }
+
+  .sidebar-title {
+    font-size: 9px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+  }
+
+  .game-header {
+    padding: 8px 12px;
+  }
+
+  .game-title {
+    font-size: 11px;
+  }
+
+  .leave-btn {
+    padding: 6px 10px;
+    font-size: 10px;
+  }
+
+  .fps-display {
+    font-size: 8px;
+    padding: 4px 8px;
+  }
+
+  .arena-container {
+    padding: 6px;
+  }
+
+  .overlay-box {
+    padding: 24px 32px;
+  }
+
+  .overlay-emoji {
+    font-size: 48px;
+  }
+
+  .overlay-box h2 {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 450px) {
+  .sidebar-left {
+    max-height: 160px;
+    padding: 8px;
+  }
+
+  .my-stats,
+  .players-section {
+    display: none;
+  }
+
+  .chat-section {
+    min-width: 100%;
+  }
+
+  .arena-container {
+    padding: 8px;
+  }
+}

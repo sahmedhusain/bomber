@@ -1,0 +1,156 @@
+/* ===========================================
+   HOME SCREEN - ENHANCED DESIGN
+   =========================================== */
+.screen.nickname {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: transparent;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.welcome-header {
+  text-align: center;
+  display: grid;
+  gap: 16px;
+  padding: 24px 32px;
+  background: linear-gradient(180deg, var(--panel) 0%, var(--bg-2) 100%);
+  border: 3px solid var(--line);
+  border-radius: 10px;
+  margin-bottom: 24px;
+  box-shadow: 0 6px 0 #050812, inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.welcome-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--accent-cool),
+    var(--accent),
+    var(--accent-hot)
+  );
+  opacity: 0.9;
+}
+
+.welcome-header h1 {
+  font-size: clamp(28px, 4vw, 42px);
+  animation: titleGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes titleGlow {
+  0% {
+    text-shadow: 0 4px 0 rgba(0, 0, 0, 0.4), 0 0 20px rgba(248, 231, 28, 0.3);
+  }
+  100% {
+    text-shadow: 0 4px 0 rgba(0, 0, 0, 0.4), 0 0 40px rgba(248, 231, 28, 0.6);
+  }
+}
+
+.subtitle {
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  color: var(--accent-cool);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+.welcome-card {
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  display: grid;
+  gap: 20px;
+  padding: 40px 36px;
+  background: linear-gradient(180deg, var(--panel) 0%, #0d1526 100%);
+  border: 3px solid var(--accent-cool);
+  border-radius: 12px;
+  box-shadow: 0 8px 0 #050812, 0 0 40px rgba(75, 243, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  position: relative;
+}
+
+.welcome-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--accent-cool),
+    var(--accent),
+    var(--accent-hot)
+  );
+}
+
+.welcome-card h1 {
+  font-size: clamp(24px, 4vw, 36px);
+  margin-bottom: 0;
+}
+
+.welcome-card .subtitle {
+  margin-top: -12px;
+  margin-bottom: 8px;
+}
+
+.card-divider {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--line), transparent);
+  margin: 4px 0;
+}
+
+.title-icon {
+  font-size: 64px;
+  color: var(--accent);
+  text-shadow: 0 4px 0 rgba(0, 0, 0, 0.5), 0 0 30px rgba(248, 231, 28, 0.5);
+  animation: bombPulse 1.5s ease-in-out infinite;
+  line-height: 1;
+}
+
+@keyframes bombPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    text-shadow: 0 4px 0 rgba(0, 0, 0, 0.5), 0 0 30px rgba(248, 231, 28, 0.5);
+  }
+  50% {
+    transform: scale(1.05);
+    text-shadow: 0 4px 0 rgba(0, 0, 0, 0.5), 0 0 50px rgba(248, 231, 28, 0.7);
+  }
+}
+
+.card-icon {
+  font-size: 48px;
+  color: var(--accent-cool);
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.4), 0 0 20px rgba(75, 243, 255, 0.4);
+  line-height: 1;
+  margin-bottom: -8px;
+}
+
+.welcome-card h2 {
+  font-size: 22px;
+  color: var(--accent);
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.4), 0 0 15px rgba(248, 231, 28, 0.4);
+}
+
+.description {
+  font-family: "Press Start 2P", monospace;
+  color: var(--ink);
+  font-size: 10px;
+  line-height: 2.2;
+  padding: 0 8px;
+}
+

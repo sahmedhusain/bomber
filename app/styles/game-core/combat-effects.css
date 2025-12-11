@@ -1,0 +1,177 @@
+/* ===========================================
+   PLAYER HIT EFFECTS
+   =========================================== */
+.game-tile.player-hit {
+  animation: hitShake 0.3s ease-out;
+}
+
+@keyframes hitShake {
+  0%,
+  100% {
+    transform: translate(var(--tx, 0), var(--ty, 0));
+  }
+  25% {
+    transform: translate(calc(var(--tx, 0) - 3px), var(--ty, 0));
+  }
+  50% {
+    transform: translate(calc(var(--tx, 0) + 3px), var(--ty, 0));
+  }
+  75% {
+    transform: translate(calc(var(--tx, 0) - 2px), var(--ty, 0));
+  }
+}
+
+.game-player.hit-flash {
+  animation: hitFlash 0.3s ease-out;
+}
+
+@keyframes hitFlash {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  25%,
+  75% {
+    filter: brightness(2) saturate(0) hue-rotate(0deg);
+    background: #fff;
+  }
+  50% {
+    filter: brightness(1.5);
+  }
+}
+
+.game-player.is-self {
+  box-shadow: 0 0 0 3px var(--accent-cool), 0 0 15px rgba(75, 243, 255, 0.5);
+}
+
+/* ===========================================
+   BOMB VISUAL EFFECTS
+   =========================================== */
+.game-bomb {
+  font-size: 24px;
+  position: absolute;
+  inset: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    #fff,
+    #ffda00 35%,
+    #f05 55%,
+    #000 100%
+  );
+  box-shadow: 0 0 0 2px #0b0f18, 0 0 12px rgba(255, 77, 109, 0.4);
+  animation: bombPulse 0.5s ease-in-out infinite;
+}
+
+@keyframes bombPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.game-tile.bomb-warning .game-bomb {
+  animation: bombWarning 0.3s ease-in-out infinite;
+}
+
+@keyframes bombWarning {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 2px #0b0f18, 0 0 12px rgba(255, 77, 109, 0.4);
+  }
+  50% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 2px #0b0f18, 0 0 20px rgba(255, 77, 109, 0.7);
+  }
+}
+
+.game-tile.bomb-critical .game-bomb {
+  animation: bombCritical 0.15s ease-in-out infinite;
+  background: radial-gradient(
+    circle at 30% 30%,
+    #fff,
+    #ff0 35%,
+    #f00 55%,
+    #000 100%
+  );
+}
+
+@keyframes bombCritical {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 2px #0b0f18, 0 0 25px rgba(255, 0, 0, 0.8);
+  }
+  50% {
+    transform: scale(1.2);
+    box-shadow: 0 0 0 2px #0b0f18, 0 0 35px rgba(255, 77, 0, 1);
+  }
+}
+
+.game-bomb.own-bomb {
+  box-shadow: 0 0 0 3px var(--accent-cool), 0 0 15px rgba(75, 243, 255, 0.6);
+}
+
+/* ===========================================
+   POWER-UP VISUAL EFFECTS
+   =========================================== */
+.game-powerup {
+  font-size: 14px;
+  position: absolute;
+  inset: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  animation: powerupFloat 1s ease-in-out infinite;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+@keyframes powerupFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.game-powerup.powerup-bomb {
+  background: radial-gradient(
+    circle,
+    rgba(255, 77, 109, 0.8) 0%,
+    rgba(255, 77, 109, 0.3) 70%
+  );
+  box-shadow: 0 0 10px rgba(255, 77, 109, 0.6);
+  color: #fff;
+}
+
+.game-powerup.powerup-flame {
+  background: radial-gradient(
+    circle,
+    rgba(248, 231, 28, 0.8) 0%,
+    rgba(248, 231, 28, 0.3) 70%
+  );
+  box-shadow: 0 0 10px rgba(248, 231, 28, 0.6);
+  color: #0b0f1c;
+}
+
+.game-powerup.powerup-speed {
+  background: radial-gradient(
+    circle,
+    rgba(75, 243, 255, 0.8) 0%,
+    rgba(75, 243, 255, 0.3) 70%
+  );
+  box-shadow: 0 0 10px rgba(75, 243, 255, 0.6);
+  color: #0b0f1c;
+}
+

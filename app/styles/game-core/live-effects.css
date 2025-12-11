@@ -1,0 +1,74 @@
+/* --- Live game effects + chat overlay --- */
+.game-explosion {
+  position: absolute;
+  inset: 6px;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 255, 255, 0.6),
+    rgba(255, 77, 109, 0.4),
+    rgba(255, 77, 109, 0)
+  );
+  border-radius: 6px;
+  animation: boom 0.25s ease-out;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+@keyframes boom {
+  from {
+    transform: scale(0.6);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(1.05);
+    opacity: 0.3;
+  }
+}
+
+.live-chat-feed {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: grid;
+  gap: 6px;
+  max-width: 45%;
+  z-index: 6;
+}
+
+.live-chat-bubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(14, 21, 38, 0.8);
+  border: 1px solid #22324a;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 9px;
+  font-family: "Press Start 2P", monospace;
+  box-shadow: 0 4px 0 #0a1322;
+}
+
+.live-chat-bubble.own {
+  border-color: var(--accent);
+  box-shadow: 0 6px 0 #3b3207;
+}
+
+.live-author {
+  font-weight: 700;
+  color: var(--accent-mint);
+}
+
+.live-text {
+  color: var(--ink);
+}
+
+.game-chat-input .chat-form.tight {
+  margin-top: 8px;
+}
+
+.chat-input-group.inline {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+

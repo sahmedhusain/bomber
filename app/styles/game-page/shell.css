@@ -1,0 +1,79 @@
+/* ===========================================
+   NEW GAME SCREEN - REDESIGNED
+   =========================================== */
+
+/* Main Game Page - Full viewport layout with single left sidebar */
+.game-page {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  grid-template-rows: 1fr;
+  padding: 16px 16px 16px 0;
+  /* Same net background pattern as body */
+  background-color: var(--bg);
+  background-image: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 1px
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(75, 243, 255, 0.08),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 80% 70%,
+      rgba(255, 77, 109, 0.08),
+      transparent 30%
+    ),
+    linear-gradient(135deg, #0d1325 0%, #0a0f1c 100%);
+  background-size: 24px 24px, 18px 18px, 100% 100%, 100% 100%, 100% 100%;
+  overflow: hidden;
+  gap: 16px;
+}
+
+/* Scanline overlay effect to match body */
+.game-page::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.15) 0,
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.35;
+  mix-blend-mode: soft-light;
+  z-index: 1000;
+}
+
+/* Loading State */
+.game-loading {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  color: var(--muted);
+}
+
+.loader {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--line);
+  border-top-color: var(--accent-cool);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

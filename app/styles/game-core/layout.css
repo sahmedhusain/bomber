@@ -1,0 +1,536 @@
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.game-title {
+  display: grid;
+  gap: 6px;
+}
+
+.game-subtitle {
+  font-size: 10px;
+  font-family: "Press Start 2P", monospace;
+  color: var(--muted);
+}
+
+.game-status {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.status-badge {
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 2px solid var(--line);
+  font-family: "Press Start 2P", monospace;
+  font-weight: 400;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-waiting {
+  background: #2f2c16;
+  color: var(--accent);
+  box-shadow: inset 0 0 10px rgba(248, 231, 28, 0.1);
+}
+
+.status-running {
+  background: #163523;
+  color: var(--accent-mint);
+  box-shadow: inset 0 0 10px rgba(45, 212, 191, 0.1);
+}
+
+.status-finished {
+  background: #2d1a23;
+  color: var(--accent-hot);
+  box-shadow: inset 0 0 10px rgba(245, 34, 45, 0.1);
+}
+
+.player-counter {
+  background: var(--panel-strong);
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: var(--ink);
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+}
+
+.game-container {
+  display: grid;
+  grid-template-columns: 260px 1fr 320px;
+  gap: 18px;
+  min-height: 680px;
+}
+
+.game-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.player-stats-list {
+  display: grid;
+  gap: 10px;
+}
+
+.player-stat {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: var(--panel-strong);
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  padding: 10px;
+}
+
+.player-stat.alive {
+  border-color: var(--accent-mint);
+}
+
+.player-stat.eliminated {
+  opacity: 0.5;
+  border-color: var(--accent-hot);
+}
+
+.player-stat .player-avatar {
+  width: 44px;
+  height: 44px;
+  color: #0b0f1c;
+  border-radius: 8px;
+}
+
+.player-details .player-nickname {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.player-stats {
+  display: flex;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.status-indicator {
+  font-size: 18px;
+}
+
+.controls-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.control-item {
+  padding: 10px;
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel-strong);
+  color: var(--ink);
+  font-family: "Press Start 2P", monospace;
+  font-size: 11px;
+}
+
+.spectator-info {
+  color: var(--muted);
+  display: grid;
+  gap: 8px;
+}
+
+.spectator-controls {
+  display: grid;
+  gap: 6px;
+}
+
+.spectator-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-strong);
+  color: var(--ink);
+}
+
+.spectator-item.self {
+  border-color: var(--accent-cool);
+}
+
+.spectator-nickname {
+  font-weight: 700;
+}
+
+.game-map-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  overflow: visible;
+  height: 100%;
+}
+
+.game-map {
+  position: relative;
+  background: #0f1627;
+  border: 4px solid var(--line);
+  box-shadow: 0 8px 0 #050812;
+  transform-origin: top center;
+  image-rendering: pixelated;
+  background-image: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.04) 1px,
+      transparent 1px
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(75, 243, 255, 0.06),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 80% 70%,
+      rgba(255, 77, 109, 0.06),
+      transparent 28%
+    );
+  background-size: 32px 32px, 32px 32px, 100% 100%, 100% 100%;
+}
+
+.game-chat {
+  height: 100%;
+}
+
+.screen.game {
+  flex: 1;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 15, 28, 0.9);
+  display: grid;
+  place-items: center;
+  z-index: 2000;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.modal-card {
+  background: linear-gradient(135deg, #1a2a40, #152030);
+  border: 4px solid var(--accent-cool);
+  border-radius: 12px;
+  padding: 32px 40px;
+  width: min(450px, 90vw);
+  box-shadow: 0 8px 0 #050812, 0 0 60px rgba(75, 243, 255, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  display: grid;
+  gap: 16px;
+  text-align: center;
+}
+
+.modal-card h2,
+.modal-card h3 {
+  font-family: "Press Start 2P", monospace;
+  font-size: 18px;
+  color: var(--accent-cool);
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.4), 0 0 15px rgba(75, 243, 255, 0.4);
+  margin-bottom: 12px;
+}
+
+.modal-text {
+  color: var(--ink);
+  font-family: "Press Start 2P", monospace;
+  font-size: 12px;
+  line-height: 2;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.game-tile {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(15, 22, 37, 0.35);
+  font-size: 16px;
+  transition: transform 80ms ease;
+}
+
+.game-tile.floor {
+  background: linear-gradient(135deg, #182339, #111a2c);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.04),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.3);
+}
+.game-tile.wall {
+  background: linear-gradient(135deg, #283754, #1c2a44);
+  border-color: rgba(41, 40, 45, 0.6);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.45);
+}
+.game-tile.block {
+  background: linear-gradient(135deg, #7c5a35, #5b3f24);
+  border-color: rgba(41, 40, 45, 0.4);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.45);
+}
+
+.wall-icon,
+.block-icon {
+  opacity: 0.6;
+}
+
+.game-player {
+  position: absolute;
+  inset: 2px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--accent-hot), var(--accent-cool));
+  border-radius: 6px;
+  border: 2px solid #0b0f1c;
+}
+
+.game-player .player-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+}
+
+.game-player .player-name {
+  font-size: 10px;
+  color: #fff;
+}
+
+.game-bomb {
+  font-size: 18px;
+  position: absolute;
+  inset: 8px;
+  border-radius: 10px;
+  background: radial-gradient(
+    circle at 30% 30%,
+    #fff,
+    #ffda00 35%,
+    #f05 55%,
+    #000 100%
+  );
+  box-shadow: 0 0 0 2px #0b0f18, 0 0 12px rgba(255, 77, 109, 0.4);
+}
+.game-powerup {
+  font-size: 16px;
+  position: absolute;
+  inset: 8px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: radial-gradient(
+    circle,
+    rgba(78, 229, 159, 0.7) 0%,
+    rgba(78, 229, 159, 0.2) 65%,
+    transparent 70%
+  );
+  box-shadow: 0 0 0 2px rgba(78, 229, 159, 0.6);
+  color: #0b1a26;
+}
+
+.results-header {
+  text-align: center;
+  display: grid;
+  gap: 10px;
+}
+
+.results-card {
+  display: grid;
+  gap: 18px;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 32px;
+  background: linear-gradient(180deg, var(--panel) 0%, #0d1526 100%);
+  border: 3px solid var(--accent-cool);
+  border-radius: 12px;
+  box-shadow: 0 8px 0 #050812, 0 0 40px rgba(75, 243, 255, 0.15);
+  position: relative;
+}
+
+.results-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--accent-cool),
+    var(--accent),
+    var(--accent-hot)
+  );
+}
+
+.results-title {
+  text-align: center;
+  display: grid;
+  gap: 12px;
+}
+
+.results-title .title-icon {
+  font-size: 56px;
+  margin-bottom: 4px;
+}
+
+.results-title h1 {
+  font-size: clamp(24px, 4vw, 36px);
+  margin-bottom: 0;
+}
+
+.results-title .subtitle {
+  font-size: 10px;
+  margin-bottom: 8px;
+}
+
+.winner-section {
+  display: grid;
+  gap: 10px;
+  text-align: center;
+}
+
+.winner-trophy {
+  font-family: "Press Start 2P", monospace;
+  font-size: 80px;
+  color: var(--accent);
+  text-shadow: 0 6px 0 rgba(0, 0, 0, 0.6), 0 0 40px rgba(248, 231, 28, 0.6);
+  animation: trophyPulse 1s ease-in-out infinite;
+  margin-bottom: 8px;
+}
+
+@keyframes trophyPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.player-rankings {
+  display: grid;
+  gap: 14px;
+}
+
+.rankings-list {
+  display: grid;
+  gap: 12px;
+}
+
+.ranking-item {
+  display: grid;
+  grid-template-columns: 70px 60px 1fr 120px;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 3px solid var(--line);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #1a2a40, #152030);
+  box-shadow: 0 4px 0 #0a1322;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ranking-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #0a1322;
+}
+
+.ranking-item.self {
+  border-color: var(--accent-cool);
+  box-shadow: 0 4px 0 #0a1322, 0 0 15px rgba(75, 243, 255, 0.2);
+}
+.ranking-item.alive {
+  border-left: 5px solid var(--accent-mint);
+}
+.ranking-item.eliminated {
+  opacity: 0.65;
+  border-left: 5px solid var(--accent-hot);
+}
+
+.rank {
+  font-family: "Press Start 2P", monospace;
+  font-size: 18px;
+  color: var(--accent);
+  text-align: center;
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.4), 0 0 10px rgba(248, 231, 28, 0.3);
+}
+
+.results-actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.button-primary {
+  background: var(--accent-mint);
+  color: #0a0f18;
+  border-color: #0a0f18;
+}
+
+.intention-confirmed {
+  border: 2px solid var(--accent-cool);
+  border-radius: 8px;
+  padding: 16px;
+  background: #11263a;
+  text-align: center;
+  color: var(--ink);
+  box-shadow: inset 0 0 20px rgba(0, 206, 209, 0.1);
+}
+
+.priority-info {
+  color: var(--muted);
+  font-size: 10px;
+  font-family: "Press Start 2P", monospace;
+}
+
+.action-hint {
+  color: var(--muted);
+  font-size: 10px;
+  font-family: "Press Start 2P", monospace;
+}
+
+.player-actions,
+.spectator-actions {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+}
+
+.confirmation-icon {
+  font-family: "Press Start 2P", monospace;
+  font-size: 56px;
+  color: var(--accent-cool);
+  text-shadow: 0 5px 0 rgba(0, 0, 0, 0.5), 0 0 30px rgba(75, 243, 255, 0.5);
+  animation: iconBounce 0.8s ease-in-out infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes iconBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+

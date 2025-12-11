@@ -1,0 +1,36 @@
+/* ===========================================
+   IMPROVED GAME PLAYER DISPLAY
+   =========================================== */
+.game-player {
+  position: absolute;
+  inset: 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 2px solid rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  transition: transform 0.1s ease;
+  z-index: 5;
+}
+
+.game-player .player-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.game-player .player-lives {
+  font-size: 6px;
+  line-height: 1;
+  margin-top: 1px;
+}
+

@@ -1,0 +1,438 @@
+/* Tiles */
+.tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  /* Make tiles fill their grid cell */
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Floor tile - dark grid pattern */
+.tile.floor {
+  background: linear-gradient(90deg, rgba(30, 45, 70, 0.3) 1px, transparent 1px),
+    linear-gradient(rgba(30, 45, 70, 0.3) 1px, transparent 1px),
+    linear-gradient(135deg, #151d2e 0%, #0f1520 100%);
+  background-size: 8px 8px, 8px 8px, 100% 100%;
+}
+
+/* Wall tile - solid indestructible brick pattern */
+.tile.wall {
+  background: 
+    /* Brick pattern */ repeating-linear-gradient(
+      0deg,
+      rgba(60, 80, 110, 0.8) 0px,
+      rgba(60, 80, 110, 0.8) 1px,
+      transparent 1px,
+      transparent 15px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(40, 55, 80, 0.6) 0px,
+      rgba(40, 55, 80, 0.6) 1px,
+      transparent 1px,
+      transparent 15px
+    ),
+    linear-gradient(180deg, #3a4a65 0%, #2a3a55 30%, #1e2a40 70%, #151d2e 100%);
+  box-shadow: inset 0 2px 4px rgba(100, 150, 200, 0.2),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.6),
+    inset 2px 0 3px rgba(100, 150, 200, 0.1),
+    inset -2px 0 3px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(20, 30, 50, 0.8);
+}
+
+/* Wall top highlight */
+.tile.wall::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    rgba(100, 130, 170, 0.3) 0%,
+    rgba(100, 130, 170, 0.5) 50%,
+    rgba(100, 130, 170, 0.3) 100%
+  );
+}
+
+/* Wall metallic/stone texture */
+.tile.wall::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      ellipse at 30% 20%,
+      rgba(150, 180, 220, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(ellipse at 70% 80%, rgba(0, 0, 0, 0.2) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Block tile - destructible crate/box pattern */
+.tile.block {
+  background: 
+    /* Cross pattern on crate */ linear-gradient(
+      45deg,
+      transparent 40%,
+      rgba(80, 55, 30, 0.6) 40%,
+      rgba(80, 55, 30, 0.6) 60%,
+      transparent 60%
+    ),
+    linear-gradient(
+      -45deg,
+      transparent 40%,
+      rgba(80, 55, 30, 0.6) 40%,
+      rgba(80, 55, 30, 0.6) 60%,
+      transparent 60%
+    ),
+    /* Wood grain effect */
+      repeating-linear-gradient(
+        90deg,
+        #8a6535 0px,
+        #9a7545 3px,
+        #7a5525 6px,
+        #8a6535 9px
+      ),
+    linear-gradient(180deg, #9a7040 0%, #7a5525 50%, #5a3a15 100%);
+  background-blend-mode: overlay, overlay, soft-light, normal;
+  box-shadow: inset 0 2px 4px rgba(200, 170, 100, 0.25),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.5),
+    inset 2px 0 4px rgba(200, 170, 100, 0.15),
+    inset -2px 0 4px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(120, 90, 50, 0.6);
+  border-radius: 2px;
+}
+
+/* Block indicator - subtle shine for blocks */
+.tile.block::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 50%;
+  bottom: 50%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    transparent 100%
+  );
+  border-radius: 1px;
+}
+
+/* Animate block when about to be destroyed */
+.tile.block.destroying {
+  animation: blockShake 0.1s ease-in-out infinite;
+}
+
+/* Block with hidden powerup - subtle glow */
+.tile.block.has-powerup-hidden {
+  box-shadow: inset 0 2px 4px rgba(200, 170, 100, 0.25),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.5), 0 0 8px rgba(255, 200, 50, 0.3);
+}
+
+@keyframes blockShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-1px);
+  }
+  75% {
+    transform: translateX(1px);
+  }
+}
+
+.tile.hit {
+  animation: tileHit 0.3s ease-out;
+}
+
+@keyframes tileHit {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(2);
+  }
+}
+
+/* Player on tile */
+.tile .player {
+  position: absolute;
+  inset: 6%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.7);
+  z-index: 5;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.5), 0 5px 10px rgba(0, 0, 0, 0.4);
+  transition: transform 0.1s ease;
+}
+
+.tile .player::before {
+  content: "";
+  position: absolute;
+  top: 15%;
+  left: 20%;
+  width: 30%;
+  height: 30%;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+}
+
+.tile .player.p0 {
+  background: linear-gradient(180deg, #ff6b8a 0%, #ff4d6d 40%, #cc3d57 100%);
+  border-color: #992233;
+}
+.tile .player.p1 {
+  background: linear-gradient(180deg, #7af5ff 0%, #4bf3ff 40%, #3ccce6 100%);
+  border-color: #228899;
+}
+.tile .player.p2 {
+  background: linear-gradient(180deg, #7aeba8 0%, #4ee59f 40%, #3db87f 100%);
+  border-color: #228855;
+}
+.tile .player.p3 {
+  background: linear-gradient(180deg, #f9ec5a 0%, #f8e71c 40%, #d4c518 100%);
+  border-color: #998811;
+}
+
+.tile .player.me {
+  box-shadow: 0 0 0 3px var(--accent-cool), 0 0 20px rgba(75, 243, 255, 0.6),
+    0 3px 0 rgba(0, 0, 0, 0.5);
+  animation: playerGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes playerGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px var(--accent-cool), 0 0 15px rgba(75, 243, 255, 0.5),
+      0 3px 0 rgba(0, 0, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 4px var(--accent-cool), 0 0 25px rgba(75, 243, 255, 0.7),
+      0 3px 0 rgba(0, 0, 0, 0.5);
+  }
+}
+
+.tile .player .initial {
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(6px, 2vw, 10px);
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8), -1px -1px 0 rgba(0, 0, 0, 0.8),
+    1px -1px 0 rgba(0, 0, 0, 0.8), -1px 1px 0 rgba(0, 0, 0, 0.8);
+}
+
+/* Bomb */
+.tile .bomb {
+  position: absolute;
+  inset: 8%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(10px, 3vw, 18px);
+  color: #1a1a1a;
+  background: radial-gradient(
+    circle at 30% 30%,
+    #4a4a4a 0%,
+    #1a1a1a 60%,
+    #0a0a0a 100%
+  );
+  border-radius: 50%;
+  border: 2px solid #0a0a0a;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.6), 0 0 15px rgba(255, 100, 50, 0.4),
+    inset 0 -5px 10px rgba(0, 0, 0, 0.5);
+  animation: bombPulse 0.5s ease-in-out infinite;
+  z-index: 4;
+}
+
+/* Bomb fuse spark */
+.tile .bomb::before {
+  content: "💥";
+  position: absolute;
+  top: -20%;
+  right: -5%;
+  font-size: clamp(6px, 1.5vw, 10px);
+  animation: sparkle 0.3s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.8);
+  }
+}
+
+@keyframes bombPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.tile.warning .bomb {
+  animation: bombWarning 0.3s ease-in-out infinite;
+}
+
+@keyframes bombWarning {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.15);
+    filter: brightness(1.3);
+  }
+}
+
+.tile.critical .bomb {
+  animation: bombCritical 0.15s ease-in-out infinite;
+}
+
+@keyframes bombCritical {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: brightness(1.5);
+  }
+  50% {
+    transform: scale(1.2);
+    filter: brightness(2);
+  }
+}
+
+/* Power-ups */
+.tile .powerup {
+  position: absolute;
+  inset: 12%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(6px, 2vw, 10px);
+  font-weight: bold;
+  color: #fff;
+  border-radius: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  animation: powerupFloat 1s ease-in-out infinite,
+    powerupGlow 1.5s ease-in-out infinite;
+  z-index: 3;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes powerupFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes powerupGlow {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.3);
+  }
+}
+
+.tile .powerup.bomb {
+  background: linear-gradient(180deg, #ff6b8a 0%, #ff4d6d 50%, #cc3d57 100%);
+  border-color: #ff4d6d;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 77, 109, 0.5);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.tile .powerup.flame {
+  background: linear-gradient(180deg, #ffcc00 0%, #ff9900 50%, #ff6600 100%);
+  border-color: #ff9900;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 153, 0, 0.5);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.tile .powerup.speed {
+  background: linear-gradient(180deg, #7af5ff 0%, #4bf3ff 50%, #00ccff 100%);
+  border-color: #4bf3ff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 15px rgba(75, 243, 255, 0.5);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Explosion */
+.tile .explosion {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(10px, 3vw, 16px);
+  color: #fff;
+  background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 1) 0%,
+      transparent 30%
+    ),
+    radial-gradient(circle, rgba(255, 200, 50, 0.9) 20%, transparent 50%),
+    radial-gradient(circle, rgba(255, 100, 0, 0.8) 40%, transparent 70%),
+    radial-gradient(circle, rgba(200, 50, 0, 0.4) 60%, transparent 100%);
+  animation: explosionBoom 0.5s ease-out forwards;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Explosion flame icon */
+.tile .explosion::after {
+  content: "🔥";
+  font-size: clamp(8px, 2.5vw, 14px);
+  animation: flameFlicker 0.1s ease-in-out infinite;
+}
+
+@keyframes flameFlicker {
+  0%,
+  100% {
+    transform: scale(1) rotate(-5deg);
+  }
+  50% {
+    transform: scale(1.1) rotate(5deg);
+  }
+}
+
+@keyframes explosionBoom {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+

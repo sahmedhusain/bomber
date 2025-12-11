@@ -1,203 +1,44 @@
-export const TILE_SIZE = 32;
-export const MAP_WIDTH = 15;
-export const MAP_HEIGHT = 13;
-
-export const TileType = Object.freeze({
-  Floor: 'floor',
-  Wall: 'wall',
-  Block: 'block'
-});
-
-export const PowerUpKind = Object.freeze({
-  Bomb: 'bomb',
-  Flame: 'flame',
-  Speed: 'speed'
-});
-
-export const GameStatus = Object.freeze({
-  Waiting: 'waiting',
-  Running: 'running',
-  Finished: 'finished'
-});
-
-export const PlayerStatus = Object.freeze({
-  Alive: 'alive',
-  Eliminated: 'eliminated'
-});
-
-export const DEFAULT_LIVES = 3;
-export const DEFAULT_BOMB_FUSE_MS = 2500;
-export const DEFAULT_BOMB_CAPACITY = 1;
-export const DEFAULT_BOMB_RANGE = 1;
-export const DEFAULT_SPEED = 1;
-
-let __uidCounter = 0;
-export function uid(prefix = '') {
-  __uidCounter = (__uidCounter + 1) >>> 0;
-  return `${prefix}${Date.now().toString(36)}_${(__uidCounter).toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
-}
-export const now = () => Date.now();
-export const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
-export const inBounds = (x, y, width, height) => x >= 0 && y >= 0 && x < width && y < height;
-export const idx = (x, y, width) => (y * width) + x;
-export const pos = (index, width) => ({ x: index % width, y: Math.floor(index / width) });
-
-export const isWalkable = (tileType) => tileType === TileType.Floor;
-
-export function createPlayer({ id = uid('p_'), nickname, x, y, dir = 'down', speed = DEFAULT_SPEED, lives = DEFAULT_LIVES, bombCapacity = DEFAULT_BOMB_CAPACITY, bombRange = DEFAULT_BOMB_RANGE, activePowerUps = {}, status = PlayerStatus.Alive }) {
-  const player = { id, nickname, x, y, dir, speed, lives, bombCapacity, bombRange, activePowerUps, status };
-  assertPlayer(player);
-  return player;
-}
-
-export function createBomb({ id = uid('b_'), ownerId, x, y, range = DEFAULT_BOMB_RANGE, fuseMs = DEFAULT_BOMB_FUSE_MS, placedAt = now(), exploding = false, chainTriggered = false }) {
-  const bomb = { id, ownerId, x, y, placedAt, fuseMs, range, exploding, chainTriggered };
-  assertBomb(bomb);
-  return bomb;
-}
-
-export function createTile({ x, y, type = TileType.Floor, occupiedByBombId = undefined, powerUpId = undefined }) {
-  if (!Object.values(TileType).includes(type)) {
-    throw new Error(`Invalid tile type: ${type}`);
-  }
-  const tile = { x, y, type, occupiedByBombId, powerUpId };
-  assertTile(tile);
-  return tile;
-}
-
-export function createPowerUp({ id = uid('pu_'), kind, x, y, spawnedAt = now() }) {
-  if (!Object.values(PowerUpKind).includes(kind)) {
-    throw new Error(`Invalid power-up kind: ${kind}`);
-  }
-  const pu = { id, kind, x, y, spawnedAt };
-  assertPowerUp(pu);
-  return pu;
-}
-
-export function createEmptyGameState({ width = MAP_WIDTH, height = MAP_HEIGHT } = {}) {
-  const tiles = new Array(width * height);
-  for (let i = 0; i < tiles.length; i++) {
-    const { x, y } = pos(i, width);
-    tiles[i] = createTile({ x, y, type: TileType.Floor });
-  }
-  return {
-    map: { width, height, tiles },
-    players: Object.create(null),
-    bombs: Object.create(null),
-    powerUps: Object.create(null),
-    status: GameStatus.Waiting,
-    lastUpdate: now(),
-    winnerId: undefined
-  };
-}
-
-export function generateGameMap({ width = MAP_WIDTH, height = MAP_HEIGHT, blockDensity = 0.75 } = {}) {
-  const tiles = new Array(width * height);
-
-  const spawnPositions = [
-    { x: 1, y: 1 },
-    { x: width - 2, y: 1 },
-    { x: 1, y: height - 2 },
-    { x: width - 2, y: height - 2 }
-  ];
-
-  for (let i = 0; i < tiles.length; i++) {
-    const { x, y } = pos(i, width);
-    let tileType = TileType.Floor;
-
-    if (x === 0 || x === width - 1 || y === 0 || y === height - 1) {
-      tileType = TileType.Wall;
-    }
-    else if (x % 2 === 0 && y % 2 === 0) {
-      tileType = TileType.Wall;
-    }
-    else {
-      let isSafeCorridor = false;
-      for (const spawn of spawnPositions) {
-        if (Math.abs(x - spawn.x) <= 1 && Math.abs(y - spawn.y) <= 1) {
-          isSafeCorridor = true;
-          break;
-        }
-      }
-
-      if (!isSafeCorridor && Math.random() < blockDensity) {
-        tileType = TileType.Block;
-      }
-    }
-
-    tiles[i] = createTile({ x, y, type: tileType });
-  }
-
-  return { width, height, tiles };
-}
-
-export function createGameState({ width = MAP_WIDTH, height = MAP_HEIGHT, blockDensity = 0.75 } = {}) {
-  const map = generateGameMap({ width, height, blockDensity });
-  return {
-    map,
-    players: Object.create(null),
-    bombs: Object.create(null),
-    powerUps: Object.create(null),
-    status: GameStatus.Waiting,
-    lastUpdate: now(),
-    winnerId: undefined
-  };
-}
-
-export function createLobbyState() {
-  return {
-    players: [],
-    joinedCount: 0,
-    countdown: { phase: 'waiting', remainingMs: 0 },
-    lobbyTimer: { active: false, remainingMs: 0 },
-    userIntentions: {}, // Track user post-game intentions: 'play_again', 'join_game', 'leave'
-    rolePriorities: {}, // Track role assignment priorities for users
-  };
-}
-
-export function createSessionState() {
-  return { 
-    connected: false,
-    role: null, // 'player' | 'spectator' | null (during role reset)
-    priority: 0, // Higher number = higher priority for role assignment
-    intention: null // 'play_again' | 'join_game' | 'leave' | null
-  };
-}
-
-export function initialRootState() {
-  return {
-    route: '#/',
-    session: createSessionState(),
-    lobby: createLobbyState(),
-    game: createGameState({ width: MAP_WIDTH, height: MAP_HEIGHT }),
-    chat: [],
-    websocket: { connected: false }
-  };
-}
-
-export function assertPlayer(p) {
-  if (!p || typeof p.id !== 'string' || typeof p.nickname !== 'string') throw new Error('Invalid Player: id/nickname');
-  if (!Number.isInteger(p.x) || !Number.isInteger(p.y)) throw new Error('Invalid Player coords');
-  if (!['up', 'down', 'left', 'right'].includes(p.dir)) throw new Error('Invalid Player dir');
-  if (typeof p.speed !== 'number' || typeof p.lives !== 'number') throw new Error('Invalid Player speed/lives');
-  if (typeof p.bombCapacity !== 'number' || typeof p.bombRange !== 'number') throw new Error('Invalid Player bomb stats');
-  if (!Object.values(PlayerStatus).includes(p.status)) throw new Error('Invalid Player status');
-}
-export function assertBomb(b) {
-  if (!b || typeof b.id !== 'string' || typeof b.ownerId !== 'string') throw new Error('Invalid Bomb: id/ownerId');
-  if (!Number.isInteger(b.x) || !Number.isInteger(b.y)) throw new Error('Invalid Bomb coords');
-  if (typeof b.placedAt !== 'number' || typeof b.fuseMs !== 'number') throw new Error('Invalid Bomb timing');
-  if (typeof b.range !== 'number') throw new Error('Invalid Bomb range');
-}
-export function assertTile(t) {
-  if (!t || !Number.isInteger(t.x) || !Number.isInteger(t.y)) throw new Error('Invalid Tile coords');
-  if (!Object.values(TileType).includes(t.type)) throw new Error('Invalid Tile type');
-}
-export function assertPowerUp(pu) {
-  if (!pu || typeof pu.id !== 'string') throw new Error('Invalid PowerUp id');
-  if (!Object.values(PowerUpKind).includes(pu.kind)) throw new Error('Invalid PowerUp kind');
-  if (!Number.isInteger(pu.x) || !Number.isInteger(pu.y)) throw new Error('Invalid PowerUp coords');
-}
+import {
+  TILE_SIZE,
+  MAP_WIDTH,
+  MAP_HEIGHT,
+  TileType,
+  PowerUpKind,
+  GameStatus,
+  PlayerStatus,
+  DEFAULT_LIVES,
+  DEFAULT_BOMB_FUSE_MS,
+  DEFAULT_BOMB_CAPACITY,
+  DEFAULT_BOMB_RANGE,
+  DEFAULT_SPEED
+} from './constants.js';
+import {
+  uid,
+  now,
+  clamp,
+  inBounds,
+  idx,
+  pos,
+  isWalkable
+} from './helpers.js';
+import {
+  createPlayer,
+  createBomb,
+  createTile,
+  createPowerUp,
+  assertPlayer,
+  assertBomb,
+  assertTile,
+  assertPowerUp
+} from './entities.js';
+import {
+  createEmptyGameState,
+  generateGameMap,
+  createGameState,
+  createLobbyState,
+  createSessionState,
+  initialRootState
+} from './state.js';
 
 function nextGame(state, partialGame) {
   return { game: { ...state.game, ...partialGame } };
@@ -270,3 +111,39 @@ export function pushChat(state, message) {
 export function setRoute(route) {
   return { route };
 }
+
+export {
+  TILE_SIZE,
+  MAP_WIDTH,
+  MAP_HEIGHT,
+  TileType,
+  PowerUpKind,
+  GameStatus,
+  PlayerStatus,
+  DEFAULT_LIVES,
+  DEFAULT_BOMB_FUSE_MS,
+  DEFAULT_BOMB_CAPACITY,
+  DEFAULT_BOMB_RANGE,
+  DEFAULT_SPEED,
+  uid,
+  now,
+  clamp,
+  inBounds,
+  idx,
+  pos,
+  isWalkable,
+  createPlayer,
+  createBomb,
+  createTile,
+  createPowerUp,
+  assertPlayer,
+  assertBomb,
+  assertTile,
+  assertPowerUp,
+  createEmptyGameState,
+  generateGameMap,
+  createGameState,
+  createLobbyState,
+  createSessionState,
+  initialRootState
+};

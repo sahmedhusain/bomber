@@ -1,0 +1,12 @@
+@import "./game-page/shell.css";
+@import "./game-page/sidebar-base.css";
+@import "./game-page/sidebar-stats.css";
+@import "./game-page/sidebar-players.css";
+@import "./game-page/sidebar-controls.css";
+@import "./game-page/sidebar-chat.css";
+@import "./game-page/main.css";
+@import "./game-page/arena.css";
+@import "./game-page/tiles.css";
+@import "./game-page/overlays.css";
+@import "./game-page/leave-confirm.css";
+@import "./game-page/responsive.css";

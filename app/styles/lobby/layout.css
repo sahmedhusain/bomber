@@ -1,0 +1,314 @@
+/* ===========================================
+   LOBBY SCREEN - REDESIGNED
+   =========================================== */
+.screen.lobby {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  min-height: 100vh;
+  width: 100%;
+  background: transparent;
+}
+
+.lobby-container {
+  width: 100%;
+  max-width: 900px;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  grid-template-rows: auto 1fr auto auto;
+  grid-template-areas:
+    "title title"
+    "players chat"
+    "actions chat"
+    "hint hint";
+  gap: 16px;
+}
+
+/* Title Section */
+.lobby-title-section {
+  grid-area: title;
+  text-align: center;
+  padding: 20px;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 35, 60, 0.9) 0%,
+    rgba(15, 25, 45, 0.9) 100%
+  );
+  border: 2px solid var(--accent-cool);
+  border-radius: 12px;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.4), 0 0 30px rgba(75, 243, 255, 0.1);
+  position: relative;
+}
+
+.lobby-title-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--accent-cool),
+    var(--accent),
+    var(--accent-hot)
+  );
+}
+
+.lobby-icon {
+  font-size: 36px;
+  color: var(--accent);
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.4), 0 0 20px rgba(248, 231, 28, 0.4);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.lobby-title-section h1 {
+  font-size: clamp(18px, 4vw, 26px);
+  margin-bottom: 8px;
+}
+
+.lobby-status-text {
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+  color: var(--accent-cool);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Players Section */
+.lobby-players-section {
+  grid-area: players;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 35, 60, 0.8) 0%,
+    rgba(15, 25, 45, 0.8) 100%
+  );
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+.players-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--line);
+}
+
+.players-count {
+  font-family: "Press Start 2P", monospace;
+  font-size: 11px;
+  color: var(--accent-cool);
+}
+
+.players-progress {
+  flex: 1;
+  max-width: 120px;
+  margin-left: 12px;
+}
+
+.progress-track {
+  height: 8px;
+  background: var(--panel-strong);
+  border: 2px solid var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-track .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-cool), var(--accent-mint));
+  transition: width 0.3s ease;
+}
+
+.players-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.lobby-player-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: rgba(15, 25, 45, 0.6);
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.lobby-player-card.ready {
+  border-color: var(--accent-mint);
+  box-shadow: 0 0 15px rgba(45, 212, 191, 0.15);
+}
+
+.lobby-player-card.is-you {
+  border-color: var(--accent-cool);
+  background: rgba(75, 243, 255, 0.05);
+  box-shadow: 0 0 15px rgba(75, 243, 255, 0.1);
+}
+
+.lobby-player-card.empty {
+  opacity: 0.4;
+  border-style: dashed;
+}
+
+.lobby-player-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-family: "Press Start 2P", monospace;
+  font-size: 14px;
+  color: #0a0f18;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.4);
+}
+
+.lobby-player-avatar.p0 {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+}
+.lobby-player-avatar.p1 {
+  background: linear-gradient(135deg, #4ecdc4, #45b7aa);
+}
+.lobby-player-avatar.p2 {
+  background: linear-gradient(135deg, #ffe66d, #ffd93d);
+}
+.lobby-player-avatar.p3 {
+  background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+}
+.lobby-player-avatar.empty {
+  background: var(--panel-strong);
+  color: var(--muted);
+  box-shadow: none;
+}
+
+.lobby-player-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lobby-player-name {
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lobby-player-name.empty {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.lobby-player-name .you-tag {
+  font-size: 7px;
+  padding: 2px 6px;
+  background: var(--accent-cool);
+  color: #0a0f18;
+  border-radius: 3px;
+}
+
+.lobby-player-status {
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  color: var(--muted);
+}
+
+.lobby-player-status.ready {
+  color: var(--accent-mint);
+}
+
+/* Actions Section */
+.lobby-actions-section {
+  grid-area: actions;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 12px;
+}
+
+.lobby-ready-btn {
+  padding: 16px 20px;
+  font-size: 14px;
+  background: linear-gradient(180deg, var(--accent-mint) 0%, #2bb383 100%);
+  border: 3px solid #0a0f18;
+  color: #0a0f18;
+  box-shadow: 0 5px 0 #1a5a50;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.lobby-ready-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #1a5a50, 0 0 20px rgba(45, 212, 191, 0.3);
+}
+
+.lobby-ready-btn.is-ready {
+  background: linear-gradient(180deg, var(--accent-hot) 0%, #e03a57 100%);
+  box-shadow: 0 5px 0 #5a1020;
+  color: #fff;
+}
+
+.lobby-ready-btn.is-ready:hover {
+  box-shadow: 0 7px 0 #5a1020, 0 0 20px rgba(255, 77, 109, 0.3);
+}
+
+.lobby-leave-btn {
+  padding: 16px 14px;
+  font-size: 11px;
+  background: var(--panel-strong);
+  border: 3px solid var(--line);
+  color: var(--muted);
+  box-shadow: 0 5px 0 #0a1322;
+}
+
+.lobby-leave-btn:hover {
+  color: var(--accent-hot);
+  border-color: var(--accent-hot);
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #0a1322;
+}
+
+.lobby-hint {
+  grid-area: hint;
+  text-align: center;
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+  color: var(--accent);
+  padding: 10px;
+  background: rgba(248, 231, 28, 0.08);
+  border: 2px dashed rgba(248, 231, 28, 0.3);
+  border-radius: 8px;
+}
+
+/* Responsive lobby layout */
+@media (max-width: 768px) {
+  .lobby-container {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "title"
+      "players"
+      "actions"
+      "chat"
+      "hint";
+    max-width: 500px;
+  }
+
+  .lobby-chat-section {
+    height: auto;
+  }
+
+  .chat-messages-box {
+    min-height: 100px;
+    max-height: 150px;
+  }
+}

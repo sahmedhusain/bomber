@@ -1,0 +1,113 @@
+/* ===========================================
+   SIDEBARS
+   =========================================== */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 16px;
+  margin: 16px 0 16px 16px;
+  background: linear-gradient(180deg, var(--panel) 0%, var(--bg-2) 100%);
+  border: 3px solid var(--line);
+  border-radius: var(--radius);
+  overflow-y: auto;
+  box-shadow: 0 8px 0 #050812, inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  position: relative;
+  height: calc(100% - 32px);
+}
+
+.sidebar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--accent-cool),
+    var(--accent),
+    var(--accent-hot)
+  );
+  opacity: 0.9;
+}
+
+.sidebar::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--accent-hot),
+    var(--accent),
+    var(--accent-cool)
+  );
+  opacity: 0.6;
+}
+
+.sidebar-left {
+  width: 100%;
+}
+
+.sidebar-left::before {
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.sidebar-left::after {
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+/* Remove right sidebar styles - no longer used */
+
+.sidebar-section {
+  background: var(--panel-strong);
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  padding: 14px;
+  box-shadow: 0 4px 0 #0a1322, inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sidebar-section:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 0 #0a1322, inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.sidebar-title {
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+  font-weight: 400;
+  color: var(--accent-cool);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--line);
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3), 0 0 10px rgba(75, 243, 255, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-title::before {
+  content: "►";
+  font-size: 7px;
+  color: var(--accent);
+  animation: pulse-arrow 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-arrow {
+  0%,
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateX(2px);
+  }
+}
+

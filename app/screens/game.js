@@ -1,202 +1,325 @@
 import { createElement } from '../../framework/core.js';
-import { TILE_SIZE, TileType } from '../../game/models.js';
+import { TileType, MAP_WIDTH, MAP_HEIGHT } from '../../game/models.js';
 
-export function GameScreen(state, store) {
-  const { map, players, bombs, powerUps, status } = state.game;
-  const { width, height, tiles } = map;
-  const playersArray = Object.values(players);
-  const alivePlayers = playersArray.filter(p => p.status === 'alive');
-  const { session, lobby } = state;
-  const spectators = lobby?.spectators || [];
-  const isSpectator = session?.isSpectator || false;
+let frameCount = 0;
+let currentFPS = 60;
+let fpsInterval = null;
 
-  // Create tile grid
-  const tileElements = tiles.map((tile, index) => {
-    const { x, y, type } = tile;
-    let className = 'game-tile';
+const hitPlayers = new Set();
 
-    // Add tile type class
-    switch (type) {
-      case TileType.Wall:
-        className += ' wall';
-        break;
-      case TileType.Block:
-        className += ' block';
-        break;
-      case TileType.Floor:
-      default:
-        className += ' floor';
-        break;
-    }
+let arenaResizeFrame = null;
+let arenaResizeObserver = null;
+let arenaResizeListenerAttached = false;
+let lastArenaShape = { cols: MAP_WIDTH, rows: MAP_HEIGHT };
 
-    // Check if tile has a player
-    const playerOnTile = Object.values(players).find(p => p.x === x && p.y === y && p.status === 'alive');
-    if (playerOnTile) {
-      className += ' has-player';
-    }
+function initFPS() {
+  if (fpsInterval) return;
+  fpsInterval = setInterval(() => {
+    currentFPS = frameCount;
+    frameCount = 0;
+  }, 1000);
+}
 
-    // Check if tile has a bomb
-    const bombOnTile = Object.values(bombs).find(b => b.x === x && b.y === y);
-    if (bombOnTile) {
-      className += ' has-bomb';
-    }
+export function markPlayerHit(playerId) {
+  hitPlayers.add(playerId);
+  setTimeout(() => hitPlayers.delete(playerId), 400);
+}
 
-    // Check if tile has a power-up
-    const powerUpOnTile = Object.values(powerUps).find(pu => pu.x === x && pu.y === y);
-    if (powerUpOnTile) {
-      className += ` has-powerup powerup-${powerUpOnTile.kind}`;
-    }
+function applyArenaSizing(cols, rows) {
+  const container = document.querySelector('.arena-container');
+  const arenaEl = container?.querySelector('.arena');
+  if (!container || !arenaEl || !cols || !rows) return;
 
-    const style = {
-      width: `${TILE_SIZE}px`,
-      height: `${TILE_SIZE}px`,
-      left: `${x * TILE_SIZE}px`,
-      top: `${y * TILE_SIZE}px`
-    };
+  const styles = getComputedStyle(container);
+  const paddingX = parseFloat(styles.paddingLeft || '0') + parseFloat(styles.paddingRight || '0');
+  const paddingY = parseFloat(styles.paddingTop || '0') + parseFloat(styles.paddingBottom || '0');
 
-    return createElement('div', {
-      key: `tile-${x}-${y}`,
-      className,
-      style,
-      'data-x': x,
-      'data-y': y
-    },
-      // Tile content based on type
-      type === TileType.Wall ? createElement('div', { className: 'wall-icon' }, '🧱') :
-      type === TileType.Block ? createElement('div', { className: 'block-icon' }, '📊') : null,
-      
-      // Player on tile
-      playerOnTile ? createElement('div', { 
-        className: `game-player player-${playersArray.indexOf(playerOnTile)}`,
-        'data-player-id': playerOnTile.id 
-      },
-        createElement('div', { className: 'player-avatar' }, 
-          playerOnTile.nickname.charAt(0).toUpperCase()
-        ),
-        createElement('div', { className: 'player-name' }, playerOnTile.nickname)
-      ) : null,
-      
-      // Bomb on tile
-      bombOnTile ? createElement('div', { className: 'game-bomb' }, '💣') : null,
-      
-      // Power-up on tile
-      powerUpOnTile ? createElement('div', { className: `game-powerup powerup-${powerUpOnTile.kind}` },
-        powerUpOnTile.kind === 'bomb' ? '💥' :
-        powerUpOnTile.kind === 'flame' ? '🔥' :
-        powerUpOnTile.kind === 'speed' ? '⚡' : '✨'
-      ) : null
-    );
+  const availableWidth = container.clientWidth - paddingX;
+  const availableHeight = container.clientHeight - paddingY;
+  if (availableWidth <= 0 || availableHeight <= 0) return;
+
+  const tileSize = Math.max(8, Math.floor(Math.min(availableWidth / cols, availableHeight / rows)));
+  arenaEl.style.setProperty('--cols', cols);
+  arenaEl.style.setProperty('--rows', rows);
+  arenaEl.style.setProperty('--tile-size', `${tileSize}px`);
+  arenaEl.style.width = `${tileSize * cols}px`;
+  arenaEl.style.height = `${tileSize * rows}px`;
+}
+
+function attachArenaResizeObserver() {
+  if (arenaResizeObserver) return;
+  if (typeof ResizeObserver === 'undefined') return;
+  const container = document.querySelector('.arena-container');
+  if (!container) return;
+
+  arenaResizeObserver = new ResizeObserver(() => {
+    applyArenaSizing(lastArenaShape.cols, lastArenaShape.rows);
   });
+  arenaResizeObserver.observe(container);
 
-  const mapStyle = {
-    width: `${width * TILE_SIZE}px`,
-    height: `${height * TILE_SIZE}px`,
-    position: 'relative',
-    margin: '0 auto',
-    border: '3px solid var(--accent-primary)',
-    borderRadius: 'var(--radius)',
-    background: 'var(--bg-secondary)',
-    boxShadow: 'var(--shadow), var(--shadow-glow)',
-    overflow: 'hidden'
-  };
+  if (!arenaResizeListenerAttached) {
+    arenaResizeListenerAttached = true;
+    window.addEventListener('resize', () => applyArenaSizing(lastArenaShape.cols, lastArenaShape.rows));
+  }
+}
 
-  return createElement('section', { className: 'screen game' },
-    createElement('div', { className: 'game-header' },
-      createElement('h2', {}, '💣 Battle Arena'),
-      createElement('div', { className: 'game-timer' },
-        createElement('span', { className: 'timer-label' }, 'Testing Mode:'),
-        createElement('span', { className: 'timer-text' }, 'Auto-ending in 5 seconds...')
-      ),
-      createElement('div', { className: 'game-status' },
-        createElement('span', { className: `status-badge status-${status}` }, 
-          status === 'waiting' ? '⏳ Waiting' :
-          status === 'running' ? '⚔️ In Progress' :
-          '🏆 Finished'
-        ),
-        createElement('span', { className: 'player-counter' }, 
-          `👥 ${alivePlayers.length}/${playersArray.length} alive`
+function scheduleArenaSizing(cols, rows) {
+  lastArenaShape = { cols, rows };
+  if (arenaResizeFrame) cancelAnimationFrame(arenaResizeFrame);
+  arenaResizeFrame = requestAnimationFrame(() => {
+    arenaResizeFrame = null;
+    applyArenaSizing(cols, rows);
+    attachArenaResizeObserver();
+  });
+}
+
+const statDefs = [
+  { icon: '♥', label: 'Lives', value: (p) => p.lives || 0 },
+  { icon: '▣', label: 'Bombs', value: (p) => p.bombCapacity || 1 },
+  { icon: '◈', label: 'Range', value: (p) => p.bombRange || 1 },
+  { icon: '»', label: 'Speed', value: (p) => (p.speed || 1).toFixed(1) }
+];
+
+const statsSection = (player) => !player ? null :
+  createElement('div', { className: 'sidebar-section my-stats' },
+    createElement('h3', { className: 'sidebar-title' }, 'Your Stats'),
+    createElement('div', { className: 'stats-grid' },
+      ...statDefs.map(({ icon, label, value }) =>
+        createElement('div', { className: 'stat-box' },
+          createElement('span', { className: 'stat-icon' }, icon),
+          createElement('span', { className: 'stat-value' }, value(player)),
+          createElement('span', { className: 'stat-label' }, label)
         )
       )
+    )
+  );
+
+const playerRow = (player, idx, sessionId) => createElement('div', {
+  className: `player-card ${player.status} ${player.id === sessionId ? 'is-me' : ''}`,
+  key: player.id
+},
+  createElement('div', { className: `player-avatar p${idx}` },
+    player.nickname.charAt(0).toUpperCase()
+  ),
+  createElement('div', { className: 'player-details' },
+    createElement('span', { className: 'player-name' },
+      player.nickname,
+      player.id === sessionId ? createElement('span', { className: 'you-tag' }, 'YOU') : null
     ),
-    
-    createElement('div', { className: 'game-container' },
-      // Left panel - Player stats
-      createElement('div', { className: 'game-sidebar' },
-        createElement('div', { className: 'card players-stats' },
-          createElement('h3', {}, '🎮 Players'),
-          createElement('div', { className: 'player-stats-list' },
-            playersArray.map((player, index) =>
-              createElement('div', {
-                className: `player-stat ${player.status === 'alive' ? 'alive' : 'eliminated'}`,
-                key: player.id
-              },
-                createElement('div', { className: `player-avatar player-${index}` },
-                  player.nickname.charAt(0).toUpperCase()
-                ),
-                createElement('div', { className: 'player-details' },
-                  createElement('div', { className: 'player-nickname' }, player.nickname),
-                  createElement('div', { className: 'player-stats' },
-                    createElement('span', { className: 'stat' }, `❤️ ${player.lives || 3}`),
-                    createElement('span', { className: 'stat' }, `💣 ${player.bombCapacity || 1}`),
-                    createElement('span', { className: 'stat' }, `🔥 ${player.bombRange || 1}`)
-                  )
-                ),
-                createElement('div', { className: `status-indicator ${player.status}` },
-                  player.status === 'alive' ? '✅' : '❌'
-                )
-              )
-            )
-          )
-        ),
-        createElement('div', { className: 'card game-controls' },
-          createElement('h3', {}, isSpectator ? '👁️ Spectator Mode' : '🎮 Controls'),
-          isSpectator ? 
-            createElement('div', { className: 'spectator-info' },
-              createElement('p', {}, '🔍 You are watching this game as a spectator'),
-              createElement('p', {}, '💬 You can still use chat to communicate'),
-              createElement('div', { className: 'spectator-controls' },
-                createElement('div', { className: 'control-item' }, '📹 Watch the action unfold'),
-                createElement('div', { className: 'control-item' }, '💬 Chat with other viewers')
-              )
-            ) :
-            createElement('div', { className: 'controls-grid' }, [
-              createElement('div', { className: 'control-item' }, '⬆️ W - Move Up'),
-              createElement('div', { className: 'control-item' }, '⬇️ S - Move Down'),
-              createElement('div', { className: 'control-item' }, '⬅️ A - Move Left'),
-              createElement('div', { className: 'control-item' }, '➡️ D - Move Right'),
-              createElement('div', { className: 'control-item' }, '💣 Space - Drop Bomb')
-            ]),
-          createElement('div', { className: 'testing-notice' },
-            createElement('h4', {}, '🧪 Testing Mode'),
-            createElement('p', {}, 'Game will automatically end after 5 seconds with a random winner for testing purposes.')
-          )
-        ),
-        
-        // Spectators section (show if there are spectators)
-        spectators.length > 0 ? createElement('div', { className: 'card spectators-card' },
-          createElement('h3', {}, `👥 Spectators (${spectators.length})`),
-          createElement('div', { className: 'spectator-list' },
-            spectators.map(spectator =>
-              createElement('div', {
-                className: `spectator-item ${spectator.id === session.playerId ? 'self' : ''}`,
-                key: spectator.id
-              },
-                createElement('div', { className: 'spectator-info' },
-                createElement('span', { className: 'spectator-nickname' }, spectator.nickname),
-                createElement('span', { className: 'spectator-status' }, '👁️ Watching'),
-                spectator.id === session.playerId ? 
-                  createElement('span', { className: 'you-badge' }, 'YOU') : null
-                )
-              )
-            )
-          )
-        ) : null
-      ),
-      
-      // Center - Game map
-      createElement('div', { className: 'game-map-container' },
-        createElement('div', { className: 'game-map', style: mapStyle }, tileElements)
+    createElement('span', { className: 'player-hearts' }, '♥'.repeat(Math.max(0, player.lives || 0)))
+  )
+);
+
+const playersSection = (players, sessionId) => createElement('div', { className: 'sidebar-section players-section' },
+  createElement('h3', { className: 'sidebar-title' }, 'Players'),
+  createElement('div', { className: 'players-list' }, players.map((p, idx) => playerRow(p, idx, sessionId)))
+);
+
+const chatMessages = (chat, sessionId) => chat.length === 0
+  ? createElement('p', { className: 'chat-empty' }, 'No messages yet...')
+  : chat.slice(-10).map((msg, i) =>
+      createElement('div', {
+        className: `chat-msg ${msg.player_id === sessionId ? 'own' : ''}`,
+        key: `m-${i}`
+      },
+        createElement('strong', { className: 'msg-author' }, msg.nickname),
+        createElement('span', { className: 'msg-text' }, msg.text)
+      )
+    );
+
+const chatForm = (session, websocket) => createElement('form', {
+  className: 'chat-form',
+  onsubmit: (e) => {
+    e.preventDefault();
+    const inp = e.target.querySelector('input');
+    const txt = inp.value.trim();
+    if (txt && session?.playerId && websocket?.connected) {
+      window.sendMessage({ type: 'chat', player_id: session.playerId, text: txt });
+      inp.value = '';
+    }
+  }
+},
+  createElement('input', {
+    type: 'text',
+    className: 'chat-input',
+    placeholder: 'Type message...',
+    maxlength: 100,
+    disabled: !websocket?.connected
+  }),
+  createElement('button', { type: 'submit', className: 'chat-send' }, '►')
+);
+
+const chatSection = (chat, session, websocket) => createElement('div', { className: 'sidebar-section chat-section' },
+  createElement('h3', { className: 'sidebar-title' }, 'Chat'),
+  createElement('div', { className: 'chat-messages' }, chatMessages(chat, session?.playerId)),
+  chatForm(session, websocket)
+);
+
+const sidebar = (currentPlayer, isSpectator, playersArray, session, chat, websocket) => createElement('aside', { className: 'sidebar sidebar-left' },
+  currentPlayer && !isSpectator ? statsSection(currentPlayer) : null,
+  playersSection(playersArray, session?.playerId),
+  chatSection(chat, session, websocket)
+);
+
+const buildTileElements = (tiles, players, bombs, powerUps, explosions, sessionId, playersArray) => tiles.map((tile) => {
+  const { x, y, type } = tile;
+  let cls = 'tile';
+
+  if (type === TileType.Wall) cls += ' wall';
+  else if (type === TileType.Block) cls += ' block';
+  else cls += ' floor';
+
+  const playerOnTile = Object.values(players).find(p => p.x === x && p.y === y && p.status === 'alive');
+  const bombOnTile = Object.values(bombs).find(b => b.x === x && b.y === y);
+  const powerUpOnTile = Object.values(powerUps).find(pu => pu.x === x && pu.y === y);
+  const explosionOnTile = Object.values(explosions).find(ex => ex.x === x && ex.y === y);
+
+  if (playerOnTile) {
+    cls += ' has-player';
+    if (hitPlayers.has(playerOnTile.id)) cls += ' hit';
+  }
+  if (bombOnTile) {
+    cls += ' has-bomb';
+    const age = Date.now() - bombOnTile.placedAt;
+    const fuse = bombOnTile.fuseMs || 2500;
+    if (age > fuse * 0.7) cls += ' critical';
+    else if (age > fuse * 0.4) cls += ' warning';
+  }
+  if (powerUpOnTile) cls += ` has-powerup ${powerUpOnTile.kind}`;
+  if (explosionOnTile) cls += ' has-explosion';
+
+  const playerIdx = playerOnTile ? playersArray.indexOf(playerOnTile) : -1;
+  const isSelf = playerOnTile?.id === sessionId;
+
+  return createElement('div', {
+    key: `t-${x}-${y}`,
+    className: cls,
+    style: { gridColumn: x + 1, gridRow: y + 1 }
+  },
+    playerOnTile ? createElement('div', { className: `player p${playerIdx} ${isSelf ? 'me' : ''}` },
+      createElement('span', { className: 'initial' }, playerOnTile.nickname.charAt(0).toUpperCase())
+    ) : null,
+    bombOnTile ? createElement('div', { className: 'bomb' }, '💣') : null,
+    powerUpOnTile ? createElement('div', { className: `powerup ${powerUpOnTile.kind}` },
+      powerUpOnTile.kind === 'bomb' ? '💣' : powerUpOnTile.kind === 'flame' ? '🔥' : '⚡'
+    ) : null,
+    explosionOnTile ? createElement('div', { className: 'explosion' }) : null
+  );
+});
+
+const overlays = ({ showLeaveConfirm, handleLeaveCancel, handleLeaveConfirm, isEliminated, status, isWinner, isSpectator, game, players }) => [
+  showLeaveConfirm ? createElement('div', { className: 'game-overlay leave-confirm' },
+    createElement('div', { className: 'overlay-box confirm-box' },
+      createElement('span', { className: 'overlay-emoji' }, '◄►'),
+      createElement('h2', {}, 'Leave Game?'),
+      createElement('p', {}, 'Are you sure you want to leave? You will lose your progress.'),
+      createElement('div', { className: 'confirm-actions' },
+        createElement('button', { className: 'btn-cancel', onclick: handleLeaveCancel }, 'Stay'),
+        createElement('button', { className: 'btn-confirm', onclick: handleLeaveConfirm }, 'Leave')
       )
     )
+  ) : null,
+  isEliminated && status === 'running' ? createElement('div', { className: 'game-overlay eliminated' },
+    createElement('div', { className: 'overlay-box' },
+      createElement('span', { className: 'overlay-emoji' }, '×_×'),
+      createElement('h2', {}, 'ELIMINATED'),
+      createElement('p', {}, 'Spectating the battle...')
+    )
+  ) : null,
+  status === 'finished' && isWinner ? createElement('div', { className: 'game-overlay victory' },
+    createElement('div', { className: 'overlay-box' },
+      createElement('span', { className: 'overlay-emoji' }, '★'),
+      createElement('h2', {}, 'VICTORY!'),
+      createElement('p', {}, 'You won!')
+    )
+  ) : null,
+  status === 'finished' && !isWinner && !isSpectator ? createElement('div', { className: 'game-overlay defeat' },
+    createElement('div', { className: 'overlay-box' },
+      createElement('span', { className: 'overlay-emoji' }, '※'),
+      createElement('h2', {}, 'GAME OVER'),
+      createElement('p', {}, game.winnerId ? `Winner: ${players[game.winnerId]?.nickname || '?'}` : 'No winner')
+    )
+  ) : null
+].filter(Boolean);
+
+export function GameScreen(state, store) {
+  initFPS();
+  frameCount++;
+
+  const game = state.game || {};
+  const map = game.map || { width: MAP_WIDTH, height: MAP_HEIGHT, tiles: [] };
+  const { players = {}, bombs = {}, powerUps = {}, explosions = {}, status } = game;
+  const { width, height, tiles = [] } = map;
+  const playersArray = Object.values(players);
+  const { session, chat = [], websocket } = state;
+
+  const currentPlayer = playersArray.find(p => p.id === session?.playerId);
+  const isEliminated = currentPlayer?.status === 'eliminated';
+  const isWinner = game.winnerId === session?.playerId;
+  const isSpectator = session?.isSpectator || false;
+
+  scheduleArenaSizing(width, height);
+
+  if (!tiles || tiles.length === 0) {
+    return createElement('div', { className: 'game-page' },
+      createElement('div', { className: 'game-loading' },
+        createElement('div', { className: 'loader' }),
+        createElement('p', {}, 'Loading arena...')
+      )
+    );
+  }
+
+  const tileElements = buildTileElements(tiles, players, bombs, powerUps, explosions, session?.playerId, playersArray);
+
+  const [showLeaveConfirm, setShowLeaveConfirm] = [
+    state.ui?.showLeaveConfirm || false,
+    (val) => store.setState({ ui: { ...state.ui, showLeaveConfirm: val } })
+  ];
+
+  const handleLeaveConfirm = () => {
+    if (websocket?.connected && session?.playerId) {
+      window.sendMessage({ type: 'leave', player_id: session.playerId });
+    }
+    store.setState({
+      session: { connected: false },
+      route: '#/',
+      lobby: { players: [], countdown: { phase: 'waiting', remainingMs: 0 }, spectators: [] },
+      game: { status: 'waiting', players: {}, winnerId: undefined },
+      chat: [],
+      ui: { showLeaveConfirm: false }
+    });
+    window.location.hash = '#/';
+  };
+
+  return createElement('div', { className: 'game-page' },
+    sidebar(currentPlayer, isSpectator, playersArray, session, chat, websocket),
+
+    createElement('main', { className: 'game-main' },
+      createElement('header', { className: 'game-header' },
+        createElement('button', { className: 'leave-btn', onclick: () => setShowLeaveConfirm(true), title: 'Leave Game' }, '« EXIT'),
+        createElement('h1', { className: 'game-title' }, '▣ BOMBERMAN'),
+        createElement('div', { className: 'fps-display' }, `${currentFPS} FPS`)
+      ),
+
+      createElement('div', { className: 'arena-container' },
+        createElement('div', {
+          className: 'arena',
+          style: { '--cols': width, '--rows': height }
+        }, tileElements)
+      )
+    ),
+
+    ...overlays({
+      showLeaveConfirm,
+      handleLeaveCancel: () => setShowLeaveConfirm(false),
+      handleLeaveConfirm,
+      isEliminated,
+      status,
+      isWinner,
+      isSpectator,
+      game,
+      players,
+      handleLeaveClick: () => setShowLeaveConfirm(true)
+    })
   );
 }
