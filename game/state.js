@@ -2,6 +2,29 @@ import { MAP_WIDTH, MAP_HEIGHT, TileType, GameStatus } from './constants.js';
 import { createTile } from './entities.js';
 import { pos } from './helpers.js';
 
+// DIFFICULTY SETTINGS - Edit this to change game difficulty
+// Options: 'easy', 'medium', 'hard'
+export const DIFFICULTY = 'hard';
+
+// Difficulty configurations
+const DIFFICULTY_CONFIG = {
+  easy: {
+    blockDensity: 0.35,
+    wallDensity: 0.08,
+    safeZoneSize: 2
+  },
+  medium: {
+    blockDensity: 0.55,
+    wallDensity: 0.15,
+    safeZoneSize: 1
+  },
+  hard: {
+    blockDensity: 0.70,
+    wallDensity: 0.22,
+    safeZoneSize: 1
+  }
+};
+
 export function createEmptyGameState({ width = MAP_WIDTH, height = MAP_HEIGHT } = {}) {
   const tiles = new Array(width * height);
   for (let i = 0; i < tiles.length; i++) {
@@ -19,7 +42,10 @@ export function createEmptyGameState({ width = MAP_WIDTH, height = MAP_HEIGHT } 
   };
 }
 
-export function generateGameMap({ width = MAP_WIDTH, height = MAP_HEIGHT, blockDensity = 0.75 } = {}) {
+export function generateGameMap({ width = MAP_WIDTH, height = MAP_HEIGHT, difficulty = DIFFICULTY } = {}) {
+  const config = DIFFICULTY_CONFIG[difficulty] || DIFFICULTY_CONFIG.medium;
+  const { blockDensity, wallDensity, safeZoneSize } = config;
+
   const tiles = new Array(width * height);
 
   const spawnPositions = [
@@ -29,6 +55,25 @@ export function generateGameMap({ width = MAP_WIDTH, height = MAP_HEIGHT, blockD
     { x: width - 2, y: height - 2 }
   ];
 
+  const isInSafeZone = (x, y) => {
+    for (const spawn of spawnPositions) {
+      if (Math.abs(x - spawn.x) <= safeZoneSize && Math.abs(y - spawn.y) <= safeZoneSize) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const isOnSpawnPath = (x, y) => {
+    for (const spawn of spawnPositions) {
+      if ((x === spawn.x && Math.abs(y - spawn.y) <= safeZoneSize + 1) ||
+        (y === spawn.y && Math.abs(x - spawn.x) <= safeZoneSize + 1)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   for (let i = 0; i < tiles.length; i++) {
     const { x, y } = pos(i, width);
     let tileType = TileType.Floor;
@@ -36,21 +81,19 @@ export function generateGameMap({ width = MAP_WIDTH, height = MAP_HEIGHT, blockD
     if (x === 0 || x === width - 1 || y === 0 || y === height - 1) {
       tileType = TileType.Wall;
     }
-    else if (x % 2 === 0 && y % 2 === 0) {
-      tileType = TileType.Wall;
+    else if (isInSafeZone(x, y)) {
+      tileType = TileType.Floor;
     }
-    else {
-      let isSafeCorridor = false;
-      for (const spawn of spawnPositions) {
-        if (Math.abs(x - spawn.x) <= 1 && Math.abs(y - spawn.y) <= 1) {
-          isSafeCorridor = true;
-          break;
-        }
-      }
-
-      if (!isSafeCorridor && Math.random() < blockDensity) {
+    else if (isOnSpawnPath(x, y)) {
+      if (Math.random() < blockDensity * 0.5) {
         tileType = TileType.Block;
       }
+    }
+    else if (Math.random() < wallDensity) {
+      tileType = TileType.Wall;
+    }
+    else if (Math.random() < blockDensity) {
+      tileType = TileType.Block;
     }
 
     tiles[i] = createTile({ x, y, type: tileType });
@@ -59,8 +102,8 @@ export function generateGameMap({ width = MAP_WIDTH, height = MAP_HEIGHT, blockD
   return { width, height, tiles };
 }
 
-export function createGameState({ width = MAP_WIDTH, height = MAP_HEIGHT, blockDensity = 0.75 } = {}) {
-  const map = generateGameMap({ width, height, blockDensity });
+export function createGameState({ width = MAP_WIDTH, height = MAP_HEIGHT, difficulty = DIFFICULTY } = {}) {
+  const map = generateGameMap({ width, height, difficulty });
   return {
     map,
     players: Object.create(null),
@@ -84,7 +127,7 @@ export function createLobbyState() {
 }
 
 export function createSessionState() {
-  return { 
+  return {
     connected: false,
     role: null,
     priority: 0,

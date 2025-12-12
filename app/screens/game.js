@@ -30,20 +30,16 @@ function applyArenaSizing(cols, rows) {
   const arenaEl = container?.querySelector('.arena');
   if (!container || !arenaEl || !cols || !rows) return;
 
-  const styles = getComputedStyle(container);
-  const paddingX = parseFloat(styles.paddingLeft || '0') + parseFloat(styles.paddingRight || '0');
-  const paddingY = parseFloat(styles.paddingTop || '0') + parseFloat(styles.paddingBottom || '0');
-
-  const availableWidth = container.clientWidth - paddingX;
-  const availableHeight = container.clientHeight - paddingY;
+  const availableWidth = container.clientWidth;
+  const availableHeight = container.clientHeight;
   if (availableWidth <= 0 || availableHeight <= 0) return;
 
   const tileSize = Math.max(8, Math.floor(Math.min(availableWidth / cols, availableHeight / rows)));
   arenaEl.style.setProperty('--cols', cols);
   arenaEl.style.setProperty('--rows', rows);
   arenaEl.style.setProperty('--tile-size', `${tileSize}px`);
-  arenaEl.style.width = `${tileSize * cols}px`;
-  arenaEl.style.height = `${tileSize * rows}px`;
+  arenaEl.style.width = '100%';
+  arenaEl.style.height = '100%';
 }
 
 function attachArenaResizeObserver() {
@@ -118,14 +114,14 @@ const playersSection = (players, sessionId) => createElement('div', { className:
 const chatMessages = (chat, sessionId) => chat.length === 0
   ? createElement('p', { className: 'chat-empty' }, 'No messages yet...')
   : chat.slice(-10).map((msg, i) =>
-      createElement('div', {
-        className: `chat-msg ${msg.player_id === sessionId ? 'own' : ''}`,
-        key: `m-${i}`
-      },
-        createElement('strong', { className: 'msg-author' }, msg.nickname),
-        createElement('span', { className: 'msg-text' }, msg.text)
-      )
-    );
+    createElement('div', {
+      className: `chat-msg ${msg.player_id === sessionId ? 'own' : ''}`,
+      key: `m-${i}`
+    },
+      createElement('strong', { className: 'msg-author' }, msg.nickname),
+      createElement('span', { className: 'msg-text' }, msg.text)
+    )
+  );
 
 const chatForm = (session, websocket) => createElement('form', {
   className: 'chat-form',

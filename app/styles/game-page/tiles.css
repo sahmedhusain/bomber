@@ -10,131 +10,100 @@
   height: 100%;
   min-width: 0;
   min-height: 0;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
 
-/* Floor tile - dark grid pattern */
+/* Floor tile - retro checkered pattern */
 .tile.floor {
-  background: linear-gradient(90deg, rgba(30, 45, 70, 0.3) 1px, transparent 1px),
-    linear-gradient(rgba(30, 45, 70, 0.3) 1px, transparent 1px),
-    linear-gradient(135deg, #151d2e 0%, #0f1520 100%);
-  background-size: 8px 8px, 8px 8px, 100% 100%;
+  background: linear-gradient(90deg, #1a2a1a 50%, #0f1a0f 50%);
+  background-size: 50% 100%;
+  box-shadow: inset 0 0 0 1px #0a0f0a;
 }
 
-/* Wall tile - solid indestructible brick pattern */
+/* Alternate floor pattern for visual variety */
+.tile.floor::before {
+  content: "";
+  position: absolute;
+  inset: 15%;
+  background: #121a12;
+  opacity: 0.3;
+}
+
+/* Wall tile - retro steel/concrete block */
 .tile.wall {
-  background: 
-    /* Brick pattern */ repeating-linear-gradient(
-      0deg,
-      rgba(60, 80, 110, 0.8) 0px,
-      rgba(60, 80, 110, 0.8) 1px,
-      transparent 1px,
-      transparent 15px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      rgba(40, 55, 80, 0.6) 0px,
-      rgba(40, 55, 80, 0.6) 1px,
-      transparent 1px,
-      transparent 15px
-    ),
-    linear-gradient(180deg, #3a4a65 0%, #2a3a55 30%, #1e2a40 70%, #151d2e 100%);
-  box-shadow: inset 0 2px 4px rgba(100, 150, 200, 0.2),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.6),
-    inset 2px 0 3px rgba(100, 150, 200, 0.1),
-    inset -2px 0 3px rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(20, 30, 50, 0.8);
+  background: #505860;
+  box-shadow: inset 3px 3px 0 #707880, inset -3px -3px 0 #303840,
+    inset 0 0 0 1px #202428;
+  border: none;
 }
 
-/* Wall top highlight */
+/* Wall retro highlight */
 .tile.wall::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(
-    90deg,
-    rgba(100, 130, 170, 0.3) 0%,
-    rgba(100, 130, 170, 0.5) 50%,
-    rgba(100, 130, 170, 0.3) 100%
-  );
+  top: 4px;
+  left: 4px;
+  right: 50%;
+  bottom: 50%;
+  background: #808890;
 }
 
-/* Wall metallic/stone texture */
+/* Wall retro shadow corner */
 .tile.wall::after {
   content: "";
   position: absolute;
-  inset: 0;
-  background: radial-gradient(
-      ellipse at 30% 20%,
-      rgba(150, 180, 220, 0.1) 0%,
-      transparent 50%
-    ),
-    radial-gradient(ellipse at 70% 80%, rgba(0, 0, 0, 0.2) 0%, transparent 50%);
-  pointer-events: none;
+  bottom: 4px;
+  right: 4px;
+  left: 50%;
+  top: 50%;
+  background: #282c30;
 }
 
-/* Block tile - destructible crate/box pattern */
+/* Block tile - retro destructible brick */
 .tile.block {
-  background: 
-    /* Cross pattern on crate */ linear-gradient(
-      45deg,
-      transparent 40%,
-      rgba(80, 55, 30, 0.6) 40%,
-      rgba(80, 55, 30, 0.6) 60%,
-      transparent 60%
-    ),
-    linear-gradient(
-      -45deg,
-      transparent 40%,
-      rgba(80, 55, 30, 0.6) 40%,
-      rgba(80, 55, 30, 0.6) 60%,
-      transparent 60%
-    ),
-    /* Wood grain effect */
-      repeating-linear-gradient(
-        90deg,
-        #8a6535 0px,
-        #9a7545 3px,
-        #7a5525 6px,
-        #8a6535 9px
-      ),
-    linear-gradient(180deg, #9a7040 0%, #7a5525 50%, #5a3a15 100%);
-  background-blend-mode: overlay, overlay, soft-light, normal;
-  box-shadow: inset 0 2px 4px rgba(200, 170, 100, 0.25),
-    inset 0 -3px 6px rgba(0, 0, 0, 0.5),
-    inset 2px 0 4px rgba(200, 170, 100, 0.15),
-    inset -2px 0 4px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(120, 90, 50, 0.6);
-  border-radius: 2px;
+  background: #b85c38;
+  box-shadow: inset 3px 3px 0 #d87850, inset -3px -3px 0 #8a4428,
+    inset 0 0 0 1px #5a2a18;
+  border: none;
+  border-radius: 0;
 }
 
-/* Block indicator - subtle shine for blocks */
+/* Block retro brick pattern */
 .tile.block::before {
   content: "";
   position: absolute;
-  top: 2px;
-  left: 2px;
-  right: 50%;
-  bottom: 50%;
+  inset: 0;
   background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.15) 0%,
-    transparent 100%
-  );
-  border-radius: 1px;
+      0deg,
+      transparent 45%,
+      #6a3420 45%,
+      #6a3420 55%,
+      transparent 55%
+    ),
+    linear-gradient(
+      90deg,
+      transparent 45%,
+      #6a3420 45%,
+      #6a3420 55%,
+      transparent 55%
+    );
+}
+
+/* Block highlight */
+.tile.block::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 30%;
+  height: 30%;
+  background: #e89068;
 }
 
 /* Animate block when about to be destroyed */
 .tile.block.destroying {
   animation: blockShake 0.1s ease-in-out infinite;
-}
-
-/* Block with hidden powerup - subtle glow */
-.tile.block.has-powerup-hidden {
-  box-shadow: inset 0 2px 4px rgba(200, 170, 100, 0.25),
-    inset 0 -3px 6px rgba(0, 0, 0, 0.5), 0 0 8px rgba(255, 200, 50, 0.3);
 }
 
 @keyframes blockShake {
@@ -143,10 +112,10 @@
     transform: translateX(0);
   }
   25% {
-    transform: translateX(-1px);
+    transform: translateX(-2px);
   }
   75% {
-    transform: translateX(1px);
+    transform: translateX(2px);
   }
 }
 
@@ -160,122 +129,146 @@
     filter: brightness(1);
   }
   50% {
-    filter: brightness(2);
+    filter: brightness(2.5);
+    background: #fff;
   }
 }
 
-/* Player on tile */
+/* Player on tile - Retro pixel character */
 .tile .player {
-  position: absolute;
-  inset: 6%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  border: 2px solid rgba(0, 0, 0, 0.7);
-  z-index: 5;
-  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.5), 0 5px 10px rgba(0, 0, 0, 0.4);
-  transition: transform 0.1s ease;
-}
-
-.tile .player::before {
-  content: "";
-  position: absolute;
-  top: 15%;
-  left: 20%;
-  width: 30%;
-  height: 30%;
-  background: rgba(255, 255, 255, 0.4);
-  border-radius: 50%;
-}
-
-.tile .player.p0 {
-  background: linear-gradient(180deg, #ff6b8a 0%, #ff4d6d 40%, #cc3d57 100%);
-  border-color: #992233;
-}
-.tile .player.p1 {
-  background: linear-gradient(180deg, #7af5ff 0%, #4bf3ff 40%, #3ccce6 100%);
-  border-color: #228899;
-}
-.tile .player.p2 {
-  background: linear-gradient(180deg, #7aeba8 0%, #4ee59f 40%, #3db87f 100%);
-  border-color: #228855;
-}
-.tile .player.p3 {
-  background: linear-gradient(180deg, #f9ec5a 0%, #f8e71c 40%, #d4c518 100%);
-  border-color: #998811;
-}
-
-.tile .player.me {
-  box-shadow: 0 0 0 3px var(--accent-cool), 0 0 20px rgba(75, 243, 255, 0.6),
-    0 3px 0 rgba(0, 0, 0, 0.5);
-  animation: playerGlow 1.5s ease-in-out infinite;
-}
-
-@keyframes playerGlow {
-  0%,
-  100% {
-    box-shadow: 0 0 0 3px var(--accent-cool), 0 0 15px rgba(75, 243, 255, 0.5),
-      0 3px 0 rgba(0, 0, 0, 0.5);
-  }
-  50% {
-    box-shadow: 0 0 0 4px var(--accent-cool), 0 0 25px rgba(75, 243, 255, 0.7),
-      0 3px 0 rgba(0, 0, 0, 0.5);
-  }
-}
-
-.tile .player .initial {
-  font-family: "Press Start 2P", monospace;
-  font-size: clamp(6px, 2vw, 10px);
-  font-weight: bold;
-  color: #fff;
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8), -1px -1px 0 rgba(0, 0, 0, 0.8),
-    1px -1px 0 rgba(0, 0, 0, 0.8), -1px 1px 0 rgba(0, 0, 0, 0.8);
-}
-
-/* Bomb */
-.tile .bomb {
   position: absolute;
   inset: 8%;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 4px;
+  z-index: 5;
+  image-rendering: pixelated;
+}
+
+/* Player body - retro blocky style */
+.tile .player::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 45%;
+  border-radius: 4px 4px 0 0;
+}
+
+/* Player colors - retro palette */
+.tile .player.p0 {
+  background: #e8e8e8;
+  box-shadow: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #a0a0a0,
+    0 2px 0 #404040;
+}
+.tile .player.p0::before {
+  background: #ff0000;
+}
+
+.tile .player.p1 {
+  background: #e8e8e8;
+  box-shadow: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #a0a0a0,
+    0 2px 0 #404040;
+}
+.tile .player.p1::before {
+  background: #0088ff;
+}
+
+.tile .player.p2 {
+  background: #e8e8e8;
+  box-shadow: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #a0a0a0,
+    0 2px 0 #404040;
+}
+.tile .player.p2::before {
+  background: #00cc00;
+}
+
+.tile .player.p3 {
+  background: #e8e8e8;
+  box-shadow: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #a0a0a0,
+    0 2px 0 #404040;
+}
+.tile .player.p3::before {
+  background: #ffcc00;
+}
+
+.tile .player.me {
+  box-shadow: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #a0a0a0,
+    0 0 0 3px #00ffff, 0 2px 0 #404040;
+  animation: playerBlink 0.8s step-end infinite;
+}
+
+@keyframes playerBlink {
+  0%,
+  100% {
+    box-shadow: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #a0a0a0,
+      0 0 0 3px #00ffff, 0 2px 0 #404040;
+  }
+  50% {
+    box-shadow: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #a0a0a0,
+      0 0 0 3px #ffffff, 0 2px 0 #404040;
+  }
+}
+
+.tile .player .initial {
   font-family: "Press Start 2P", monospace;
-  font-size: clamp(10px, 3vw, 18px);
-  color: #1a1a1a;
-  background: radial-gradient(
-    circle at 30% 30%,
-    #4a4a4a 0%,
-    #1a1a1a 60%,
-    #0a0a0a 100%
-  );
+  font-size: clamp(5px, 1.8vw, 9px);
+  font-weight: bold;
+  color: #000;
+  text-shadow: none;
+  z-index: 1;
+}
+
+/* Bomb - Retro round bomb */
+.tile .bomb {
+  position: absolute;
+  inset: 12%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #202020;
   border-radius: 50%;
-  border: 2px solid #0a0a0a;
-  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.6), 0 0 15px rgba(255, 100, 50, 0.4),
-    inset 0 -5px 10px rgba(0, 0, 0, 0.5);
-  animation: bombPulse 0.5s ease-in-out infinite;
+  box-shadow: inset 4px 4px 0 #404040, inset -2px -2px 0 #000000,
+    0 2px 0 #000000;
+  animation: bombPulse 0.4s step-end infinite;
   z-index: 4;
 }
 
-/* Bomb fuse spark */
+/* Bomb fuse */
 .tile .bomb::before {
-  content: "💥";
+  content: "";
   position: absolute;
-  top: -20%;
-  right: -5%;
-  font-size: clamp(6px, 1.5vw, 10px);
-  animation: sparkle 0.3s ease-in-out infinite;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 8px;
+  background: #804000;
 }
 
-@keyframes sparkle {
+/* Bomb spark */
+.tile .bomb::after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background: #ffff00;
+  border-radius: 50%;
+  animation: sparkBlink 0.15s step-end infinite;
+}
+
+@keyframes sparkBlink {
   0%,
   100% {
-    opacity: 1;
-    transform: scale(1);
+    background: #ffff00;
   }
   50% {
-    opacity: 0.6;
-    transform: scale(0.8);
+    background: #ff8800;
   }
 }
 
@@ -285,154 +278,143 @@
     transform: scale(1);
   }
   50% {
-    transform: scale(1.1);
+    transform: scale(1.08);
   }
 }
 
 .tile.warning .bomb {
-  animation: bombWarning 0.3s ease-in-out infinite;
+  animation: bombWarning 0.25s step-end infinite;
 }
 
 @keyframes bombWarning {
   0%,
   100% {
     transform: scale(1);
-    filter: brightness(1);
+    background: #202020;
   }
   50% {
-    transform: scale(1.15);
-    filter: brightness(1.3);
+    transform: scale(1.1);
+    background: #402020;
   }
 }
 
 .tile.critical .bomb {
-  animation: bombCritical 0.15s ease-in-out infinite;
+  animation: bombCritical 0.12s step-end infinite;
 }
 
 @keyframes bombCritical {
   0%,
   100% {
     transform: scale(1);
-    filter: brightness(1.5);
+    background: #ff0000;
   }
   50% {
-    transform: scale(1.2);
-    filter: brightness(2);
+    transform: scale(1.15);
+    background: #ffffff;
   }
 }
 
-/* Power-ups */
+/* Power-ups - Retro item boxes */
 .tile .powerup {
   position: absolute;
-  inset: 12%;
+  inset: 15%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: "Press Start 2P", monospace;
-  font-size: clamp(6px, 2vw, 10px);
+  font-size: clamp(5px, 1.5vw, 8px);
   font-weight: bold;
   color: #fff;
-  border-radius: 6px;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  animation: powerupFloat 1s ease-in-out infinite,
-    powerupGlow 1.5s ease-in-out infinite;
+  border-radius: 2px;
+  animation: powerupBounce 0.5s step-end infinite;
   z-index: 3;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
-@keyframes powerupFloat {
+@keyframes powerupBounce {
   0%,
   100% {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-3px);
-  }
-}
-
-@keyframes powerupGlow {
-  0%,
-  100% {
-    filter: brightness(1);
-  }
-  50% {
-    filter: brightness(1.3);
+    transform: translateY(-2px);
   }
 }
 
 .tile .powerup.bomb {
-  background: linear-gradient(180deg, #ff6b8a 0%, #ff4d6d 50%, #cc3d57 100%);
-  border-color: #ff4d6d;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 77, 109, 0.5);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  background: #ff4444;
+  box-shadow: inset 2px 2px 0 #ff8888, inset -2px -2px 0 #aa0000,
+    0 2px 0 #440000;
 }
 
 .tile .powerup.flame {
-  background: linear-gradient(180deg, #ffcc00 0%, #ff9900 50%, #ff6600 100%);
-  border-color: #ff9900;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 153, 0, 0.5);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  background: #ff8800;
+  box-shadow: inset 2px 2px 0 #ffcc44, inset -2px -2px 0 #aa4400,
+    0 2px 0 #442200;
 }
 
 .tile .powerup.speed {
-  background: linear-gradient(180deg, #7af5ff 0%, #4bf3ff 50%, #00ccff 100%);
-  border-color: #4bf3ff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 15px rgba(75, 243, 255, 0.5);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  background: #4488ff;
+  box-shadow: inset 2px 2px 0 #88ccff, inset -2px -2px 0 #0044aa,
+    0 2px 0 #002244;
 }
 
-/* Explosion */
+/* Explosion - Retro pixelated blast */
 .tile .explosion {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Press Start 2P", monospace;
-  font-size: clamp(10px, 3vw, 16px);
-  color: #fff;
-  background: radial-gradient(
-      circle,
-      rgba(255, 255, 255, 1) 0%,
-      transparent 30%
-    ),
-    radial-gradient(circle, rgba(255, 200, 50, 0.9) 20%, transparent 50%),
-    radial-gradient(circle, rgba(255, 100, 0, 0.8) 40%, transparent 70%),
-    radial-gradient(circle, rgba(200, 50, 0, 0.4) 60%, transparent 100%);
-  animation: explosionBoom 0.5s ease-out forwards;
   z-index: 10;
   pointer-events: none;
+  animation: explosionRetro 0.5s step-end forwards;
 }
 
-/* Explosion flame icon */
+.tile .explosion::before {
+  content: "";
+  position: absolute;
+  inset: 10%;
+  background: #ff8800;
+  box-shadow: inset 4px 4px 0 #ffff00, inset -4px -4px 0 #ff0000;
+}
+
 .tile .explosion::after {
-  content: "🔥";
+  content: "✦";
   font-size: clamp(8px, 2.5vw, 14px);
-  animation: flameFlicker 0.1s ease-in-out infinite;
+  color: #ffffff;
+  text-shadow: 0 0 0 #ffff00;
+  animation: explosionStar 0.1s step-end infinite;
 }
 
-@keyframes flameFlicker {
+@keyframes explosionStar {
   0%,
   100% {
-    transform: scale(1) rotate(-5deg);
+    color: #ffffff;
+    transform: rotate(0deg);
   }
   50% {
-    transform: scale(1.1) rotate(5deg);
+    color: #ffff00;
+    transform: rotate(45deg);
   }
 }
 
-@keyframes explosionBoom {
+@keyframes explosionRetro {
   0% {
-    transform: scale(0.5);
     opacity: 1;
   }
-  50% {
-    transform: scale(1.2);
+  20% {
     opacity: 1;
+  }
+  40% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.5;
   }
   100% {
-    transform: scale(1);
     opacity: 0;
   }
 }
-
