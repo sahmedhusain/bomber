@@ -1,4 +1,11 @@
 import { createElement } from '../../framework/core.js';
+import { getIconSVG } from '../icons/iconComponent.js';
+
+// Helper to create icon element
+const icon = (name, className = '') => createElement('span', {
+  className: `icon-wrapper ${className}`.trim(),
+  innerHTML: getIconSVG(name)
+});
 
 const MAX_PLAYERS = 4;
 
@@ -46,13 +53,16 @@ const playersGrid = (players, sessionId) => createElement('div', { className: 'p
 );
 
 const readyButton = (isReady, session, websocket) => createElement('button', {
-  className: `lobby-ready-btn ${isReady ? 'is-ready' : ''}`,
+  className: `lobby-ready-btn btn-icon ${isReady ? 'is-ready' : ''}`,
   onclick: () => session.playerId && window.sendMessage({ type: 'ready', player_id: session.playerId }),
   disabled: !websocket.connected
-}, isReady ? '✕ NOT READY' : '► READY');
+},
+  icon(isReady ? 'cancel' : 'check'),
+  createElement('span', {}, isReady ? 'NOT READY' : 'READY')
+);
 
 const leaveButton = (session, websocket, store) => createElement('button', {
-  className: 'lobby-leave-btn',
+  className: 'lobby-leave-btn btn-icon',
   onclick: () => {
     if (!session.playerId) return;
     const modal = {
@@ -66,7 +76,10 @@ const leaveButton = (session, websocket, store) => createElement('button', {
     store.setState({ ...curr, ui: { ...(curr.ui || {}), modal } });
   },
   disabled: !websocket.connected
-}, '◄ LEAVE');
+},
+  icon('door'),
+  createElement('span', {}, 'LEAVE')
+);
 
 const chatMessages = (chat, sessionId) => chat.length === 0
   ? createElement('p', { className: 'chat-empty-msg' }, 'Say hello to other players!')
@@ -100,12 +113,12 @@ const chatForm = (session, websocket) => createElement('form', {
     maxlength: 200,
     disabled: !websocket.connected
   }),
-  createElement('button', { type: 'submit', disabled: !websocket.connected }, '►')
+  createElement('button', { type: 'submit', className: 'btn-icon', disabled: !websocket.connected }, icon('arrowRight'))
 );
 
 const chatSection = (chat, session, websocket) => createElement('div', { className: 'lobby-chat-section' },
   createElement('div', { className: 'chat-header' },
-    createElement('span', { className: 'chat-icon' }, '◈'),
+    createElement('span', { className: 'chat-icon' }, icon('chat')),
     createElement('span', {}, 'CHAT')
   ),
   createElement('div', { className: 'chat-messages-box' }, chatMessages(chat, session.playerId)),
@@ -114,13 +127,13 @@ const chatSection = (chat, session, websocket) => createElement('div', { classNa
 
 const countdownOverlay = (lobby, route) => lobby.countdown.phase === 'pre-start' && route === '#/lobby'
   ? createElement('div', { className: 'countdown-overlay' },
-      createElement('div', { className: 'countdown-card' },
-        createElement('div', { className: 'countdown-icon' }, '▣'),
-        createElement('h2', {}, 'GET READY!'),
-        createElement('div', { className: 'countdown-timer' }, Math.ceil(lobby.countdown.remainingMs / 1000)),
-        createElement('p', {}, 'Battle begins soon...')
-      )
+    createElement('div', { className: 'countdown-card' },
+      createElement('div', { className: 'countdown-icon hero-icon' }, icon('bomb')),
+      createElement('h2', {}, 'GET READY!'),
+      createElement('div', { className: 'countdown-timer' }, Math.ceil(lobby.countdown.remainingMs / 1000)),
+      createElement('p', {}, 'Battle begins soon...')
     )
+  )
   : null;
 
 export function LobbyScreen(state, store) {
@@ -134,10 +147,10 @@ export function LobbyScreen(state, store) {
   return createElement('section', { className: 'screen lobby' },
     createElement('div', { className: 'lobby-container' },
       createElement('div', { className: 'lobby-title-section' },
-        createElement('span', { className: 'lobby-icon' }, '▣'),
+        createElement('span', { className: 'lobby-icon' }, icon('gamepad')),
         createElement('h1', {}, 'GAME LOBBY'),
         createElement('span', { className: 'lobby-status-text' },
-          lobbyTimerActive ? `Starting in ${lobbyTimeLeft}s...` : '« Waiting for players »'
+          lobbyTimerActive ? `Starting in ${lobbyTimeLeft}s...` : 'Waiting for players'
         )
       ),
 
@@ -151,8 +164,9 @@ export function LobbyScreen(state, store) {
         leaveButton(session, websocket, store)
       ),
 
-      playerCount < 2 ? createElement('p', { className: 'lobby-hint' },
-        '★ Need at least 2 players to start'
+      playerCount < 2 ? createElement('p', { className: 'lobby-hint icon-text' },
+        icon('star'),
+        createElement('span', {}, 'Need at least 2 players to start')
       ) : null,
 
       chatSection(chat, session, websocket)

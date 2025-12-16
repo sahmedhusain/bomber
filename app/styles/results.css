@@ -1,0 +1,583 @@
+/* ========================================
+   ARCADE RESULTS SCREEN
+   Classic retro game over / victory screen
+   ======================================== */
+
+.screen.results-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  max-height: 100vh;
+  padding: 16px;
+  overflow: hidden;
+  background-color: var(--bg);
+  background-image: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 1px
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(75, 243, 255, 0.08),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 80% 70%,
+      rgba(255, 77, 109, 0.08),
+      transparent 30%
+    ),
+    linear-gradient(135deg, #0d1325 0%, #0a0f1c 100%);
+  background-size: 24px 24px, 18px 18px, 100% 100%, 100% 100%, 100% 100%;
+  position: relative;
+}
+
+/* CRT Scanlines */
+.scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0,
+    transparent 2px,
+    rgba(0, 0, 0, 0.12) 2px,
+    rgba(0, 0, 0, 0.12) 4px
+  );
+  z-index: 50;
+}
+
+/* Main container */
+.results-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 700px;
+  width: 100%;
+  z-index: 1;
+}
+
+/* ========================================
+   TITLE SECTION - Big centered title
+   ======================================== */
+.results-title-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.title-deco {
+  width: 40px;
+  height: 4px;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+}
+
+.title-deco.left {
+  background: linear-gradient(90deg, transparent, var(--accent));
+}
+
+.title-deco.right {
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
+
+.results-big-title {
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(24px, 6vw, 42px);
+  color: var(--accent);
+  text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent), 0 4px 0 #8b6914,
+    0 6px 0 #5a4510;
+  letter-spacing: 4px;
+  animation: titleFlicker 3s ease-in-out infinite;
+  text-align: center;
+  margin: 0;
+}
+
+@keyframes titleFlicker {
+  0%,
+  100% {
+    opacity: 1;
+    text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent), 0 4px 0 #8b6914,
+      0 6px 0 #5a4510;
+  }
+  50% {
+    opacity: 0.95;
+    text-shadow: 0 0 15px var(--accent), 0 0 30px var(--accent), 0 4px 0 #8b6914,
+      0 6px 0 #5a4510;
+  }
+}
+
+/* ========================================
+   WINNER ANNOUNCEMENT
+   ======================================== */
+.winner-announce {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  background: linear-gradient(
+    135deg,
+    rgba(248, 231, 28, 0.15),
+    rgba(248, 231, 28, 0.05)
+  );
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(248, 231, 28, 0.2),
+    inset 0 0 20px rgba(248, 231, 28, 0.05);
+}
+
+.winner-trophy {
+  width: 32px;
+  height: 32px;
+  animation: trophyPulse 1s ease-in-out infinite;
+}
+
+.winner-trophy .icon-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.winner-trophy svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 8px var(--accent));
+}
+
+@keyframes trophyPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.winner-text {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: "Press Start 2P", monospace;
+}
+
+.winner-prefix {
+  font-size: 8px;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+.winner-name {
+  font-size: 14px;
+  color: var(--accent);
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+.winner-you {
+  font-size: 10px;
+  color: var(--accent-mint);
+  animation: youBlink 0.8s ease-in-out infinite;
+}
+
+@keyframes youBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ========================================
+   STANDINGS TABLE
+   ======================================== */
+.standings-box {
+  width: 100%;
+  background: linear-gradient(180deg, #12203a 0%, #0a1525 100%);
+  border: 3px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 0 #050812;
+}
+
+.standings-header {
+  display: grid;
+  grid-template-columns: 50px 40px 1fr 100px 70px;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--line);
+  font-family: "Press Start 2P", monospace;
+  font-size: 7px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.standings-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Individual player row */
+.standing-row {
+  display: grid;
+  grid-template-columns: 50px 40px 1fr 100px 70px;
+  gap: 8px;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.15s ease;
+}
+
+.standing-row:last-child {
+  border-bottom: none;
+}
+
+.standing-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.standing-row.is-you {
+  background: rgba(75, 243, 255, 0.08);
+  border-left: 3px solid var(--accent-cool);
+}
+
+.standing-row.rank-0 {
+  background: rgba(248, 231, 28, 0.08);
+}
+
+.standing-row.eliminated {
+  opacity: 0.6;
+}
+
+/* Rank column */
+.standing-rank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.standing-rank .icon-wrapper {
+  width: 20px;
+  height: 20px;
+}
+
+.standing-rank .icon-wrapper.gold svg {
+  filter: drop-shadow(0 0 6px var(--accent));
+}
+
+.standing-rank .icon-wrapper.silver svg {
+  filter: drop-shadow(0 0 4px #c0c0c0);
+}
+
+.standing-rank .icon-wrapper.bronze svg {
+  filter: drop-shadow(0 0 4px #cd7f32);
+}
+
+/* Avatar */
+.standing-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Press Start 2P", monospace;
+  font-size: 12px;
+  color: white;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.standing-avatar.player-0 {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+.standing-avatar.player-1 {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+}
+.standing-avatar.player-2 {
+  background: linear-gradient(135deg, #f39c12, #d68910);
+}
+.standing-avatar.player-3 {
+  background: linear-gradient(135deg, #9b59b6, #8e44ad);
+}
+
+/* Name */
+.standing-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  color: var(--ink);
+}
+
+.you-label {
+  font-size: 6px;
+  background: var(--accent-cool);
+  color: #0a1525;
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+/* Stats */
+.standing-stats {
+  display: flex;
+  gap: 12px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  color: var(--muted);
+}
+
+.standing-stats span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.standing-stats .icon-wrapper {
+  width: 14px;
+  height: 14px;
+  opacity: 0.8;
+}
+
+/* Status */
+.standing-status {
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  text-align: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.standing-status.alive {
+  color: var(--accent-mint);
+  background: rgba(78, 229, 159, 0.15);
+}
+
+.standing-status.eliminated {
+  color: var(--accent-hot);
+  background: rgba(255, 77, 109, 0.15);
+}
+
+/* ========================================
+   ACTION BUTTONS
+   ======================================== */
+.results-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 16px;
+}
+
+.arcade-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  border: 3px solid;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  box-shadow: 0 4px 0 #050812;
+  text-transform: uppercase;
+}
+
+.arcade-btn .icon-wrapper {
+  width: 18px;
+  height: 18px;
+}
+
+.arcade-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #050812;
+}
+
+.arcade-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #050812;
+}
+
+.arcade-btn.primary {
+  background: linear-gradient(180deg, var(--accent-mint), #2ecc71);
+  border-color: #27ae60;
+  color: #0a1a12;
+}
+
+.arcade-btn.primary:hover {
+  background: linear-gradient(180deg, #5feda8, var(--accent-mint));
+}
+
+.arcade-btn.secondary {
+  background: linear-gradient(180deg, #4a5a6a, #3a4a5a);
+  border-color: #5a6a7a;
+  color: var(--muted);
+}
+
+.arcade-btn.secondary:hover {
+  background: linear-gradient(180deg, #5a6a7a, #4a5a6a);
+  color: var(--ink);
+}
+
+/* Confirmed action state */
+.action-confirmed {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 28px;
+  background: linear-gradient(
+    135deg,
+    rgba(78, 229, 159, 0.2),
+    rgba(78, 229, 159, 0.1)
+  );
+  border: 2px solid var(--accent-mint);
+  border-radius: 8px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  color: var(--accent-mint);
+  animation: confirmGlow 1.5s ease-in-out infinite;
+}
+
+.action-confirmed .icon-wrapper {
+  width: 20px;
+  height: 20px;
+}
+
+@keyframes confirmGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 10px rgba(78, 229, 159, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(78, 229, 159, 0.5);
+  }
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 600px) {
+  .results-container {
+    gap: 16px;
+  }
+
+  .results-big-title {
+    font-size: 20px;
+    letter-spacing: 2px;
+  }
+
+  .title-deco {
+    width: 24px;
+  }
+
+  .winner-announce {
+    padding: 10px 16px;
+  }
+
+  .winner-trophy {
+    width: 24px;
+    height: 24px;
+  }
+
+  .winner-name {
+    font-size: 11px;
+  }
+
+  .standings-header {
+    grid-template-columns: 40px 32px 1fr 80px 50px;
+    font-size: 6px;
+    padding: 8px 12px;
+  }
+
+  .standing-row {
+    grid-template-columns: 40px 32px 1fr 80px 50px;
+    padding: 10px 12px;
+  }
+
+  .standing-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 10px;
+  }
+
+  .standing-name {
+    font-size: 8px;
+  }
+
+  .standing-stats {
+    font-size: 7px;
+    gap: 8px;
+  }
+
+  .standing-stats .icon-wrapper {
+    width: 12px;
+    height: 12px;
+  }
+
+  .standing-status {
+    font-size: 6px;
+    padding: 3px 6px;
+  }
+
+  .arcade-btn {
+    padding: 12px 18px;
+    font-size: 8px;
+  }
+
+  .arcade-btn .icon-wrapper {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .standings-header,
+  .standing-row {
+    grid-template-columns: 36px 28px 1fr 60px;
+  }
+
+  .standings-header span:nth-child(4),
+  .standing-stats {
+    display: none;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+@media (max-height: 600px) {
+  .results-container {
+    gap: 12px;
+  }
+
+  .results-big-title {
+    font-size: 18px;
+  }
+
+  .winner-announce {
+    padding: 8px 14px;
+  }
+
+  .standing-row {
+    padding: 8px 12px;
+  }
+
+  .arcade-btn {
+    padding: 10px 16px;
+  }
+}

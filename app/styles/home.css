@@ -104,6 +104,8 @@
 .welcome-card .subtitle {
   margin-top: -12px;
   margin-bottom: 8px;
+  display: flex;
+  justify-content: center;
 }
 
 .card-divider {
@@ -112,24 +114,9 @@
   margin: 4px 0;
 }
 
-.title-icon {
-  font-size: 64px;
-  color: var(--accent);
-  text-shadow: 0 4px 0 rgba(0, 0, 0, 0.5), 0 0 30px rgba(248, 231, 28, 0.5);
-  animation: bombPulse 1.5s ease-in-out infinite;
-  line-height: 1;
-}
-
-@keyframes bombPulse {
-  0%,
-  100% {
-    transform: scale(1);
-    text-shadow: 0 4px 0 rgba(0, 0, 0, 0.5), 0 0 30px rgba(248, 231, 28, 0.5);
-  }
-  50% {
-    transform: scale(1.05);
-    text-shadow: 0 4px 0 rgba(0, 0, 0, 0.5), 0 0 50px rgba(248, 231, 28, 0.7);
-  }
+/* Title icon override for home screen */
+.welcome-card .title-icon {
+  font-size: clamp(56px, 12vw, 88px);
 }
 
 .card-icon {
@@ -153,4 +140,3 @@
   line-height: 2.2;
   padding: 0 8px;
 }
-

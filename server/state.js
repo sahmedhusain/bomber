@@ -29,7 +29,9 @@ export const gameState = {
 export const timers = {
   lobbyTimer: null,
   countdownTimer: null,
-  gameLoopTimer: null
+  gameLoopTimer: null,
+  playAgainTimer: null,
+  spectatorJoinTimer: null
 };
 
 export const pendingInputs = [];

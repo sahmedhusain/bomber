@@ -117,12 +117,24 @@ button:disabled {
   letter-spacing: 2px;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
 }
 
-.join-button::before {
-  content: "►";
-  margin-right: 10px;
-  font-size: 14px;
+.join-button .icon-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.join-button .icon-wrapper svg {
+  width: 24px;
+  height: 24px;
+}
+
+.join-button .icon-wrapper svg rect {
+  fill: #0a0f18;
 }
 
 .join-button:hover {
@@ -140,4 +152,3 @@ button:disabled {
   grid-template-columns: 1fr 1fr;
   gap: 18px;
 }
-

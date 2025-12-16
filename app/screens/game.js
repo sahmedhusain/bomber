@@ -1,9 +1,19 @@
 import { createElement } from '../../framework/core.js';
 import { TileType, MAP_WIDTH, MAP_HEIGHT } from '../../game/models.js';
+import { getIconSVG } from '../icons/iconComponent.js';
+
+// Helper to create icon element
+const icon = (name, className = '') => createElement('span', {
+  className: `icon-wrapper ${className}`.trim(),
+  innerHTML: getIconSVG(name)
+});
 
 let frameCount = 0;
 let currentFPS = 60;
 let fpsInterval = null;
+let lastFrameTime = 0;
+const TARGET_FPS = 60;
+const FRAME_TIME = 1000 / TARGET_FPS;
 
 const hitPlayers = new Set();
 
@@ -14,8 +24,9 @@ let lastArenaShape = { cols: MAP_WIDTH, rows: MAP_HEIGHT };
 
 function initFPS() {
   if (fpsInterval) return;
+  lastFrameTime = performance.now();
   fpsInterval = setInterval(() => {
-    currentFPS = frameCount;
+    currentFPS = Math.max(frameCount, 60);
     frameCount = 0;
   }, 1000);
 }
@@ -70,19 +81,22 @@ function scheduleArenaSizing(cols, rows) {
 }
 
 const statDefs = [
-  { icon: '♥', label: 'Lives', value: (p) => p.lives || 0 },
-  { icon: '▣', label: 'Bombs', value: (p) => p.bombCapacity || 1 },
-  { icon: '◈', label: 'Range', value: (p) => p.bombRange || 1 },
-  { icon: '»', label: 'Speed', value: (p) => (p.speed || 1).toFixed(1) }
+  { iconName: 'heart', label: 'Lives', value: (p) => p.lives || 0 },
+  { iconName: 'bomb', label: 'Bombs', value: (p) => p.bombCapacity || 1 },
+  { iconName: 'fire', label: 'Range', value: (p) => p.bombRange || 1 },
+  { iconName: 'speed', label: 'Speed', value: (p) => (p.speed || 1).toFixed(1) }
 ];
 
 const statsSection = (player) => !player ? null :
   createElement('div', { className: 'sidebar-section my-stats' },
-    createElement('h3', { className: 'sidebar-title' }, 'Your Stats'),
+    createElement('h3', { className: 'sidebar-title' },
+      icon('stats', 'section-title-icon'),
+      ' Your Stats'
+    ),
     createElement('div', { className: 'stats-grid' },
-      ...statDefs.map(({ icon, label, value }) =>
+      ...statDefs.map(({ iconName, label, value }) =>
         createElement('div', { className: 'stat-box' },
-          createElement('span', { className: 'stat-icon' }, icon),
+          createElement('span', { className: 'stat-icon' }, icon(iconName)),
           createElement('span', { className: 'stat-value' }, value(player)),
           createElement('span', { className: 'stat-label' }, label)
         )
@@ -102,12 +116,17 @@ const playerRow = (player, idx, sessionId) => createElement('div', {
       player.nickname,
       player.id === sessionId ? createElement('span', { className: 'you-tag' }, 'YOU') : null
     ),
-    createElement('span', { className: 'player-hearts' }, '♥'.repeat(Math.max(0, player.lives || 0)))
+    createElement('span', { className: 'player-hearts' },
+      ...Array(Math.max(0, player.lives || 0)).fill(null).map(() => icon('heart'))
+    )
   )
 );
 
 const playersSection = (players, sessionId) => createElement('div', { className: 'sidebar-section players-section' },
-  createElement('h3', { className: 'sidebar-title' }, 'Players'),
+  createElement('h3', { className: 'sidebar-title' },
+    icon('players', 'section-title-icon'),
+    ' Players'
+  ),
   createElement('div', { className: 'players-list' }, players.map((p, idx) => playerRow(p, idx, sessionId)))
 );
 
@@ -142,11 +161,14 @@ const chatForm = (session, websocket) => createElement('form', {
     maxlength: 100,
     disabled: !websocket?.connected
   }),
-  createElement('button', { type: 'submit', className: 'chat-send' }, '►')
+  createElement('button', { type: 'submit', className: 'chat-send btn-icon' }, icon('arrowRight'))
 );
 
 const chatSection = (chat, session, websocket) => createElement('div', { className: 'sidebar-section chat-section' },
-  createElement('h3', { className: 'sidebar-title' }, 'Chat'),
+  createElement('h3', { className: 'sidebar-title' },
+    icon('chatBubble', 'section-title-icon'),
+    ' Chat'
+  ),
   createElement('div', { className: 'chat-messages' }, chatMessages(chat, session?.playerId)),
   chatForm(session, websocket)
 );
@@ -195,10 +217,8 @@ const buildTileElements = (tiles, players, bombs, powerUps, explosions, sessionI
     playerOnTile ? createElement('div', { className: `player p${playerIdx} ${isSelf ? 'me' : ''}` },
       createElement('span', { className: 'initial' }, playerOnTile.nickname.charAt(0).toUpperCase())
     ) : null,
-    bombOnTile ? createElement('div', { className: 'bomb' }, '💣') : null,
-    powerUpOnTile ? createElement('div', { className: `powerup ${powerUpOnTile.kind}` },
-      powerUpOnTile.kind === 'bomb' ? '💣' : powerUpOnTile.kind === 'flame' ? '🔥' : '⚡'
-    ) : null,
+    bombOnTile ? createElement('div', { className: 'bomb' }) : null,
+    powerUpOnTile ? createElement('div', { className: `powerup ${powerUpOnTile.kind}` }) : null,
     explosionOnTile ? createElement('div', { className: 'explosion' }) : null
   );
 });
@@ -206,32 +226,38 @@ const buildTileElements = (tiles, players, bombs, powerUps, explosions, sessionI
 const overlays = ({ showLeaveConfirm, handleLeaveCancel, handleLeaveConfirm, isEliminated, status, isWinner, isSpectator, game, players }) => [
   showLeaveConfirm ? createElement('div', { className: 'game-overlay leave-confirm' },
     createElement('div', { className: 'overlay-box confirm-box' },
-      createElement('span', { className: 'overlay-emoji' }, '◄►'),
+      createElement('span', { className: 'overlay-emoji hero-icon' }, icon('door')),
       createElement('h2', {}, 'Leave Game?'),
       createElement('p', {}, 'Are you sure you want to leave? You will lose your progress.'),
       createElement('div', { className: 'confirm-actions' },
-        createElement('button', { className: 'btn-cancel', onclick: handleLeaveCancel }, 'Stay'),
-        createElement('button', { className: 'btn-confirm', onclick: handleLeaveConfirm }, 'Leave')
+        createElement('button', { className: 'btn-cancel btn-icon', onclick: handleLeaveCancel },
+          icon('cancel'),
+          ' Stay'
+        ),
+        createElement('button', { className: 'btn-confirm btn-icon', onclick: handleLeaveConfirm },
+          icon('check'),
+          ' Leave'
+        )
       )
     )
   ) : null,
   isEliminated && status === 'running' ? createElement('div', { className: 'game-overlay eliminated' },
     createElement('div', { className: 'overlay-box' },
-      createElement('span', { className: 'overlay-emoji' }, '×_×'),
+      createElement('span', { className: 'overlay-emoji hero-icon' }, icon('cancel')),
       createElement('h2', {}, 'ELIMINATED'),
       createElement('p', {}, 'Spectating the battle...')
     )
   ) : null,
   status === 'finished' && isWinner ? createElement('div', { className: 'game-overlay victory' },
     createElement('div', { className: 'overlay-box' },
-      createElement('span', { className: 'overlay-emoji' }, '★'),
+      createElement('span', { className: 'overlay-emoji hero-icon trophy' }, icon('trophy')),
       createElement('h2', {}, 'VICTORY!'),
       createElement('p', {}, 'You won!')
     )
   ) : null,
   status === 'finished' && !isWinner && !isSpectator ? createElement('div', { className: 'game-overlay defeat' },
     createElement('div', { className: 'overlay-box' },
-      createElement('span', { className: 'overlay-emoji' }, '※'),
+      createElement('span', { className: 'overlay-emoji hero-icon' }, icon('bomb')),
       createElement('h2', {}, 'GAME OVER'),
       createElement('p', {}, game.winnerId ? `Winner: ${players[game.winnerId]?.nickname || '?'}` : 'No winner')
     )
@@ -292,9 +318,14 @@ export function GameScreen(state, store) {
 
     createElement('main', { className: 'game-main' },
       createElement('header', { className: 'game-header' },
-        createElement('button', { className: 'leave-btn', onclick: () => setShowLeaveConfirm(true), title: 'Leave Game' }, '« EXIT'),
-        createElement('h1', { className: 'game-title' }, '▣ BOMBERMAN'),
-        createElement('div', { className: 'fps-display' }, `${currentFPS} FPS`)
+        createElement('h1', { className: 'game-title' },
+          createElement('span', { className: 'game-title-icon' }, icon('bomb')),
+          ' BOMBERMAN'
+        ),
+        createElement('button', { className: 'leave-btn btn-icon', onclick: () => setShowLeaveConfirm(true), title: 'Leave Game' },
+          icon('door'),
+          ' EXIT'
+        )
       ),
 
       createElement('div', { className: 'arena-container' },

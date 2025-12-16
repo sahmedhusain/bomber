@@ -4,7 +4,7 @@ import { pos } from './helpers.js';
 
 // DIFFICULTY SETTINGS - Edit this to change game difficulty
 // Options: 'easy', 'medium', 'hard'
-export const DIFFICULTY = 'hard';
+export const DIFFICULTY = 'easy';
 
 // Difficulty configurations
 const DIFFICULTY_CONFIG = {

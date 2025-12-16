@@ -1,62 +1,19 @@
 import { createElement } from '../../framework/core.js';
+import { getIconSVG } from '../icons/iconComponent.js';
 
+// Helper to create icon element
+const icon = (name, className = '') => createElement('span', {
+  className: `icon-wrapper ${className}`.trim(),
+  innerHTML: getIconSVG(name)
+});
+
+// Sort players by status (alive first) then by lives
 const sortPlayers = (players) => [...players].sort((a, b) => {
   if (a.status !== b.status) return a.status === 'alive' ? -1 : 1;
   return (b.lives || 0) - (a.lives || 0);
 });
 
-const rankingItem = (player, index, sessionId, avatarIndex) => createElement('div', {
-  className: `ranking-item ${player.id === sessionId ? 'self' : ''} ${player.status}`,
-  key: player.id
-},
-  createElement('div', { className: 'rank' }, `#${index + 1}`),
-  createElement('div', { className: `player-avatar player-${avatarIndex}` },
-    player.nickname.charAt(0).toUpperCase()
-  ),
-  createElement('div', { className: 'player-info' },
-    createElement('div', { className: 'player-name' },
-      player.nickname,
-      player.id === sessionId ? createElement('span', { className: 'you-badge' }, 'YOU') : null
-    ),
-    createElement('div', { className: 'player-stats' },
-      createElement('span', { className: 'stat' }, `HP ${player.lives || 0} lives`),
-      createElement('span', { className: 'stat' }, `BMB ${player.bombCapacity || 1} bombs`),
-      createElement('span', { className: 'stat' }, `RNG ${player.bombRange || 1} range`)
-    )
-  ),
-  createElement('div', { className: 'player-status' }, player.status === 'alive' ? 'Alive' : 'Eliminated')
-);
-
-const rankingsSection = (players, sessionId) => players.length === 0 ? null :
-  createElement('div', { className: 'player-rankings' },
-    createElement('h3', {}, 'Final Rankings'),
-    createElement('div', { className: 'rankings-list' },
-      sortPlayers(players).map((player, index) => rankingItem(player, index, sessionId, players.indexOf(player)))
-    )
-  );
-
-const winnerSection = (winner, isWinner) => winner
-  ? createElement('div', { className: 'winner-section' },
-      createElement('div', { className: 'winner-trophy' }, '★'),
-      createElement('h2', {}, `Champion: ${winner.nickname}`),
-      createElement('p', { className: 'winner-text' },
-        isWinner ? 'Congratulations! You are the last bomber standing!' :
-          `${winner.nickname} proved to be the ultimate bomber!`
-      )
-    )
-  : createElement('div', { className: 'no-winner' },
-      createElement('h2', {}, 'No Winner Yet'),
-      createElement('p', {}, 'The battle continues...')
-    );
-
-const titleSection = (isWinner, winner) => createElement('div', { className: 'results-title' },
-  createElement('div', { className: 'title-icon' }, isWinner ? '★' : '▣'),
-  createElement('h1', {}, isWinner ? 'VICTORY!' : 'GAME OVER'),
-  createElement('p', { className: 'subtitle' },
-    winner ? `${winner.nickname} dominated the battlefield!` : 'Battle results and statistics'
-  )
-);
-
+// Confirm modal helper
 const confirmModal = (store) => {
   const modal = {
     kind: 'confirm',
@@ -69,39 +26,32 @@ const confirmModal = (store) => {
   store.setState({ ...curr, ui: { ...(curr.ui || {}), modal } });
 };
 
-const actionButton = (label, className, handler) => createElement('button', { className, onclick: handler }, label);
-
-const playerActions = (session, store) => createElement('div', { className: 'player-actions' },
-  createElement('p', { className: 'action-hint' }, 'You were a player in this match'),
-  actionButton('Play Again', 'button-primary', () => session?.playerId && window.sendMessage({ type: 'play_again', player_id: session.playerId })),
-  actionButton('Leave Lobby', 'button-secondary', () => session?.playerId && confirmModal(store))
-);
-
-const spectatorActions = (session, store) => createElement('div', { className: 'spectator-actions' },
-  createElement('p', { className: 'action-hint' }, 'You were a spectator in this match'),
-  actionButton('Join Game', 'button-primary', () => session?.playerId && window.sendMessage({ type: 'join_game', player_id: session.playerId })),
-  actionButton('Leave Lobby', 'button-secondary', () => session?.playerId && confirmModal(store))
-);
-
-const intentionBlock = (userIntention) => createElement('div', { className: 'intention-confirmed' },
-  createElement('div', { className: 'confirmation-message' },
-    createElement('div', { className: 'confirmation-icon' },
-      userIntention === 'play_again' ? '↻' : userIntention === 'join_game' ? '►' : '◄'
-    ),
-    createElement('p', { className: 'confirmation-text' },
-      userIntention === 'play_again' ? 'Ready to play again! Waiting for next match...' :
-        userIntention === 'join_game' ? 'Requesting to join as player! Waiting for next match...' :
-          'Leaving lobby...'
-    )
+// Player row for standings table
+const playerRow = (player, rank, sessionId, avatarIndex) => createElement('div', {
+  className: `standing-row ${player.id === sessionId ? 'is-you' : ''} ${player.status} rank-${rank}`,
+  key: player.id
+},
+  createElement('div', { className: 'standing-rank' },
+    rank === 0 ? icon('trophy', 'gold') :
+      rank === 1 ? icon('star', 'silver') :
+        rank === 2 ? icon('star', 'bronze') :
+          `#${rank + 1}`
   ),
-  createElement('p', { className: 'priority-info' },
-    userIntention === 'play_again' ? 'Priority as previous player' :
-      userIntention === 'join_game' ? 'You will get a player slot if available' : ''
+  createElement('div', { className: `standing-avatar player-${avatarIndex}` },
+    player.nickname.charAt(0).toUpperCase()
+  ),
+  createElement('div', { className: 'standing-name' },
+    player.nickname,
+    player.id === sessionId ? createElement('span', { className: 'you-label' }, 'YOU') : null
+  ),
+  createElement('div', { className: 'standing-stats' },
+    createElement('span', {}, icon('heart'), player.lives || 0),
+    createElement('span', {}, icon('bomb'), player.bombCapacity || 1),
+    createElement('span', {}, icon('fire'), player.bombRange || 1)
+  ),
+  createElement('div', { className: `standing-status ${player.status}` },
+    player.status === 'alive' ? 'ALIVE' : 'OUT'
   )
-);
-
-const actionsSection = (userIntention, wasPlayer, session, store) => createElement('div', { className: 'results-actions' },
-  userIntention ? intentionBlock(userIntention) : wasPlayer ? playerActions(session, store) : spectatorActions(session, store)
 );
 
 export function ResultsScreen(state, store) {
@@ -111,14 +61,82 @@ export function ResultsScreen(state, store) {
   const isWinner = winner?.id === session?.playerId;
   const wasPlayer = players.some(p => p.id === session?.playerId);
   const userIntention = session?.intention;
+  const sortedPlayers = sortPlayers(players);
 
-  return createElement('section', { className: 'screen results' },
-    createElement('div', { className: 'card results-card' },
-      titleSection(isWinner, winner),
-      createElement('div', { className: 'card-divider' }),
-      winnerSection(winner, isWinner),
-      rankingsSection(players, session?.playerId),
-      actionsSection(userIntention, wasPlayer, session, store)
-    )
+  return createElement('section', { className: 'screen results-screen' },
+    createElement('div', { className: 'results-container' },
+
+      // Big title section
+      createElement('div', { className: 'results-title-section' },
+        createElement('div', { className: 'title-deco left' }),
+        createElement('h1', { className: 'results-big-title' },
+          isWinner ? 'VICTORY!' : 'GAME OVER'
+        ),
+        createElement('div', { className: 'title-deco right' })
+      ),
+
+      // Winner announcement (if there's a winner)
+      winner ? createElement('div', { className: 'winner-announce' },
+        createElement('div', { className: 'winner-trophy' }, icon('trophy')),
+        createElement('div', { className: 'winner-text' },
+          createElement('span', { className: 'winner-prefix' }, 'CHAMPION'),
+          createElement('span', { className: 'winner-name' }, winner.nickname),
+          isWinner ? createElement('span', { className: 'winner-you' }, '(YOU!)') : null
+        )
+      ) : null,
+
+      // Standings table
+      createElement('div', { className: 'standings-box' },
+        createElement('div', { className: 'standings-header' },
+          createElement('span', {}, 'RANK'),
+          createElement('span', {}),
+          createElement('span', {}, 'PLAYER'),
+          createElement('span', {}, 'STATS'),
+          createElement('span', {}, 'STATUS')
+        ),
+        createElement('div', { className: 'standings-list' },
+          sortedPlayers.map((player, index) =>
+            playerRow(player, index, session?.playerId, players.indexOf(player))
+          )
+        )
+      ),
+
+      // Action buttons
+      createElement('div', { className: 'results-actions' },
+        userIntention
+          ? createElement('div', { className: 'action-confirmed' },
+            icon(userIntention === 'play_again' ? 'refresh' : userIntention === 'join_game' ? 'gamepad' : 'door'),
+            createElement('span', {},
+              userIntention === 'play_again' ? 'READY TO PLAY!' :
+                userIntention === 'join_game' ? 'JOINING GAME...' : 'LEAVING...'
+            )
+          )
+          : createElement('div', { className: 'action-buttons' },
+            createElement('button', {
+              className: 'arcade-btn primary',
+              onclick: () => {
+                if (wasPlayer) {
+                  session?.playerId && window.sendMessage({ type: 'play_again', player_id: session.playerId });
+                } else {
+                  session?.playerId && window.sendMessage({ type: 'join_game', player_id: session.playerId });
+                }
+              }
+            },
+              icon(wasPlayer ? 'refresh' : 'gamepad'),
+              createElement('span', {}, wasPlayer ? 'PLAY AGAIN' : 'JOIN GAME')
+            ),
+            createElement('button', {
+              className: 'arcade-btn secondary',
+              onclick: () => session?.playerId && confirmModal(store)
+            },
+              icon('door'),
+              createElement('span', {}, 'EXIT')
+            )
+          )
+      )
+    ),
+
+    // Scanlines
+    createElement('div', { className: 'scanlines' })
   );
 }

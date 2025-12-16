@@ -1,5 +1,12 @@
 import { createElement } from '../../framework/core.js';
 import { createPlayer, upsertPlayer, uid } from '../../game/models.js';
+import { getIconSVG } from '../icons/iconComponent.js';
+
+// Helper to create icon element
+const icon = (name, className = '') => createElement('span', {
+  className: `icon-wrapper ${className}`.trim(),
+  innerHTML: getIconSVG(name)
+});
 
 const submitNickname = (store) => (e) => {
   e.preventDefault();
@@ -23,13 +30,21 @@ const submitNickname = (store) => (e) => {
 export function NicknameScreen(state, store) {
   return createElement('section', { className: 'screen nickname' },
     createElement('div', { className: 'card welcome-card' },
-      createElement('div', { className: 'title-icon' }, '▣'),
+      createElement('div', { className: 'title-icon hero-icon' }, icon('bomb')),
       createElement('h1', {}, 'Bomberman'),
-      createElement('p', { className: 'subtitle' }, '« RETRO BATTLE ARENA »'),
+      createElement('p', { className: 'subtitle icon-text' },
+        icon('gamepad'),
+        createElement('span', {}, 'RETRO BATTLE ARENA'),
+        icon('gamepad')
+      ),
       createElement('div', { className: 'card-divider' }),
       createElement('p', { className: 'description' }, 'Enter your nickname to join the battle. Up to 16 characters.'),
       createElement('form', { onsubmit: submitNickname(store) },
-        createElement('label', { htmlFor: 'nickname-input' }, '◆ PLAYER NAME ◆'),
+        createElement('label', { htmlFor: 'nickname-input', className: 'icon-text' },
+          icon('gamepad'),
+          createElement('span', {}, 'PLAYER NAME'),
+          icon('gamepad')
+        ),
         createElement('input', {
           id: 'nickname-input',
           name: 'nickname',
@@ -40,7 +55,8 @@ export function NicknameScreen(state, store) {
           required: true
         }),
         createElement('button', { type: 'submit', className: 'join-button' },
-          'START GAME'
+          icon('arrowRight'),
+          createElement('span', {}, 'START GAME')
         )
       )
     )

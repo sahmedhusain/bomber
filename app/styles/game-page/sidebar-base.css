@@ -89,14 +89,27 @@
   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3), 0 0 10px rgba(75, 243, 255, 0.3);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+}
+
+/* Section title icon styling */
+.sidebar-title .section-title-icon,
+.sidebar-title .icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.3));
+}
+
+.sidebar-title .retro-icon,
+.sidebar-title .section-title-icon .retro-icon,
+.sidebar-title .icon-wrapper .retro-icon {
+  width: 18px;
+  height: 18px;
 }
 
 .sidebar-title::before {
-  content: "►";
-  font-size: 7px;
-  color: var(--accent);
-  animation: pulse-arrow 1.5s ease-in-out infinite;
+  display: none; /* Remove the old arrow, using SVG icons now */
 }
 
 @keyframes pulse-arrow {
@@ -110,4 +123,3 @@
     transform: translateX(2px);
   }
 }
-
