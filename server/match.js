@@ -182,23 +182,20 @@ export function startGame() {
 
 export function handleInGameDisconnect(playerId) {
   const gamePlayer = gameState.game.players[playerId];
-  const lobbyPlayer = gameState.players[playerId];
 
-  if (!gamePlayer || !lobbyPlayer) return;
+  if (!gamePlayer) return;
 
   gamePlayer.status = 'eliminated';
   gamePlayer.lives = 0;
+  gamePlayer.disconnected = true;
 
   delete gameState.players[playerId];
+  delete gameState.userRoles[playerId];
+  delete gameState.userIntentions[playerId];
+  delete gameState.userPriorities[playerId];
 
-  broadcast(JSON.stringify({
-    type: 'player_eliminated',
-    playerId: playerId,
-    reason: 'disconnected'
-  }));
-
-  broadcastGameUpdate();
   broadcastPlayers();
+  broadcastGameUpdate();
 
   checkGameEnd();
 }

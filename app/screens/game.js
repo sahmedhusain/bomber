@@ -104,23 +104,34 @@ const statsSection = (player) => !player ? null :
     )
   );
 
-const playerRow = (player, idx, sessionId) => createElement('div', {
-  className: `player-card ${player.status} ${player.id === sessionId ? 'is-me' : ''}`,
-  key: player.id
-},
-  createElement('div', { className: `player-avatar p${idx}` },
-    player.nickname.charAt(0).toUpperCase()
-  ),
-  createElement('div', { className: 'player-details' },
-    createElement('span', { className: 'player-name' },
-      player.nickname,
-      player.id === sessionId ? createElement('span', { className: 'you-tag' }, 'YOU') : null
+const playerRow = (player, idx, sessionId) => {
+  const hearts = player.status === 'alive'
+    ? Array(Math.max(0, player.lives || 0)).fill(null).map(() => icon('heart'))
+    : [];
+
+  const statusTag = player.status !== 'alive'
+    ? createElement('span', { className: 'player-status-tag' }, player.disconnected ? 'LEFT' : 'OUT')
+    : null;
+
+  return createElement('div', {
+    className: `player-card ${player.status} ${player.id === sessionId ? 'is-me' : ''}`,
+    key: player.id
+  },
+    createElement('div', { className: `player-avatar p${idx}` },
+      player.nickname.charAt(0).toUpperCase()
     ),
-    createElement('span', { className: 'player-hearts' },
-      ...Array(Math.max(0, player.lives || 0)).fill(null).map(() => icon('heart'))
+    createElement('div', { className: 'player-details' },
+      createElement('span', { className: 'player-name' },
+        player.nickname,
+        player.id === sessionId ? createElement('span', { className: 'you-tag' }, 'YOU') : null
+      ),
+      createElement('span', { className: 'player-hearts' },
+        ...(hearts.length ? hearts : []),
+        hearts.length === 0 && statusTag ? statusTag : null
+      )
     )
-  )
-);
+  );
+};
 
 const playersSection = (players, sessionId) => createElement('div', { className: 'sidebar-section players-section' },
   createElement('h3', { className: 'sidebar-title' },
@@ -304,7 +315,7 @@ export function GameScreen(state, store) {
 
   const handleLeaveConfirm = () => {
     if (websocket?.connected && session?.playerId) {
-      window.sendMessage({ type: 'leave', player_id: session.playerId });
+      window.sendMessage({ type: 'leave_lobby', player_id: session.playerId });
     }
     store.setState({
       session: { connected: false },

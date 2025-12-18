@@ -116,7 +116,7 @@ function handleModalAction(action, payload) {
   if (action === 'leaveLobby') {
     if (current.session?.playerId) {
       window.sendMessage({
-        type: 'disconnect',
+        type: 'leave_lobby',
         player_id: current.session.playerId
       });
     }
@@ -303,12 +303,21 @@ const messageHandlers = {
   },
   game_update: (state, data) => {
     const newPlayers = data.gameState?.players || {};
+    const seenIds = new Set();
+
     Object.values(newPlayers).forEach(player => {
+      seenIds.add(player.id);
       const prevLives = previousPlayerLives[player.id];
       if (prevLives !== undefined && player.lives < prevLives) {
         markPlayerHit(player.id);
       }
       previousPlayerLives[player.id] = player.lives;
+    });
+
+    Object.keys(previousPlayerLives).forEach(id => {
+      if (!seenIds.has(id)) {
+        delete previousPlayerLives[id];
+      }
     });
     let nextState = { ...state, game: data.gameState };
 
