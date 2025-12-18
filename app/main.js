@@ -29,7 +29,9 @@ function getValidRoute(state) {
     return '#/';
   }
 
-  if (game?.status === 'finished' || game?.winnerId) {
+  const hasWinner = Boolean(game?.winnerId) || (Array.isArray(game?.winnerIds) && game.winnerIds.length > 0);
+
+  if (game?.status === 'finished' || hasWinner) {
     return '#/results';
   }
 
@@ -365,7 +367,7 @@ const messageHandlers = {
   },
   show_results: (state, data) => routeTo('#/results', {
     ...state,
-    game: { ...data.gameState, winner: data.winner },
+    game: { ...data.gameState, winner: data.winner, winners: data.winners },
     route: '#/results'
   }),
   intention_recorded: (state, data) => store.setState({
@@ -382,7 +384,7 @@ const messageHandlers = {
       session: { connected: false },
       route: '#/',
       lobby: { players: [], countdown: { phase: 'waiting', remainingMs: 0 }, spectators: [] },
-      game: { status: 'waiting', players: {}, winnerId: undefined }
+      game: { status: 'waiting', players: {}, winnerId: undefined, winnerIds: [], winners: [], finalStandings: [], eliminationLog: [] }
     });
   }
 };

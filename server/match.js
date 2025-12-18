@@ -139,6 +139,11 @@ export function startGame() {
   gameState.game = createGameState();
   gameState.game.status = 'running';
   gameState.game.explosions = {};
+  gameState.game.winnerId = undefined;
+  gameState.game.winnerIds = [];
+  gameState.game.winners = [];
+  gameState.game.finalStandings = [];
+  gameState.game.eliminationLog = [];
 
   const players = Object.values(gameState.players);
 
@@ -162,7 +167,8 @@ export function startGame() {
       bombCapacity: DEFAULT_BOMB_CAPACITY,
       bombRange: DEFAULT_BOMB_RANGE,
       activePowerUps: {},
-      status: 'alive'
+      status: 'alive',
+      eliminatedAt: null
     };
   });
 
@@ -188,6 +194,16 @@ export function handleInGameDisconnect(playerId) {
   gamePlayer.status = 'eliminated';
   gamePlayer.lives = 0;
   gamePlayer.disconnected = true;
+  if (gamePlayer.eliminatedAt == null) {
+    gamePlayer.eliminatedAt = Date.now();
+    if (Array.isArray(gameState.game.eliminationLog)) {
+      gameState.game.eliminationLog.push({
+        playerId: gamePlayer.id,
+        eliminatedAt: gamePlayer.eliminatedAt,
+        reason: 'disconnect'
+      });
+    }
+  }
 
   delete gameState.players[playerId];
   delete gameState.userRoles[playerId];
@@ -208,6 +224,47 @@ export function checkGameEnd() {
   if (alivePlayers.length <= 1) {
     endGame();
   }
+}
+
+function computeFinalStandings() {
+  const players = Object.values(gameState.game.players);
+  if (players.length === 0) return [];
+
+  const standings = [];
+
+  const alivePlayers = players.filter(player => player.status === 'alive');
+  if (alivePlayers.length > 0) {
+    const aliveGroup = alivePlayers.slice().sort((a, b) => {
+      const lifeDiff = (b.lives || 0) - (a.lives || 0);
+      if (lifeDiff !== 0) return lifeDiff;
+      return a.nickname.localeCompare(b.nickname);
+    });
+    standings.push(aliveGroup);
+  }
+
+  const eliminatedGroups = new Map();
+  players
+    .filter(player => player.status !== 'alive')
+    .forEach(player => {
+      const stamp = player.eliminatedAt ?? 0;
+      if (!eliminatedGroups.has(stamp)) {
+        eliminatedGroups.set(stamp, []);
+      }
+      eliminatedGroups.get(stamp).push(player);
+    });
+
+  const sortedStamps = Array.from(eliminatedGroups.keys()).sort((a, b) => b - a);
+  sortedStamps.forEach(stamp => {
+    const group = eliminatedGroups.get(stamp);
+    group.sort((a, b) => {
+      const lifeDiff = (b.lives || 0) - (a.lives || 0);
+      if (lifeDiff !== 0) return lifeDiff;
+      return a.nickname.localeCompare(b.nickname);
+    });
+    standings.push(group);
+  });
+
+  return standings;
 }
 
 export function resetUserRoles() {
@@ -340,22 +397,14 @@ export function endGame() {
   stopGameLoop();
   gameState.room.status = 'game_ending';
 
-  const alivePlayers = Object.values(gameState.game.players).filter(p => p.status === 'alive');
-  const allGamePlayers = Object.values(gameState.game.players);
+  const standings = computeFinalStandings();
+  const winnerGroup = standings.length > 0 ? standings[0] : [];
+  const winnerIds = winnerGroup.map(player => player.id);
 
-  let winner = null;
-  if (alivePlayers.length === 1) {
-    winner = alivePlayers[0];
-  } else if (alivePlayers.length > 1) {
-    winner = alivePlayers[Math.floor(Math.random() * alivePlayers.length)];
-  } else if (allGamePlayers.length > 0) {
-    winner = allGamePlayers[Math.floor(Math.random() * allGamePlayers.length)];
-  }
-
-  if (winner) {
-    gameState.game.winnerId = winner.id;
-  }
-
+  gameState.game.winnerIds = winnerIds;
+  gameState.game.winnerId = winnerIds.length === 1 ? winnerIds[0] : null;
+  gameState.game.winners = winnerIds.map(id => gameState.game.players[id]).filter(Boolean);
+  gameState.game.finalStandings = standings.map(group => group.map(player => player.id));
   gameState.game.status = 'finished';
 
   broadcast(JSON.stringify({
@@ -363,14 +412,15 @@ export function endGame() {
     gameState: gameState.game
   }));
 
-  // Show results immediately (reduced from 30s to 2s)
+  // Show results shortly after the final explosion to allow overlays to render
   setTimeout(() => {
     gameState.room.status = 'results';
 
     broadcast(JSON.stringify({
       type: 'show_results',
       gameState: gameState.game,
-      winner: winner
+      winners: winnerGroup,
+      winner: winnerGroup.length === 1 ? winnerGroup[0] : null
     }));
 
     // No automatic transition - wait for player intentions

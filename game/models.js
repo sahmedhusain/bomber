@@ -99,7 +99,15 @@ export function setGameStatus(state, status) {
 }
 
 export function setWinner(state, winnerId) {
-  return nextGame(state, { winnerId, status: GameStatus.Finished });
+  const winnerIds = Array.isArray(winnerId)
+    ? winnerId
+    : (winnerId != null ? [winnerId] : []);
+  const normalizedWinnerId = winnerIds.length === 1 ? winnerIds[0] : null;
+  return nextGame(state, {
+    winnerId: normalizedWinnerId,
+    winnerIds,
+    status: GameStatus.Finished
+  });
 }
 
 export function pushChat(state, message) {
