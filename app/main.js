@@ -165,6 +165,46 @@ const routeTo = (route, newState) => {
 };
 
 let ws = null;
+let eliminationOverlayTimeout = null;
+
+function applyEliminationOverlay(baseState) {
+  if (!baseState?.session?.playerId) {
+    return baseState;
+  }
+
+  if (eliminationOverlayTimeout) {
+    clearTimeout(eliminationOverlayTimeout);
+    eliminationOverlayTimeout = null;
+  }
+
+  const hideAt = Date.now() + 2000;
+  const nextState = {
+    ...baseState,
+    ui: {
+      ...(baseState.ui || {}),
+      eliminationOverlay: { visible: true, hideAt }
+    }
+  };
+
+  eliminationOverlayTimeout = setTimeout(() => {
+    const current = store.getState();
+    const currentUi = current.ui || {};
+    const overlayState = currentUi.eliminationOverlay;
+    if (!overlayState || overlayState.hideAt !== hideAt) {
+      return;
+    }
+
+    const updatedUi = {
+      ...currentUi,
+      eliminationOverlay: { ...overlayState, visible: false }
+    };
+
+    store.setState({ ui: updatedUi });
+    eliminationOverlayTimeout = null;
+  }, 2000);
+
+  return nextState;
+}
 
 function connectWebSocket() {
   if (ws && ws.readyState === WebSocket.OPEN) return;
@@ -244,7 +284,14 @@ const messageHandlers = {
   input_ack: () => {},
   player_disconnected: () => {},
   player_reconnected: () => {},
-  player_eliminated: () => {},
+  player_eliminated: (state, data) => {
+    if (!state.session?.playerId || state.session.playerId !== data.playerId) {
+      return;
+    }
+
+    const nextState = applyEliminationOverlay(state);
+    store.setState(nextState);
+  },
   reconnected: (state, data) => {
     const newState = {
       ...state,
@@ -263,7 +310,18 @@ const messageHandlers = {
       }
       previousPlayerLives[player.id] = player.lives;
     });
-    store.setState({ ...state, game: data.gameState });
+    let nextState = { ...state, game: data.gameState };
+
+    const playerId = state.session?.playerId;
+    if (playerId) {
+      const prevStatus = state.game?.players?.[playerId]?.status;
+      const nextStatus = newPlayers[playerId]?.status;
+      if (prevStatus !== 'eliminated' && nextStatus === 'eliminated') {
+        nextState = applyEliminationOverlay(nextState);
+      }
+    }
+
+    store.setState(nextState);
   },
   joined_as_spectator: (state, data) => {
     const newState = {

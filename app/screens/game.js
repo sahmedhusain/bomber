@@ -223,7 +223,7 @@ const buildTileElements = (tiles, players, bombs, powerUps, explosions, sessionI
   );
 });
 
-const overlays = ({ showLeaveConfirm, handleLeaveCancel, handleLeaveConfirm, isEliminated, status, isWinner, isSpectator, game, players }) => [
+const overlays = ({ showLeaveConfirm, handleLeaveCancel, handleLeaveConfirm, isEliminated, showEliminationOverlay, status, isWinner, isSpectator, game, players }) => [
   showLeaveConfirm ? createElement('div', { className: 'game-overlay leave-confirm' },
     createElement('div', { className: 'overlay-box confirm-box' },
       createElement('span', { className: 'overlay-emoji hero-icon' }, icon('door')),
@@ -241,7 +241,7 @@ const overlays = ({ showLeaveConfirm, handleLeaveCancel, handleLeaveConfirm, isE
       )
     )
   ) : null,
-  isEliminated && status === 'running' ? createElement('div', { className: 'game-overlay eliminated' },
+  isEliminated && status === 'running' && showEliminationOverlay ? createElement('div', { className: 'game-overlay eliminated' },
     createElement('div', { className: 'overlay-box' },
       createElement('span', { className: 'overlay-emoji hero-icon' }, icon('cancel')),
       createElement('h2', {}, 'ELIMINATED'),
@@ -279,6 +279,10 @@ export function GameScreen(state, store) {
   const isEliminated = currentPlayer?.status === 'eliminated';
   const isWinner = game.winnerId === session?.playerId;
   const isSpectator = session?.isSpectator || false;
+  const eliminationOverlayState = state.ui?.eliminationOverlay;
+  const showEliminationOverlay = eliminationOverlayState
+    ? eliminationOverlayState.visible
+    : (isEliminated && status === 'running');
 
   scheduleArenaSizing(width, height);
 
@@ -344,6 +348,7 @@ export function GameScreen(state, store) {
       status,
       isWinner,
       isSpectator,
+      showEliminationOverlay,
       game,
       players,
       handleLeaveClick: () => setShowLeaveConfirm(true)
