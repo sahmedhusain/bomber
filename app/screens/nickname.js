@@ -28,7 +28,7 @@ const submitNickname = (store) => (e) => {
 };
 
 export function NicknameScreen(state, store) {
-  return createElement('section', { className: 'screen nickname' },
+  return createElement('section', { className: 'screen nickname', key: 'screen-nickname' },
     createElement('div', { className: 'card welcome-card' },
       createElement('div', { className: 'title-icon hero-icon' }, icon('bomb')),
       createElement('h1', {}, 'Bomberman'),

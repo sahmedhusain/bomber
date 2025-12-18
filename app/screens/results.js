@@ -63,7 +63,7 @@ export function ResultsScreen(state, store) {
   const userIntention = session?.intention;
   const sortedPlayers = sortPlayers(players);
 
-  return createElement('section', { className: 'screen results-screen' },
+  return createElement('section', { className: 'screen results-screen', key: 'screen-results' },
     createElement('div', { className: 'results-container' },
 
       // Big title section

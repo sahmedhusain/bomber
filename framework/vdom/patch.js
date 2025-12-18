@@ -9,8 +9,9 @@ export function patch(parent, oldVNode, newVNode, index = 0) {
 
     // Node removed
     if (!newVNode || newVNode === false || newVNode === null || newVNode === undefined) {
-        if (domNode) {
-            parent.removeChild(domNode);
+        const nodeToRemove = domNode || parent.lastChild;
+        if (nodeToRemove && nodeToRemove.parentNode === parent) {
+            parent.removeChild(nodeToRemove);
         }
         return;
     }
@@ -80,9 +81,21 @@ export function patch(parent, oldVNode, newVNode, index = 0) {
         patchKeyedChildren(domNode, oldChildren, newChildren);
     } else {
         // Simple index-based reconciliation for unkeyed children
-        const maxLength = Math.max(oldChildren.length, newChildren.length);
-        for (let i = 0; i < maxLength; i++) {
+        const sharedLength = Math.min(oldChildren.length, newChildren.length);
+
+        // Patch nodes that exist in both old and new children
+        for (let i = 0; i < sharedLength; i++) {
             patch(domNode, oldChildren[i], newChildren[i], i);
+        }
+
+        // Add any extra new children
+        for (let i = sharedLength; i < newChildren.length; i++) {
+            patch(domNode, null, newChildren[i], i);
+        }
+
+        // Remove any remaining old children
+        for (let i = sharedLength; i < oldChildren.length; i++) {
+            patch(domNode, oldChildren[i], null, sharedLength);
         }
     }
 }

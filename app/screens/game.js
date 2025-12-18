@@ -328,7 +328,7 @@ export function GameScreen(state, store) {
     window.location.hash = '#/';
   };
 
-  return createElement('div', { className: 'game-page' },
+  return createElement('div', { className: 'game-page', key: 'screen-game' },
     sidebar(currentPlayer, isSpectator, playersArray, session, chat, websocket),
 
     createElement('main', { className: 'game-main' },
