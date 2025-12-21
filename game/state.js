@@ -38,7 +38,11 @@ export function createEmptyGameState({ width = MAP_WIDTH, height = MAP_HEIGHT } 
     powerUps: Object.create(null),
     status: GameStatus.Waiting,
     lastUpdate: Date.now(),
-    winnerId: undefined
+    winnerId: undefined,
+    winnerIds: [],
+    winners: [],
+    finalStandings: [],
+    eliminationLog: []
   };
 }
 
@@ -111,7 +115,11 @@ export function createGameState({ width = MAP_WIDTH, height = MAP_HEIGHT, diffic
     powerUps: Object.create(null),
     status: GameStatus.Waiting,
     lastUpdate: Date.now(),
-    winnerId: undefined
+    winnerId: undefined,
+    winnerIds: [],
+    winners: [],
+    finalStandings: [],
+    eliminationLog: []
   };
 }
 

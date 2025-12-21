@@ -144,7 +144,7 @@ export function LobbyScreen(state, store) {
   const lobbyTimerActive = lobby.lobbyTimer?.active || false;
   const lobbyTimeLeft = Math.ceil((lobby.lobbyTimer?.remainingMs || 0) / 1000);
 
-  return createElement('section', { className: 'screen lobby' },
+  return createElement('section', { className: 'screen lobby', key: 'screen-lobby' },
     createElement('div', { className: 'lobby-container' },
       createElement('div', { className: 'lobby-title-section' },
         createElement('span', { className: 'lobby-icon' }, icon('gamepad')),

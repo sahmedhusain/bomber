@@ -138,12 +138,26 @@ export function explodeBomb(bomb) {
   const explosionTiles = computeExplosionTiles(bomb);
   registerExplosions(explosionTiles);
 
+  let eliminationStamp = null;
+
   Object.values(gameState.game.players).forEach(player => {
     if (player.status !== 'alive') return;
     if (explosionTiles.has(`${player.x},${player.y}`)) {
       player.lives = Math.max(0, (player.lives || DEFAULT_LIVES) - 1);
       if (player.lives <= 0) {
         player.status = 'eliminated';
+        if (eliminationStamp === null) {
+          eliminationStamp = Date.now();
+        }
+        if (player.eliminatedAt == null) {
+          player.eliminatedAt = eliminationStamp;
+          if (Array.isArray(gameState.game.eliminationLog)) {
+            gameState.game.eliminationLog.push({
+              playerId: player.id,
+              eliminatedAt: eliminationStamp
+            });
+          }
+        }
       }
     }
   });

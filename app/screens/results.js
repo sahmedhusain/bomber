@@ -7,11 +7,79 @@ const icon = (name, className = '') => createElement('span', {
   innerHTML: getIconSVG(name)
 });
 
-// Sort players by status (alive first) then by lives
+// Sort players by status (alive first) then by lives - used as fallback ordering
 const sortPlayers = (players) => [...players].sort((a, b) => {
   if (a.status !== b.status) return a.status === 'alive' ? -1 : 1;
   return (b.lives || 0) - (a.lives || 0);
 });
+
+const formatPlace = (place) => {
+  const mod10 = place % 10;
+  const mod100 = place % 100;
+  if (mod10 === 1 && mod100 !== 11) return `${place}st`;
+  if (mod10 === 2 && mod100 !== 12) return `${place}nd`;
+  if (mod10 === 3 && mod100 !== 13) return `${place}rd`;
+  return `${place}th`;
+};
+
+const buildStandings = (game) => {
+  const playersById = game?.players || {};
+  const playersList = Object.values(playersById);
+  const finalStandings = Array.isArray(game?.finalStandings) ? game.finalStandings : [];
+  const rows = [];
+  const seenIds = new Set();
+  let nextPlace = 1;
+
+  if (finalStandings.length > 0) {
+    finalStandings.forEach(group => {
+      const groupPlayers = group
+        .map(id => playersById[id])
+        .filter(Boolean);
+      if (groupPlayers.length === 0) return;
+      groupPlayers.forEach(player => {
+        rows.push({
+          player,
+          place: nextPlace,
+          tieCount: groupPlayers.length,
+          avatarIndex: playersList.indexOf(player)
+        });
+        seenIds.add(player.id);
+      });
+      nextPlace += groupPlayers.length;
+    });
+  }
+
+  if (rows.length === 0) {
+    return sortPlayers(playersList).map((player, index) => ({
+      player,
+      place: index + 1,
+      tieCount: 1,
+      avatarIndex: playersList.indexOf(player)
+    }));
+  }
+
+  playersList.forEach(player => {
+    if (seenIds.has(player.id)) return;
+    rows.push({
+      player,
+      place: nextPlace,
+      tieCount: 1,
+      avatarIndex: playersList.indexOf(player)
+    });
+    nextPlace += 1;
+  });
+
+  return rows;
+};
+
+const joinNames = (names) => {
+  if (!names || names.length === 0) return '';
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return `${names[0]} & ${names[1]}`;
+  const head = names.slice(0, -1).join(', ');
+  const tail = names[names.length - 1];
+  return `${head} & ${tail}`;
+};
 
 // Confirm modal helper
 const confirmModal = (store) => {
@@ -27,15 +95,16 @@ const confirmModal = (store) => {
 };
 
 // Player row for standings table
-const playerRow = (player, rank, sessionId, avatarIndex) => createElement('div', {
-  className: `standing-row ${player.id === sessionId ? 'is-you' : ''} ${player.status} rank-${rank}`,
+const playerRow = (player, place, tieCount, sessionId, avatarIndex) => createElement('div', {
+  className: `standing-row ${player.id === sessionId ? 'is-you' : ''} ${player.status} place-${place}`,
   key: player.id
 },
   createElement('div', { className: 'standing-rank' },
-    rank === 0 ? icon('trophy', 'gold') :
-      rank === 1 ? icon('star', 'silver') :
-        rank === 2 ? icon('star', 'bronze') :
-          `#${rank + 1}`
+    place === 1 ? icon('trophy', 'gold') :
+      place === 2 ? icon('star', 'silver') :
+        place === 3 ? icon('star', 'bronze') :
+          formatPlace(place),
+    tieCount > 1 ? createElement('span', { className: 'standing-draw-label' }, place === 1 ? 'DRAW' : 'TIED') : null
   ),
   createElement('div', { className: `standing-avatar player-${avatarIndex}` },
     player.nickname.charAt(0).toUpperCase()
@@ -50,37 +119,47 @@ const playerRow = (player, rank, sessionId, avatarIndex) => createElement('div',
     createElement('span', {}, icon('fire'), player.bombRange || 1)
   ),
   createElement('div', { className: `standing-status ${player.status}` },
-    player.status === 'alive' ? 'ALIVE' : 'OUT'
+    tieCount > 1 ? (place === 1 ? 'DRAW' : 'TIED') :
+      (player.status === 'alive' ? 'ALIVE' : 'OUT')
   )
 );
 
 export function ResultsScreen(state, store) {
   const { game, session } = state;
-  const winner = game?.winnerId ? Object.values(game.players).find(p => p.id === game.winnerId) : null;
   const players = Object.values(game?.players || {});
-  const isWinner = winner?.id === session?.playerId;
+  const winnerIds = Array.isArray(game?.winnerIds) && game.winnerIds.length
+    ? game.winnerIds
+    : (game?.winnerId ? [game.winnerId] : []);
+  const winnersFromPayload = Array.isArray(game?.winners) ? game.winners.filter(Boolean) : [];
+  const winners = winnersFromPayload.length
+    ? winnersFromPayload
+    : winnerIds
+      .map(id => game?.players?.[id])
+      .filter(Boolean);
+  const winnerNames = winners.map(w => w.nickname);
+  const isDraw = winners.length > 1;
+  const isWinner = session?.playerId ? winnerIds.includes(session.playerId) : false;
   const wasPlayer = players.some(p => p.id === session?.playerId);
   const userIntention = session?.intention;
-  const sortedPlayers = sortPlayers(players);
+  const standingsRows = buildStandings(game);
+  const titleText = isDraw ? 'DRAW!' : (isWinner ? 'VICTORY!' : 'GAME OVER');
 
-  return createElement('section', { className: 'screen results-screen' },
+  return createElement('section', { className: 'screen results-screen', key: 'screen-results' },
     createElement('div', { className: 'results-container' },
 
       // Big title section
       createElement('div', { className: 'results-title-section' },
         createElement('div', { className: 'title-deco left' }),
-        createElement('h1', { className: 'results-big-title' },
-          isWinner ? 'VICTORY!' : 'GAME OVER'
-        ),
+        createElement('h1', { className: 'results-big-title' }, titleText),
         createElement('div', { className: 'title-deco right' })
       ),
 
       // Winner announcement (if there's a winner)
-      winner ? createElement('div', { className: 'winner-announce' },
+      winners.length ? createElement('div', { className: 'winner-announce' },
         createElement('div', { className: 'winner-trophy' }, icon('trophy')),
         createElement('div', { className: 'winner-text' },
-          createElement('span', { className: 'winner-prefix' }, 'CHAMPION'),
-          createElement('span', { className: 'winner-name' }, winner.nickname),
+          createElement('span', { className: 'winner-prefix' }, isDraw ? 'DRAW BETWEEN' : 'CHAMPION'),
+          createElement('span', { className: 'winner-name' }, isDraw ? joinNames(winnerNames) : winners[0].nickname),
           isWinner ? createElement('span', { className: 'winner-you' }, '(YOU!)') : null
         )
       ) : null,
@@ -95,8 +174,14 @@ export function ResultsScreen(state, store) {
           createElement('span', {}, 'STATUS')
         ),
         createElement('div', { className: 'standings-list' },
-          sortedPlayers.map((player, index) =>
-            playerRow(player, index, session?.playerId, players.indexOf(player))
+          standingsRows.map(({ player, place, tieCount, avatarIndex }) =>
+            playerRow(
+              player,
+              place,
+              tieCount,
+              session?.playerId,
+              avatarIndex >= 0 ? avatarIndex : players.indexOf(player)
+            )
           )
         )
       ),

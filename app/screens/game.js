@@ -8,6 +8,15 @@ const icon = (name, className = '') => createElement('span', {
   innerHTML: getIconSVG(name)
 });
 
+const joinNames = (names) => {
+  if (!names || names.length === 0) return '';
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return `${names[0]} & ${names[1]}`;
+  const head = names.slice(0, -1).join(', ');
+  const tail = names[names.length - 1];
+  return `${head} & ${tail}`;
+};
+
 let frameCount = 0;
 let currentFPS = 60;
 let fpsInterval = null;
@@ -104,23 +113,34 @@ const statsSection = (player) => !player ? null :
     )
   );
 
-const playerRow = (player, idx, sessionId) => createElement('div', {
-  className: `player-card ${player.status} ${player.id === sessionId ? 'is-me' : ''}`,
-  key: player.id
-},
-  createElement('div', { className: `player-avatar p${idx}` },
-    player.nickname.charAt(0).toUpperCase()
-  ),
-  createElement('div', { className: 'player-details' },
-    createElement('span', { className: 'player-name' },
-      player.nickname,
-      player.id === sessionId ? createElement('span', { className: 'you-tag' }, 'YOU') : null
+const playerRow = (player, idx, sessionId) => {
+  const hearts = player.status === 'alive'
+    ? Array(Math.max(0, player.lives || 0)).fill(null).map(() => icon('heart'))
+    : [];
+
+  const statusTag = player.status !== 'alive'
+    ? createElement('span', { className: 'player-status-tag' }, player.disconnected ? 'LEFT' : 'OUT')
+    : null;
+
+  return createElement('div', {
+    className: `player-card ${player.status} ${player.id === sessionId ? 'is-me' : ''}`,
+    key: player.id
+  },
+    createElement('div', { className: `player-avatar p${idx}` },
+      player.nickname.charAt(0).toUpperCase()
     ),
-    createElement('span', { className: 'player-hearts' },
-      ...Array(Math.max(0, player.lives || 0)).fill(null).map(() => icon('heart'))
+    createElement('div', { className: 'player-details' },
+      createElement('span', { className: 'player-name' },
+        player.nickname,
+        player.id === sessionId ? createElement('span', { className: 'you-tag' }, 'YOU') : null
+      ),
+      createElement('span', { className: 'player-hearts' },
+        ...(hearts.length ? hearts : []),
+        hearts.length === 0 && statusTag ? statusTag : null
+      )
     )
-  )
-);
+  );
+};
 
 const playersSection = (players, sessionId) => createElement('div', { className: 'sidebar-section players-section' },
   createElement('h3', { className: 'sidebar-title' },
@@ -223,7 +243,7 @@ const buildTileElements = (tiles, players, bombs, powerUps, explosions, sessionI
   );
 });
 
-const overlays = ({ showLeaveConfirm, handleLeaveCancel, handleLeaveConfirm, isEliminated, status, isWinner, isSpectator, game, players }) => [
+const overlays = ({ showLeaveConfirm, handleLeaveCancel, handleLeaveConfirm, isEliminated, showEliminationOverlay, status, isWinner, isSpectator, winnerNames, isDraw }) => [
   showLeaveConfirm ? createElement('div', { className: 'game-overlay leave-confirm' },
     createElement('div', { className: 'overlay-box confirm-box' },
       createElement('span', { className: 'overlay-emoji hero-icon' }, icon('door')),
@@ -241,7 +261,7 @@ const overlays = ({ showLeaveConfirm, handleLeaveCancel, handleLeaveConfirm, isE
       )
     )
   ) : null,
-  isEliminated && status === 'running' ? createElement('div', { className: 'game-overlay eliminated' },
+  isEliminated && status === 'running' && showEliminationOverlay ? createElement('div', { className: 'game-overlay eliminated' },
     createElement('div', { className: 'overlay-box' },
       createElement('span', { className: 'overlay-emoji hero-icon' }, icon('cancel')),
       createElement('h2', {}, 'ELIMINATED'),
@@ -251,15 +271,17 @@ const overlays = ({ showLeaveConfirm, handleLeaveCancel, handleLeaveConfirm, isE
   status === 'finished' && isWinner ? createElement('div', { className: 'game-overlay victory' },
     createElement('div', { className: 'overlay-box' },
       createElement('span', { className: 'overlay-emoji hero-icon trophy' }, icon('trophy')),
-      createElement('h2', {}, 'VICTORY!'),
-      createElement('p', {}, 'You won!')
+      createElement('h2', {}, isDraw ? 'DRAW!' : 'VICTORY!'),
+      createElement('p', {}, isDraw ? 'Shared victory!' : 'You won!')
     )
   ) : null,
   status === 'finished' && !isWinner && !isSpectator ? createElement('div', { className: 'game-overlay defeat' },
     createElement('div', { className: 'overlay-box' },
       createElement('span', { className: 'overlay-emoji hero-icon' }, icon('bomb')),
       createElement('h2', {}, 'GAME OVER'),
-      createElement('p', {}, game.winnerId ? `Winner: ${players[game.winnerId]?.nickname || '?'}` : 'No winner')
+      createElement('p', {}, winnerNames.length
+        ? (isDraw ? `Draw: ${joinNames(winnerNames)}` : `Winner: ${winnerNames[0]}`)
+        : 'No winner')
     )
   ) : null
 ].filter(Boolean);
@@ -277,8 +299,19 @@ export function GameScreen(state, store) {
 
   const currentPlayer = playersArray.find(p => p.id === session?.playerId);
   const isEliminated = currentPlayer?.status === 'eliminated';
-  const isWinner = game.winnerId === session?.playerId;
+  const winnerIds = Array.isArray(game.winnerIds) && game.winnerIds.length
+    ? game.winnerIds
+    : (game.winnerId ? [game.winnerId] : []);
+  const winnerNames = winnerIds
+    .map(id => players[id]?.nickname)
+    .filter(Boolean);
+  const isDraw = winnerIds.length > 1;
+  const isWinner = session?.playerId ? winnerIds.includes(session.playerId) : false;
   const isSpectator = session?.isSpectator || false;
+  const eliminationOverlayState = state.ui?.eliminationOverlay;
+  const showEliminationOverlay = eliminationOverlayState
+    ? eliminationOverlayState.visible
+    : (isEliminated && status === 'running');
 
   scheduleArenaSizing(width, height);
 
@@ -300,20 +333,20 @@ export function GameScreen(state, store) {
 
   const handleLeaveConfirm = () => {
     if (websocket?.connected && session?.playerId) {
-      window.sendMessage({ type: 'leave', player_id: session.playerId });
+      window.sendMessage({ type: 'leave_lobby', player_id: session.playerId });
     }
     store.setState({
       session: { connected: false },
       route: '#/',
       lobby: { players: [], countdown: { phase: 'waiting', remainingMs: 0 }, spectators: [] },
-      game: { status: 'waiting', players: {}, winnerId: undefined },
+      game: { status: 'waiting', players: {}, winnerId: undefined, winnerIds: [], winners: [], finalStandings: [], eliminationLog: [] },
       chat: [],
       ui: { showLeaveConfirm: false }
     });
     window.location.hash = '#/';
   };
 
-  return createElement('div', { className: 'game-page' },
+  return createElement('div', { className: 'game-page', key: 'screen-game' },
     sidebar(currentPlayer, isSpectator, playersArray, session, chat, websocket),
 
     createElement('main', { className: 'game-main' },
@@ -344,6 +377,9 @@ export function GameScreen(state, store) {
       status,
       isWinner,
       isSpectator,
+      showEliminationOverlay,
+      winnerNames,
+      isDraw,
       game,
       players,
       handleLeaveClick: () => setShowLeaveConfirm(true)

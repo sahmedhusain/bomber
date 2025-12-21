@@ -1,6 +1,6 @@
 import { gameState, timers } from './state.js';
 import { wsToPlayer, playerToWs } from './connections.js';
-import { broadcast, broadcastPlayers, broadcastSpectators } from './broadcast.js';
+import { broadcast, broadcastPlayers, broadcastSpectators, broadcastGameUpdate } from './broadcast.js';
 import { queueInput } from './gameLogic.js';
 import { startLobbyTimer, handlePlayerLeave, handleInGameDisconnect, handlePlayAgain, handleJoinGameFromResults } from './match.js';
 import { getUniqueNickname } from './utils.js';
@@ -199,15 +199,28 @@ export function handleMessage(ws, message) {
       const playerId = data.player_id;
 
       delete gameState.userIntentions[playerId];
-      delete gameState.userRoles[playerId];
       delete gameState.userPriorities[playerId];
 
-      if (gameState.players[playerId]) {
-        delete gameState.players[playerId];
-        handlePlayerLeave();
-      } else if (gameState.spectators[playerId]) {
-        delete gameState.spectators[playerId];
-        broadcastSpectators();
+      let handledInGame = false;
+      if (gameState.room.status === 'playing' && gameState.game.players[playerId]) {
+        handleInGameDisconnect(playerId);
+        handledInGame = true;
+      }
+
+      if (!handledInGame) {
+        delete gameState.userRoles[playerId];
+
+        if (gameState.players[playerId]) {
+          delete gameState.players[playerId];
+          if (gameState.game.players[playerId]) {
+            delete gameState.game.players[playerId];
+            broadcastGameUpdate();
+          }
+          handlePlayerLeave();
+        } else if (gameState.spectators[playerId]) {
+          delete gameState.spectators[playerId];
+          broadcastSpectators();
+        }
       }
 
       const userWs = playerToWs.get(playerId);
