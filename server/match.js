@@ -74,7 +74,6 @@ export function stopAllTimers() {
   stopCountdownTimer();
   stopGameLoop();
 
-  // Stop play again and spectator join timers
   if (timers.playAgainTimer) {
     clearTimeout(timers.playAgainTimer);
     timers.playAgainTimer = null;
@@ -412,7 +411,6 @@ export function endGame() {
     gameState: gameState.game
   }));
 
-  // Show results shortly after the final explosion to allow overlays to render
   setTimeout(() => {
     gameState.room.status = 'results';
 
@@ -422,9 +420,6 @@ export function endGame() {
       winners: winnerGroup,
       winner: winnerGroup.length === 1 ? winnerGroup[0] : null
     }));
-
-    // No automatic transition - wait for player intentions
-    // The transition is now handled by handlePlayAgain and handleJoinGameFromResults
   }, 2000);
 }
 
@@ -462,23 +457,18 @@ export function handlePlayerLeave() {
   broadcastPlayers();
 }
 
-// Handle "Play Again" - immediate transfer to lobby for first 4 players
 export function handlePlayAgain(playerId) {
   if (gameState.room.status !== 'results') return false;
 
-  // Count current play_again intentions
   const playAgainCount = Object.values(gameState.userIntentions).filter(i => i === 'play_again').length;
 
   if (playAgainCount >= 4) {
-    // Already have 4 players, can't add more
     return false;
   }
 
-  // Record intention
   gameState.userIntentions[playerId] = 'play_again';
   gameState.userPriorities[playerId] = 1;
 
-  // Notify player their intention was recorded
   const playerWs = playerToWs.get(playerId);
   if (playerWs) {
     playerWs.send(JSON.stringify({
@@ -487,32 +477,26 @@ export function handlePlayAgain(playerId) {
     }));
   }
 
-  // Check if we should transition to lobby now
   const newPlayAgainCount = Object.values(gameState.userIntentions).filter(i => i === 'play_again').length;
 
-  // Transition immediately when we have at least 1 play_again
-  // Use a short delay to allow multiple rapid clicks
   if (!timers.playAgainTimer) {
     timers.playAgainTimer = setTimeout(() => {
       timers.playAgainTimer = null;
       if (gameState.room.status === 'results') {
         resetGameToLobby();
       }
-    }, 500); // 500ms delay to batch multiple play_again clicks
+    }, 500);
   }
 
   return true;
 }
 
-// Handle "Join Game" from spectator - 10 second delay if no players chose play_again
 export function handleJoinGameFromResults(playerId) {
   if (gameState.room.status !== 'results') return false;
 
-  // Record intention
   gameState.userIntentions[playerId] = 'join_game';
   gameState.userPriorities[playerId] = 2;
 
-  // Notify spectator their intention was recorded
   const playerWs = playerToWs.get(playerId);
   if (playerWs) {
     playerWs.send(JSON.stringify({
@@ -521,17 +505,13 @@ export function handleJoinGameFromResults(playerId) {
     }));
   }
 
-  // Check if any player has chosen play_again
   const hasPlayAgain = Object.values(gameState.userIntentions).some(i => i === 'play_again');
 
   if (hasPlayAgain) {
-    // Players are choosing play_again, spectator will be handled in resetGameToLobby
     return true;
   }
 
-  // No players chose play_again, start 10 second timer for spectator join
   if (!timers.spectatorJoinTimer) {
-    // Broadcast countdown to spectators
     let countdown = 10;
 
     broadcast(JSON.stringify({
@@ -542,7 +522,6 @@ export function handleJoinGameFromResults(playerId) {
     timers.spectatorJoinTimer = setInterval(() => {
       countdown--;
 
-      // Check again if a player chose play_again during countdown
       const playAgainNow = Object.values(gameState.userIntentions).some(i => i === 'play_again');
       if (playAgainNow) {
         clearInterval(timers.spectatorJoinTimer);

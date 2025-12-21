@@ -2,11 +2,8 @@ import { MAP_WIDTH, MAP_HEIGHT, TileType, GameStatus } from './constants.js';
 import { createTile } from './entities.js';
 import { pos } from './helpers.js';
 
-// DIFFICULTY SETTINGS - Edit this to change game difficulty
-// Options: 'easy', 'medium', 'hard'
 export const DIFFICULTY = 'easy';
 
-// Difficulty configurations
 const DIFFICULTY_CONFIG = {
   easy: {
     blockDensity: 0.35,

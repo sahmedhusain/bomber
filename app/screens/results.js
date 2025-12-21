@@ -1,13 +1,11 @@
 import { createElement } from '../../framework/core.js';
 import { getIconSVG } from '../icons/iconComponent.js';
 
-// Helper to create icon element
 const icon = (name, className = '') => createElement('span', {
   className: `icon-wrapper ${className}`.trim(),
   innerHTML: getIconSVG(name)
 });
 
-// Sort players by status (alive first) then by lives - used as fallback ordering
 const sortPlayers = (players) => [...players].sort((a, b) => {
   if (a.status !== b.status) return a.status === 'alive' ? -1 : 1;
   return (b.lives || 0) - (a.lives || 0);
@@ -81,7 +79,6 @@ const joinNames = (names) => {
   return `${head} & ${tail}`;
 };
 
-// Confirm modal helper
 const confirmModal = (store) => {
   const modal = {
     kind: 'confirm',
@@ -94,7 +91,6 @@ const confirmModal = (store) => {
   store.setState({ ...curr, ui: { ...(curr.ui || {}), modal } });
 };
 
-// Player row for standings table
 const playerRow = (player, place, tieCount, sessionId, avatarIndex) => createElement('div', {
   className: `standing-row ${player.id === sessionId ? 'is-you' : ''} ${player.status} place-${place}`,
   key: player.id
@@ -147,14 +143,12 @@ export function ResultsScreen(state, store) {
   return createElement('section', { className: 'screen results-screen', key: 'screen-results' },
     createElement('div', { className: 'results-container' },
 
-      // Big title section
       createElement('div', { className: 'results-title-section' },
         createElement('div', { className: 'title-deco left' }),
         createElement('h1', { className: 'results-big-title' }, titleText),
         createElement('div', { className: 'title-deco right' })
       ),
 
-      // Winner announcement (if there's a winner)
       winners.length ? createElement('div', { className: 'winner-announce' },
         createElement('div', { className: 'winner-trophy' }, icon('trophy')),
         createElement('div', { className: 'winner-text' },
@@ -164,7 +158,6 @@ export function ResultsScreen(state, store) {
         )
       ) : null,
 
-      // Standings table
       createElement('div', { className: 'standings-box' },
         createElement('div', { className: 'standings-header' },
           createElement('span', {}, 'RANK'),
@@ -186,7 +179,6 @@ export function ResultsScreen(state, store) {
         )
       ),
 
-      // Action buttons
       createElement('div', { className: 'results-actions' },
         userIntention
           ? createElement('div', { className: 'action-confirmed' },
@@ -221,7 +213,6 @@ export function ResultsScreen(state, store) {
       )
     ),
 
-    // Scanlines
     createElement('div', { className: 'scanlines' })
   );
 }

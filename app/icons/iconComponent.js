@@ -142,7 +142,6 @@ const SVG_ICONS = {
     <rect x="11" y="13" width="2" height="2" fill="#ffd700"/>
   </svg>`,
 
-  // Players/Users icon
   players: `<svg class="retro-icon icon-players" viewBox="0 0 16 16" fill="none">
     <rect x="5" y="1" width="6" height="4" fill="#4bf3ff"/>
     <rect x="4" y="3" width="2" height="2" fill="#4bf3ff"/>
@@ -155,7 +154,6 @@ const SVG_ICONS = {
     <rect x="12" y="8" width="2" height="3" fill="#4ee59f"/>
   </svg>`,
 
-  // Stats/Chart icon
   stats: `<svg class="retro-icon icon-stats" viewBox="0 0 16 16" fill="none">
     <rect x="1" y="13" width="14" height="2" fill="#4a5568"/>
     <rect x="2" y="8" width="3" height="5" fill="#4bf3ff"/>
@@ -166,7 +164,6 @@ const SVG_ICONS = {
     <rect x="10" y="5" width="3" height="1" fill="#ff6d8d"/>
   </svg>`,
 
-  // Chat bubble icon (larger/title version)
   chatBubble: `<svg class="retro-icon icon-chat-bubble" viewBox="0 0 16 16" fill="none">
     <rect x="1" y="2" width="14" height="9" fill="#4bf3ff"/>
     <rect x="2" y="3" width="12" height="7" fill="#0a1a2a"/>
@@ -177,7 +174,6 @@ const SVG_ICONS = {
     <rect x="4" y="8" width="4" height="1" fill="rgba(75,243,255,0.4)"/>
   </svg>`,
 
-  // Bomberman logo icon
   bomberman: `<svg class="retro-icon icon-bomberman" viewBox="0 0 16 16" fill="none">
     <rect x="5" y="1" width="6" height="2" fill="#f8e71c"/>
     <rect x="4" y="3" width="8" height="3" fill="#e8e8e8"/>
@@ -191,7 +187,6 @@ const SVG_ICONS = {
     <rect x="9" y="11" width="2" height="3" fill="#2d3748"/>
   </svg>`,
 
-  // Checkmark icon (for alive status)
   checkmark: `<svg class="retro-icon icon-checkmark" viewBox="0 0 16 16" fill="none">
     <rect x="12" y="2" width="2" height="2" fill="#4ee59f"/>
     <rect x="11" y="4" width="2" height="2" fill="#4ee59f"/>
@@ -203,7 +198,6 @@ const SVG_ICONS = {
     <rect x="2" y="5" width="2" height="2" fill="#4ee59f"/>
   </svg>`,
 
-  // Skull icon (for eliminated status)
   skull: `<svg class="retro-icon icon-skull" viewBox="0 0 16 16" fill="none">
     <rect x="4" y="2" width="8" height="2" fill="#e8e8e8"/>
     <rect x="3" y="4" width="10" height="6" fill="#e8e8e8"/>
@@ -217,7 +211,6 @@ const SVG_ICONS = {
   </svg>`
 };
 
-// Alias mappings
 const ICON_ALIASES = {
   flame: 'fire',
   lightning: 'speed',
@@ -238,20 +231,11 @@ const ICON_ALIASES = {
   eliminated: 'skull'
 };
 
-/**
- * Get icon SVG string by name
- * @param {string} name - Icon name
- * @returns {string} SVG string
- */
 export function getIconSVG(name) {
   const resolvedName = ICON_ALIASES[name] || name;
   return SVG_ICONS[resolvedName] || '';
 }
 
-/**
- * Create a span element containing the icon (for use with createElement)
- * Returns props object that can be spread into createElement
- */
 export function iconProps(name, className = '') {
   return {
     className: `icon-wrapper ${className}`.trim(),
@@ -259,16 +243,9 @@ export function iconProps(name, className = '') {
   };
 }
 
-/**
- * Create icon HTML for direct innerHTML usage
- * @param {string} name - Icon name
- * @param {string} size - Size class (xs, sm, md, lg, xl, xxl)
- * @returns {string} HTML string
- */
 export function icon(name, size = 'md') {
   const svg = getIconSVG(name);
   if (!svg) return '';
-  // Add size attribute to svg
   return svg.replace('class="retro-icon', `class="retro-icon" data-size="${size}"`);
 }
 

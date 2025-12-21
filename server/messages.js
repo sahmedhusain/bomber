@@ -132,19 +132,16 @@ export function handleMessage(ws, message) {
     } else if (msgType === 'play_again') {
       const playerId = data.player_id;
 
-      // Use new immediate play_again handler
       handlePlayAgain(playerId);
 
     } else if (msgType === 'join_game') {
       const playerId = data.player_id;
 
-      // If in results screen, use delayed join
       if (gameState.room.status === 'results') {
         handleJoinGameFromResults(playerId);
         return;
       }
 
-      // Otherwise, immediate join if slots available (lobby state)
       const currentPlayerCount = Object.keys(gameState.players).length;
       const maxPlayers = 4;
 

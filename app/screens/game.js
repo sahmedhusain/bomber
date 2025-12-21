@@ -2,7 +2,6 @@ import { createElement } from '../../framework/core.js';
 import { TileType, MAP_WIDTH, MAP_HEIGHT } from '../../game/models.js';
 import { getIconSVG } from '../icons/iconComponent.js';
 
-// Helper to create icon element
 const icon = (name, className = '') => createElement('span', {
   className: `icon-wrapper ${className}`.trim(),
   innerHTML: getIconSVG(name)
