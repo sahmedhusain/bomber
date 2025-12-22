@@ -36,7 +36,7 @@ export const timers = {
 
 export const pendingInputs = [];
 
-export const GAME_TICK_MS = 100;
+export const GAME_TICK_MS = 15;
 export const EXPLOSION_DURATION_MS = 600;
 export const LOBBY_WAIT_TIME = 20;
 export const COUNTDOWN_TIME = 10;
