@@ -2,7 +2,7 @@ import { gameState, timers } from './state.js';
 import { wsToPlayer, playerToWs } from './connections.js';
 import { broadcast, broadcastPlayers, broadcastSpectators, broadcastGameUpdate } from './broadcast.js';
 import { queueInput } from './gameLogic.js';
-import { startLobbyTimer, handlePlayerLeave, handleInGameDisconnect, handlePlayAgain, handleJoinGameFromResults } from './match.js';
+import { startLobbyTimer, handlePlayerLeave, handleInGameDisconnect, handlePlayAgain, handleJoinGameFromResults, resetGameToLobby } from './match.js';
 import { getUniqueNickname } from './utils.js';
 
 export function handleMessage(ws, message) {
@@ -16,6 +16,10 @@ export function handleMessage(ws, message) {
 
       wsToPlayer.set(ws, playerId);
       playerToWs.set(playerId, ws);
+
+      if (gameState.room.status === 'results') {
+        resetGameToLobby();
+      }
 
       const currentPlayerCount = Object.keys(gameState.players).length;
 

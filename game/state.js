@@ -45,7 +45,7 @@ export function createEmptyGameState({ width = MAP_WIDTH, height = MAP_HEIGHT } 
 
 export function generateGameMap({ width = MAP_WIDTH, height = MAP_HEIGHT, difficulty = DIFFICULTY } = {}) {
   const config = DIFFICULTY_CONFIG[difficulty] || DIFFICULTY_CONFIG.medium;
-  const { blockDensity, wallDensity, safeZoneSize } = config;
+  const { blockDensity, safeZoneSize } = config;
 
   const tiles = new Array(width * height);
 
@@ -79,7 +79,10 @@ export function generateGameMap({ width = MAP_WIDTH, height = MAP_HEIGHT, diffic
     const { x, y } = pos(i, width);
     let tileType = TileType.Floor;
 
-    if (x === 0 || x === width - 1 || y === 0 || y === height - 1) {
+    const isBorder = x === 0 || x === width - 1 || y === 0 || y === height - 1;
+    const isFixedWall = !isBorder && (x % 2 === 0) && (y % 2 === 0);
+
+    if (isBorder || isFixedWall) {
       tileType = TileType.Wall;
     }
     else if (isInSafeZone(x, y)) {
@@ -89,9 +92,6 @@ export function generateGameMap({ width = MAP_WIDTH, height = MAP_HEIGHT, diffic
       if (Math.random() < blockDensity * 0.5) {
         tileType = TileType.Block;
       }
-    }
-    else if (Math.random() < wallDensity) {
-      tileType = TileType.Wall;
     }
     else if (Math.random() < blockDensity) {
       tileType = TileType.Block;
