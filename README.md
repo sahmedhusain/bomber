@@ -115,30 +115,33 @@ Add your captures under `screenshots/` and link them here.
 
 ```mermaid
 flowchart LR
-	subgraph Client [Browser]
-		Input[Keyboard Input\n(move, bomb)]
-		UI[DOM Screens + HUD]
-		Audio[Audio hooks]
-		ChatC[Chat sidebar]
-	end
+	 subgraph Client [Browser]
+	   Input["Keyboard Input
+     (move, bomb)"]
+	   UI["DOM Screens + HUD"]
+	   Audio[Audio hooks]
+	   ChatC[Chat sidebar]
+	 end
 
-	subgraph Server [Node.js]
-		HTTP[HTTP 8080\nserves index + assets]
-		WS[WebSocket 8765\nstate + chat]
-		Loop[15ms Tick Loop]
-		State[Authoritative Game State]
-		ChatS[Chat relay]
-		Broadcast[Diff broadcast -> clients]
-	end
+	 subgraph Server [Node.js]
+	   HTTP["HTTP 8080
+     serves index + assets"]
+	   WS["WebSocket 8765
+     state + chat"]
+	   Loop[15ms Tick Loop]
+	   State[Authoritative Game State]
+	   ChatS[Chat relay]
+	   Broadcast["Diff broadcast -> clients"]
+	 end
 
-	Input -.->|WS| WS
-	UI <--> |HTTP| HTTP
-	ChatC <--> |WS| ChatS
-	WS <--> State
-	Loop --> State
-	State --> Broadcast
-	Broadcast --> UI
-	Loop --> WS
+	 Input -.->|WS| WS
+	 UI <--> |HTTP| HTTP
+	 ChatC <--> |WS| ChatS
+	 WS <--> State
+	 Loop --> State
+	 State --> Broadcast
+	 Broadcast --> UI
+	 Loop --> WS
 ```
 
 ## 🎮 Game Flow
@@ -168,26 +171,31 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-	I[Input arrives\n(move or bomb)] --> Q[Enqueue per player]
-	Q --> T[15ms tick]
-	T --> VAL[Validate & throttle\n(move cooldown, alive?)]
-	VAL --> MOVE[Resolve movement\n+ collisions]
-	MOVE --> PU{Power-up on tile?}
-	PU -->|Yes| APPLY[Apply boost\nbomb/flame/speed]
-	PU -->|No| BOMB
-	APPLY --> BOMB
-	MOVE --> BOMB
-	BOMB[Place bomb if under capacity] --> FUSE[Start 2.5s fuse]
-	FUSE --> EXP[Detonate + propagate]
-	EXP --> DMG[Hit players\nreduce lives]
-	EXP --> BRK[Break soft blocks]
-	BRK --> DROP{40% drop roll}
-	DROP -->|Yes| SPAWN[Spawn power-up]
-	DROP -->|No| CLR
-	EXP --> CLR[Clear expired flames]
-	DMG --> END{≤1 alive?}
-	END -->|Yes| RES[Round ends → results]
-	END -->|No| T
+    I["Input arrives
+    (move or bomb)"] --> Q[Enqueue per player]
+    Q --> T[15ms tick]
+    T --> VAL["Validate & throttle
+    (move cooldown, alive?)"]
+    VAL --> MOVE["Resolve movement
+    + collisions"]
+    MOVE --> PU{"Power-up on tile?"}
+    PU -->|Yes| APPLY["Apply boost
+    bomb/flame/speed"]
+    PU -->|No| BOMB
+    APPLY --> BOMB
+    MOVE --> BOMB
+    BOMB["Place bomb if under capacity"] --> FUSE["Start 2.5s fuse"]
+    FUSE --> EXP["Detonate + propagate"]
+    EXP --> DMG["Hit players
+    reduce lives"]
+    EXP --> BRK["Break soft blocks"]
+    BRK --> DROP{"40% drop roll"}
+    DROP -->|Yes| SPAWN["Spawn power-up"]
+    DROP -->|No| CLR
+    EXP --> CLR["Clear expired flames"]
+    DMG --> END{"≤1 alive?"}
+    END -->|Yes| RES["Round ends → results"]
+    END -->|No| T
 ```
 
 ## ⚡ Power-ups
