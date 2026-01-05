@@ -1,6 +1,4 @@
-/* ===========================================
-   LOBBY SCREEN - ENHANCED WITH ANIMATIONS
-   =========================================== */
+
 .screen.lobby {
   display: flex;
   flex-direction: column;
@@ -26,7 +24,7 @@
   }
 }
 
-/* Game Header - Matching nickname page design */
+
 .lobby-game-header {
   text-align: center;
   display: flex;
@@ -50,7 +48,7 @@
   }
 }
 
-/* Use same styles as welcome-card for consistency */
+
 .lobby-game-header .title-icon {
   font-size: clamp(56px, 12vw, 88px);
 }
@@ -97,7 +95,7 @@
   gap: 16px;
 }
 
-/* Title Section - Enhanced */
+
 .lobby-title-section {
   grid-area: title;
   text-align: center;
@@ -246,7 +244,7 @@
   }
 }
 
-/* Players Section - Enhanced */
+
 .lobby-players-section {
   grid-area: players;
   background: linear-gradient(
@@ -561,7 +559,7 @@
   }
 }
 
-/* Actions Section - Enhanced */
+
 .lobby-actions-section {
   grid-area: actions;
   display: grid;
@@ -583,7 +581,7 @@
   transition: all 0.2s ease;
 }
 
-/* Ready button icon styling */
+
 .lobby-ready-btn .icon-wrapper {
   display: flex;
   align-items: center;
@@ -596,7 +594,7 @@
   filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.3));
 }
 
-/* Check icon (READY button) - black color */
+
 .lobby-ready-btn .icon-wrapper .icon-check rect {
   fill: #0a0f18;
 }
@@ -644,12 +642,12 @@
   animation: readyBtnPulse 1.5s ease-in-out infinite;
 }
 
-/* Not ready icon styling */
+
 .lobby-ready-btn.is-ready .icon-wrapper .retro-icon {
   filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.4));
 }
 
-/* Cancel/X icon (NOT READY button) - white color */
+
 .lobby-ready-btn.is-ready .icon-wrapper .retro-icon rect {
   fill: #ffffff;
 }
@@ -684,7 +682,7 @@
   overflow: hidden;
 }
 
-/* Leave button icon styling */
+
 .lobby-leave-btn .icon-wrapper {
   display: flex;
   align-items: center;
@@ -825,7 +823,7 @@
   }
 }
 
-/* Responsive lobby layout */
+
 @media (max-width: 768px) {
   .lobby-container {
     grid-template-columns: 1fr;

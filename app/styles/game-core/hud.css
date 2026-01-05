@@ -1,6 +1,4 @@
-/* ===========================================
-   FPS METER & PERFORMANCE MONITORING
-   =========================================== */
+
 .fps-meter {
   position: fixed;
   top: 10px;
@@ -16,9 +14,7 @@
   box-shadow: 0 2px 8px rgba(78, 229, 159, 0.3);
 }
 
-/* ===========================================
-   MY PLAYER HUD (prominent stats display)
-   =========================================== */
+
 .my-hud-card {
   background: linear-gradient(135deg, #1a2d4a, #162338);
   border-color: var(--accent-cool);

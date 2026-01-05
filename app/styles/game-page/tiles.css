@@ -1,26 +1,26 @@
-/* Tiles */
+
 .tile {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  /* Make tiles fill their grid cell */
+  
   width: 100%;
   height: 100%;
   min-width: 0;
   min-height: 0;
+  image-rendering: -webkit-optimize-contrast;
   image-rendering: pixelated;
-  image-rendering: crisp-edges;
   overflow: visible;
 }
 
-/* Tile with bomb - ensure fuse/spark visible above neighboring tiles */
+
 .tile.has-bomb {
   z-index: 10;
 }
 
-/* Floor tile - retro grid pattern */
+
 .tile.floor {
   background: #1a1f2c;
   box-shadow: inset 0 0 0 1px rgba(75, 243, 255, 0.05);
@@ -47,7 +47,7 @@
   transform: translate(-50%, -50%);
 }
 
-/* Wall tile - solid metal block */
+
 .tile.wall {
   background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%);
   box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.1),
@@ -83,7 +83,7 @@
     calc(100% - 8px) calc(100% - 8px) 0 rgba(255, 255, 255, 0.2);
 }
 
-/* Block tile - destructible crate */
+
 .tile.block {
   background: linear-gradient(135deg, #d35400 0%, #a04000 100%);
   box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.2),
@@ -119,7 +119,7 @@
   font-size: 1.2em;
 }
 
-/* Animate block when about to be destroyed */
+
 .tile.block.destroying {
   animation: blockShake 0.1s ease-in-out infinite;
 }
@@ -152,7 +152,7 @@
   }
 }
 
-/* Player on tile - Retro pixel character */
+
 .tile .player {
   position: absolute;
   inset: 8%;
@@ -166,7 +166,7 @@
   border: 2px solid rgba(0, 0, 0, 0.6);
 }
 
-/* Player body - retro blocky style with better depth */
+
 .tile .player::before {
   content: "";
   position: absolute;
@@ -178,7 +178,7 @@
   box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.3);
 }
 
-/* Player colors - enhanced retro palette */
+
 .tile .player.p0 {
   background: linear-gradient(145deg, #f5f5f5 0%, #e0e0e0 50%, #d0d0d0 100%);
   box-shadow: inset 3px 3px 4px rgba(255, 255, 255, 0.6),
@@ -231,7 +231,7 @@
     0 2px 4px rgba(248, 231, 28, 0.4);
 }
 
-/* Player glow animations */
+
 @keyframes playerGlow0 {
   0%,
   100% {
@@ -319,7 +319,7 @@
   z-index: 1;
 }
 
-/* Bomb - Retro round bomb */
+
 .tile .bomb {
   position: absolute;
   inset: 15%;
@@ -331,7 +331,7 @@
   z-index: 20;
 }
 
-/* Bomb fuse */
+
 .tile .bomb::before {
   content: "";
   position: absolute;
@@ -345,7 +345,7 @@
   z-index: 21;
 }
 
-/* Bomb spark */
+
 .tile .bomb::after {
   content: "";
   position: absolute;
@@ -454,7 +454,7 @@
   }
 }
 
-/* Power-ups - Enhanced Retro Items */
+
 .tile .powerup {
   position: absolute;
   inset: 15%;
@@ -465,7 +465,7 @@
   animation: powerupFloat 1.2s ease-in-out infinite;
   z-index: 15;
   overflow: visible;
-  /* Default fallback style */
+  
   background: linear-gradient(145deg, #333 0%, #222 100%) !important;
   border: 2px solid #666;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
@@ -481,7 +481,7 @@
   }
 }
 
-/* Bomb powerup - Mini bomb with +1 indicator */
+
 .tile .powerup.bomb {
   background: linear-gradient(
     145deg,
@@ -495,7 +495,7 @@
   border: 2px solid #f8e71c !important;
 }
 
-/* Bomb icon - matches game bomb design */
+
 .tile .powerup.bomb::after {
   content: "";
   position: absolute;
@@ -508,12 +508,12 @@
   border-radius: 50%;
   box-shadow: inset 4px 4px 6px rgba(255, 255, 255, 0.2),
     inset 0 -4px 6px rgba(0, 0, 0, 0.6), 0 3px 6px rgba(0, 0, 0, 0.8),
-    /* Fuse */ 0 -10px 0 -4px #5a3d1a, 0 -14px 0 -4px #8b5a2b,
-    /* Spark */ 0 -18px 0 -2px #ffff00, 0 -18px 8px 0px rgba(255, 200, 0, 0.8);
+     0 -10px 0 -4px #5a3d1a, 0 -14px 0 -4px #8b5a2b,
+     0 -18px 0 -2px #ffff00, 0 -18px 8px 0px rgba(255, 200, 0, 0.8);
   animation: bombIconPulse 1.2s ease-in-out infinite;
 }
 
-/* +1 badge */
+
 .tile .powerup.bomb::before {
   content: "+1";
   position: absolute;
@@ -555,7 +555,7 @@
   }
 }
 
-/* Flame powerup - Fire icon with range boost */
+
 .tile .powerup.flame {
   background: linear-gradient(
     145deg,
@@ -569,7 +569,7 @@
   border: 2px solid #ff8c00 !important;
 }
 
-/* Fire icon */
+
 .tile .powerup.flame::after {
   content: "";
   width: 45%;
@@ -600,7 +600,7 @@
   animation: flameFlicker 0.3s ease-in-out infinite alternate;
 }
 
-/* +1 badge */
+
 .tile .powerup.flame::before {
   content: "+1";
   position: absolute;
@@ -627,7 +627,7 @@
   }
 }
 
-/* Speed powerup - Lightning bolt icon */
+
 .tile .powerup.speed {
   background: linear-gradient(
     145deg,
@@ -641,7 +641,7 @@
   border: 2px solid #4ee59f !important;
 }
 
-/* Lightning bolt icon */
+
 .tile .powerup.speed::after {
   content: "";
   width: 40%;
@@ -660,7 +660,7 @@
   animation: boltFlash 0.8s ease-in-out infinite;
 }
 
-/* +1 badge */
+
 .tile .powerup.speed::before {
   content: "+1";
   position: absolute;
@@ -702,13 +702,13 @@
   }
 }
 
-/* Tile with explosion - ensure overflow visible */
+
 .tile.has-explosion {
   z-index: 100;
   overflow: visible;
 }
 
-/* Explosion - Classic arcade fire blast */
+
 .tile .explosion {
   position: absolute;
   inset: -10%;
@@ -729,7 +729,7 @@
   animation: explosionPulse 0.2s ease-in-out infinite alternate;
 }
 
-/* Explosion inner core - bright white/yellow center */
+
 .tile .explosion::before {
   content: "";
   position: absolute;
@@ -745,7 +745,7 @@
   animation: explosionCore 0.15s ease-in-out infinite alternate;
 }
 
-/* Explosion sparks */
+
 .tile .explosion::after {
   content: "";
   position: absolute;

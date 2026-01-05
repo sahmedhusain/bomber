@@ -16,7 +16,7 @@
   --pixel: 4px;
 }
 
-/* GPU Acceleration & 60fps Performance */
+
 *,
 *::before,
 *::after {
@@ -25,7 +25,7 @@
   padding: 0;
 }
 
-/* Enable hardware acceleration for animated elements */
+
 .tile,
 .player,
 .bomb,
@@ -40,7 +40,7 @@
   -webkit-font-smoothing: subpixel-antialiased;
 }
 
-/* Note: Icon styles moved to icons.css */
+
 
 body {
   min-height: 100vh;
@@ -103,7 +103,7 @@ body::after {
   flex-direction: column;
 }
 
-/* Topnav removed - hiding styles */
+
 .topnav {
   display: none;
 }

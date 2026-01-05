@@ -1,4 +1,4 @@
-/* Arena Container */
+
 .arena-container {
   position: relative;
   flex: 1;
@@ -15,7 +15,7 @@
   animation: arena-pulse 5s ease-in-out infinite;
 }
 
-/* Subtle arena container pulse for ambient 60fps */
+
 @keyframes arena-pulse {
   0%,
   100% {
@@ -42,12 +42,12 @@
   border-radius: 0;
   box-shadow: inset 0 0 0 2px #080c08;
   position: relative;
+  image-rendering: -webkit-optimize-contrast;
   image-rendering: pixelated;
-  image-rendering: crisp-edges;
   animation: arena-glow 3s ease-in-out infinite;
 }
 
-/* Arena inner glow animation */
+
 @keyframes arena-glow {
   0%,
   100% {
@@ -58,7 +58,7 @@
   }
 }
 
-/* Arena retro border effect */
+
 .arena::before {
   content: "";
   position: absolute;

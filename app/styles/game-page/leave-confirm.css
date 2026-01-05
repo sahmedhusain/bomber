@@ -1,9 +1,6 @@
-/* ===========================================
-   LEAVE CONFIRMATION MODAL - ENHANCED
-   Matching lobby/welcome card design
-   =========================================== */
 
-/* Overlay Background */
+
+
 .game-overlay.leave-confirm {
   background: radial-gradient(
     ellipse at center,
@@ -11,6 +8,7 @@
     rgba(5, 8, 18, 0.98) 100%
   );
   animation: leaveConfirmFadeIn 0.3s ease-out;
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 }
 
@@ -23,7 +21,7 @@
   }
 }
 
-/* Confirm Box - Main Container */
+
 .confirm-box {
   max-width: 480px;
   width: 90%;
@@ -56,7 +54,7 @@
   }
 }
 
-/* Top Gradient Bar */
+
 .confirm-box::before {
   content: "";
   position: absolute;
@@ -85,7 +83,7 @@
   }
 }
 
-/* Corner Decorations */
+
 .confirm-box::after {
   content: "";
   position: absolute;
@@ -101,7 +99,7 @@
   );
 }
 
-/* Icon Styling */
+
 .leave-confirm .overlay-emoji {
   font-size: 64px;
   margin-bottom: 20px;
@@ -133,7 +131,7 @@
   }
 }
 
-/* Title Styling */
+
 .leave-confirm .overlay-box h2 {
   font-family: "Press Start 2P", monospace;
   font-size: clamp(18px, 3vw, 24px);
@@ -153,7 +151,7 @@
   }
 }
 
-/* Description Text */
+
 .leave-confirm .overlay-box p {
   font-family: "Press Start 2P", monospace;
   font-size: 10px;
@@ -163,7 +161,7 @@
   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
 }
 
-/* Actions Container */
+
 .confirm-actions {
   display: flex;
   gap: 20px;
@@ -172,7 +170,7 @@
   flex-wrap: wrap;
 }
 
-/* Button Base Styles */
+
 .btn-cancel,
 .btn-confirm {
   min-width: 140px;
@@ -193,7 +191,7 @@
   gap: 10px;
 }
 
-/* Button Icons */
+
 .btn-cancel .retro-icon,
 .btn-confirm .retro-icon {
   width: 16px;
@@ -202,7 +200,7 @@
   transition: transform 0.2s ease;
 }
 
-/* Stay Button (Cancel) */
+
 .btn-cancel {
   background: linear-gradient(180deg, var(--accent-mint) 0%, #3bc67e 100%);
   border-color: #1a5a50;
@@ -254,7 +252,7 @@
   box-shadow: 0 4px 0 #1a5a50;
 }
 
-/* Leave Button (Confirm) */
+
 .btn-confirm {
   background: linear-gradient(180deg, var(--accent-hot) 0%, #e03a57 100%);
   border-color: #5a1020;
@@ -297,7 +295,7 @@
   box-shadow: 0 4px 0 #5a1020;
 }
 
-/* Responsive Adjustments */
+
 @media (max-width: 480px) {
   .confirm-box {
     padding: 36px 24px;
@@ -330,7 +328,7 @@
   }
 }
 
-/* Pixel Art Border Effect on Focus */
+
 .btn-cancel:focus,
 .btn-confirm:focus {
   outline: none;

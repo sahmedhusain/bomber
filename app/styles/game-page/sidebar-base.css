@@ -1,6 +1,4 @@
-/* ===========================================
-   SIDEBARS - Enhanced with Animations
-   =========================================== */
+
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -105,7 +103,7 @@
   }
 }
 
-/* Section title icon styling */
+
 .sidebar-title .section-title-icon,
 .sidebar-title .icon-wrapper {
   display: inline-flex;
@@ -122,7 +120,7 @@
 }
 
 .sidebar-title::before {
-  display: none; /* Remove the old arrow, using SVG icons now */
+  display: none; 
 }
 
 @keyframes pulse-arrow {
@@ -137,9 +135,7 @@
   }
 }
 
-/* ===========================================
-   SIDEBAR GAME HEADER - Matching Lobby Design (no box)
-   =========================================== */
+
 .sidebar-game-header {
   text-align: center;
   display: flex;

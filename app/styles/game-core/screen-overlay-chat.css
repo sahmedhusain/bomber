@@ -1,5 +1,5 @@
 
-/* Game Screen Layout */
+
 .screen.game {
   display: flex;
   flex-direction: row;
@@ -17,19 +17,19 @@
   border-radius: 8px;
   background: #000;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-  /* Ensure the container matches the map size */
-  width: calc(15 * 32px); /* MAP_WIDTH * TILE_SIZE */
-  height: calc(13 * 32px); /* MAP_HEIGHT * TILE_SIZE */
+  
+  width: calc(15 * 32px); 
+  height: calc(13 * 32px); 
 }
 
-/* Floating Chat Overlay */
+
 .floating-chat-overlay {
   position: absolute;
   bottom: 10px;
   left: 10px;
   width: 300px;
   height: 200px;
-  pointer-events: none; /* Let clicks pass through to the game */
+  pointer-events: none; 
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -76,7 +76,7 @@
   }
 }
 
-/* Side Chat Input Area */
+
 .side-chat-input {
   width: 250px;
   background: var(--panel-soft);

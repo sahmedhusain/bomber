@@ -1,10 +1,6 @@
-/* ===========================================
-   EXPLOSION EFFECTS - Retro Style
-   Additional explosion styling if needed
-   Main explosion styles are in tiles.css
-   =========================================== */
 
-/* Explosion particle effects (optional enhancement) */
+
+
 .explosion-particles {
   position: absolute;
   inset: 0;

@@ -1,6 +1,4 @@
-/* ===========================================
-   HOME SCREEN - ENHANCED WITH ANIMATIONS
-   =========================================== */
+
 .screen.nickname {
   display: flex;
   flex-direction: column;
@@ -228,7 +226,7 @@
   }
 }
 
-/* Title icon override for home screen */
+
 .welcome-card .title-icon {
   font-size: clamp(56px, 12vw, 88px);
   animation: iconFloat 3s ease-in-out infinite,
@@ -295,7 +293,7 @@
   }
 }
 
-/* Form Animations */
+
 .welcome-card form {
   position: relative;
   z-index: 1;
@@ -351,7 +349,7 @@
     inset 0 -4px 0 #0b1425;
 }
 
-/* Join Button - Enhanced */
+
 .welcome-card .join-button {
   background: linear-gradient(180deg, var(--accent-mint) 0%, #3bba8a 100%);
   color: #0a0f18;
@@ -410,9 +408,7 @@
   box-shadow: 0 4px 0 #1a5a50;
 }
 
-/* ===========================================
-   COIN INSERTED POPUP - ARCADE STYLE
-   =========================================== */
+
 .coin-inserted-overlay {
   position: fixed;
   inset: 0;

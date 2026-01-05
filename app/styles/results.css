@@ -1,9 +1,6 @@
-/* ========================================
-   ARCADE RESULTS SCREEN
-   Classic retro game over / victory screen
-   ======================================== */
 
-/* Entrance Animations */
+
+
 @keyframes resultsFadeIn {
   from {
     opacity: 0;
@@ -119,7 +116,7 @@
   position: relative;
 }
 
-/* Victory screen - golden glow */
+
 .screen.results-screen.victory {
   background-image: linear-gradient(
       90deg,
@@ -132,7 +129,7 @@
     linear-gradient(135deg, #1a1505 0%, #0a0f1c 100%);
 }
 
-/* Game Over screen - red tint */
+
 .screen.results-screen.gameover {
   background-image: linear-gradient(
       90deg,
@@ -149,7 +146,7 @@
     linear-gradient(135deg, #150a0a 0%, #0a0f1c 100%);
 }
 
-/* Draw screen - purple/blue tint */
+
 .screen.results-screen.draw {
   background-image: linear-gradient(
       90deg,
@@ -170,7 +167,7 @@
     linear-gradient(135deg, #0d0a15 0%, #0a0f1c 100%);
 }
 
-/* CRT Scanlines */
+
 .scanlines {
   position: absolute;
   inset: 0;
@@ -196,7 +193,7 @@
   }
 }
 
-/* Victory sparkles */
+
 .screen.results-screen.victory::before {
   content: "";
   position: absolute;
@@ -234,7 +231,7 @@
   }
 }
 
-/* Main container */
+
 .results-container {
   display: flex;
   flex-direction: column;
@@ -247,9 +244,7 @@
   position: relative;
 }
 
-/* ========================================
-   TITLE SECTION - Big centered title
-   ======================================== */
+
 .results-title-section {
   display: flex;
   flex-direction: column;
@@ -329,7 +324,7 @@
   }
 }
 
-/* Game Over title - Red gradient Bomberman style */
+
 .results-title-section.gameover .results-big-title {
   background: linear-gradient(
     180deg,
@@ -368,7 +363,7 @@
   }
 }
 
-/* Draw title - Purple gradient Bomberman style */
+
 .results-title-section.draw .results-big-title {
   background: linear-gradient(
     180deg,
@@ -407,7 +402,7 @@
   }
 }
 
-/* Title underline decoration - REMOVED */
+
 .results-title-section::after {
   display: none;
 }
@@ -498,7 +493,7 @@
   }
 }
 
-/* Victory specific styling */
+
 .results-screen:has(.results-big-title:not(:empty)) .results-big-title {
   position: relative;
 }
@@ -517,9 +512,7 @@
   }
 }
 
-/* ========================================
-   WINNER ANNOUNCEMENT - Enhanced Champion Box
-   ======================================== */
+
 .winner-announce {
   display: flex;
   align-items: center;
@@ -540,7 +533,7 @@
     both;
 }
 
-/* Shimmer effect */
+
 .winner-announce::before {
   content: "";
   position: absolute;
@@ -691,9 +684,7 @@
   }
 }
 
-/* ========================================
-   STANDINGS TABLE
-   ======================================== */
+
 .standings-box {
   width: 100%;
   background: linear-gradient(
@@ -710,12 +701,12 @@
   position: relative;
 }
 
-/* Remove rainbow gradient top bar */
+
 .standings-box::before {
   display: none;
 }
 
-/* Shimmer effect */
+
 .standings-box::after {
   content: "";
   position: absolute;
@@ -752,7 +743,7 @@
   flex-direction: column;
 }
 
-/* Individual player row */
+
 .standing-row {
   display: grid;
   grid-template-columns: 50px 40px 1fr 100px 70px;
@@ -763,7 +754,7 @@
   transition: background 0.2s ease;
 }
 
-/* Staggered entrance for rows */
+
 .standing-row:nth-child(1) {
   animation-delay: 0.4s;
 }
@@ -813,7 +804,7 @@
   opacity: 0.6;
 }
 
-/* Rank column */
+
 .standing-rank {
   display: flex;
   align-items: center;
@@ -845,14 +836,14 @@
   filter: drop-shadow(0 0 4px #cd7f32);
 }
 
-/* Draw/Tied label in rank */
+
 .standing-draw-label {
   font-size: 6px;
   color: #a29bfe;
   margin-left: 4px;
 }
 
-/* Avatar */
+
 .standing-avatar {
   width: 32px;
   height: 32px;
@@ -884,7 +875,7 @@
   background: linear-gradient(135deg, #9b59b6, #8e44ad);
 }
 
-/* Name */
+
 .standing-name {
   display: flex;
   align-items: center;
@@ -906,7 +897,7 @@
   border-radius: 3px;
 }
 
-/* Stats */
+
 .standing-stats {
   display: flex;
   gap: 12px;
@@ -927,7 +918,7 @@
   opacity: 0.8;
 }
 
-/* Status */
+
 .standing-status {
   font-family: "Press Start 2P", monospace;
   font-size: 7px;
@@ -946,9 +937,7 @@
   background: rgba(255, 77, 109, 0.15);
 }
 
-/* ========================================
-   ACTION BUTTONS
-   ======================================== */
+
 .results-actions {
   display: flex;
   justify-content: center;
@@ -980,7 +969,7 @@
   animation: resultsSlideUp 0.5s ease-out 0.5s both;
 }
 
-/* Shimmer effect */
+
 .arcade-btn::before {
   display: none;
 }
@@ -1016,7 +1005,7 @@
   color: #0a0f18;
 }
 
-/* Primary button icon - dark color */
+
 .arcade-btn.primary .icon-wrapper .retro-icon rect {
   fill: #0a0f18;
 }
@@ -1036,7 +1025,7 @@
   color: var(--muted);
 }
 
-/* Secondary button icon */
+
 .arcade-btn.secondary .icon-wrapper .retro-icon rect {
   fill: var(--muted);
 }
@@ -1054,7 +1043,7 @@
   background: rgba(15, 25, 45, 0.9);
 }
 
-/* Confirmed action state */
+
 .action-confirmed {
   display: flex;
   align-items: center;
@@ -1076,7 +1065,7 @@
   overflow: hidden;
 }
 
-/* Confirmed state shimmer */
+
 .action-confirmed::before {
   content: "";
   position: absolute;
@@ -1108,9 +1097,7 @@
   }
 }
 
-/* ========================================
-   RESPONSIVE
-   ======================================== */
+
 @media (max-width: 600px) {
   .results-container {
     gap: 16px;

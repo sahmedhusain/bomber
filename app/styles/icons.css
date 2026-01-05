@@ -1,20 +1,17 @@
-/* =============================================
-   RETRO ICON SYSTEM
-   Pixelated SVG icons for consistent retro look
-   ============================================= */
 
-/* Base icon styling */
+
+
 .retro-icon {
   display: inline-block;
   vertical-align: middle;
+  image-rendering: -webkit-optimize-contrast;
   image-rendering: pixelated;
-  image-rendering: crisp-edges;
   -ms-interpolation-mode: nearest-neighbor;
   shape-rendering: crispEdges;
   flex-shrink: 0;
 }
 
-/* Icon wrapper for inline usage */
+
 .icon-wrapper {
   display: inline-flex;
   align-items: center;
@@ -23,7 +20,7 @@
   line-height: 1;
 }
 
-/* Icon with text - ensures proper spacing */
+
 .icon-text {
   display: inline-flex;
   align-items: center;
@@ -34,7 +31,7 @@
   flex-shrink: 0;
 }
 
-/* Button with icon */
+
 .btn-icon {
   display: inline-flex;
   align-items: center;
@@ -46,7 +43,7 @@
   flex-shrink: 0;
 }
 
-/* Icon sizes via data attribute - BIGGER sizes */
+
 .retro-icon[data-size="xs"] {
   width: 16px;
   height: 16px;
@@ -72,7 +69,7 @@
   height: 80px;
 }
 
-/* Title/Hero icons - large display */
+
 .hero-icon {
   display: flex;
   align-items: center;
@@ -87,14 +84,14 @@
     drop-shadow(0 0 20px rgba(248, 231, 28, 0.5));
 }
 
-/* Trophy hero icon */
+
 .hero-icon.trophy .retro-icon {
   width: clamp(72px, 14vw, 120px);
   height: clamp(72px, 14vw, 120px);
   animation: trophyGlow 2s ease-in-out infinite;
 }
 
-/* Section title icons */
+
 .section-title-icon {
   display: inline-flex;
   align-items: center;
@@ -106,7 +103,7 @@
   height: clamp(20px, 3vw, 28px);
 }
 
-/* Stat icons in sidebar - BIGGER */
+
 .stat-icon {
   display: inline-flex;
   align-items: center;
@@ -119,7 +116,7 @@
   height: clamp(20px, 3vw, 28px);
 }
 
-/* Player hearts display - BIGGER */
+
 .player-hearts {
   display: inline-flex;
   align-items: center;
@@ -132,7 +129,7 @@
   height: clamp(14px, 2vw, 20px);
 }
 
-/* Chat/UI icons - BIGGER */
+
 .chat-icon .retro-icon,
 .lobby-icon .retro-icon,
 .countdown-icon .retro-icon {
@@ -140,27 +137,27 @@
   height: clamp(28px, 5vw, 44px);
 }
 
-/* Confirmation icon - BIGGER */
+
 .confirmation-icon .retro-icon {
   width: clamp(36px, 6vw, 52px);
   height: clamp(36px, 6vw, 52px);
 }
 
-/* Button icons - BIGGER, match text size */
+
 button .retro-icon,
 button .icon-wrapper .retro-icon {
   width: 1.2em;
   height: 1.2em;
 }
 
-/* Sidebar title icons */
+
 .sidebar-title .retro-icon,
 .sidebar-title .icon-wrapper .retro-icon {
   width: clamp(18px, 2.5vw, 24px);
   height: clamp(18px, 2.5vw, 24px);
 }
 
-/* Game title/logo icon */
+
 .game-title-icon {
   display: flex;
   align-items: center;
@@ -174,7 +171,7 @@ button .icon-wrapper .retro-icon {
     drop-shadow(0 0 15px rgba(248, 231, 28, 0.4));
 }
 
-/* Animations */
+
 @keyframes iconPulse {
   0%,
   100% {
@@ -203,12 +200,12 @@ button .icon-wrapper .retro-icon {
   }
 }
 
-/* Icon hover effects */
+
 .retro-icon:hover {
   filter: brightness(1.2);
 }
 
-/* Disabled state */
+
 button:disabled .retro-icon {
   opacity: 0.5;
   filter: grayscale(0.5);

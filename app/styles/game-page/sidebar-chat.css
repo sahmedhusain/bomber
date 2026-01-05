@@ -1,10 +1,10 @@
-/* Chat Section - Enhanced */
+
 .chat-section {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 180px;
-  /* Inherits base styles from .sidebar-section */
+  
   position: relative;
   overflow: hidden;
 }
@@ -39,7 +39,8 @@
 }
 
 @keyframes chatIconBounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -61,8 +62,8 @@
   );
   border-radius: 8px;
   border: 2px solid var(--line);
-  min-height: 0; /* Allow flex item to shrink */
-  max-height: none; /* Remove fixed max-height */
+  min-height: 0; 
+  max-height: none; 
   box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
@@ -173,7 +174,7 @@
   font-family: inherit;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
-  resize: none; /* Prevent manual resize */
+  resize: none; 
   min-height: 38px;
   max-height: 100px;
   overflow-y: auto;
@@ -232,9 +233,6 @@
 .chat-send:hover::before {
   left: 100%;
 }
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
 .chat-send:hover {
   transform: translateY(-2px);
   box-shadow: 0 5px 0 #1a5a50, 0 0 15px rgba(78, 229, 159, 0.4);
@@ -244,4 +242,3 @@
   transform: translateY(1px);
   box-shadow: 0 2px 0 #1a5a50;
 }
-

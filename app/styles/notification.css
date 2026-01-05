@@ -1,7 +1,4 @@
-/* ===========================================
-   NOTIFICATION POPUP STYLES
-   Custom on-screen popup to replace browser alerts
-   =========================================== */
+
 
 .notification-overlay {
   position: fixed;
@@ -16,8 +13,8 @@
     rgba(5, 8, 18, 0.96) 100%
   );
   animation: notificationFadeIn 0.3s ease-out;
-  backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
 }
 
 @keyframes notificationFadeIn {
@@ -28,8 +25,9 @@
     opacity: 1;
   }
 }
-
 .notification-box {
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
   background: linear-gradient(
     180deg,
     rgba(26, 42, 64, 0.98) 0%,
@@ -117,7 +115,7 @@
   }
 }
 
-/* Icon styles */
+
 .notification-icon {
   font-size: 56px;
   margin-bottom: 20px;
@@ -144,7 +142,7 @@
   }
 }
 
-/* Title */
+
 .notification-title {
   font-family: "Press Start 2P", monospace;
   font-size: clamp(14px, 3vw, 18px);
@@ -167,7 +165,7 @@
   }
 }
 
-/* Message */
+
 .notification-message {
   font-family: "Press Start 2P", monospace;
   font-size: clamp(10px, 2vw, 12px);
@@ -179,7 +177,7 @@
   z-index: 1;
 }
 
-/* Button */
+
 .notification-btn {
   font-family: "Press Start 2P", monospace;
   font-size: 12px;
@@ -235,7 +233,7 @@
   box-shadow: 0 3px 0 #1a5a60, 0 5px 15px rgba(75, 243, 255, 0.3);
 }
 
-/* Warning type */
+
 .notification-overlay.warning .notification-box {
   border-color: var(--accent);
   box-shadow: 0 8px 0 #5a4510, 0 0 80px rgba(248, 231, 28, 0.35),
@@ -280,7 +278,7 @@
   background: linear-gradient(180deg, #fff85c 0%, var(--accent) 100%);
 }
 
-/* Error type */
+
 .notification-overlay.error .notification-box {
   border-color: var(--accent-hot);
   box-shadow: 0 8px 0 #5a1020, 0 0 80px rgba(255, 77, 109, 0.35),
@@ -326,7 +324,7 @@
   background: linear-gradient(180deg, #ff8fa8 0%, var(--accent-hot) 100%);
 }
 
-/* Success type */
+
 .notification-overlay.success .notification-box {
   border-color: var(--accent-mint);
   box-shadow: 0 8px 0 #1a5a50, 0 0 80px rgba(78, 229, 159, 0.35),
@@ -371,7 +369,7 @@
   background: linear-gradient(180deg, #7effb5 0%, var(--accent-mint) 100%);
 }
 
-/* Responsive */
+
 @media (max-width: 600px) {
   .notification-box {
     padding: 24px 20px;

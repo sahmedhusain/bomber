@@ -1,4 +1,4 @@
-/* Countdown Overlay - Clean Design */
+
 .countdown-overlay {
   position: fixed;
   inset: 0;
@@ -96,7 +96,7 @@
   letter-spacing: 2px;
 }
 
-/* Remove floating emoji particles */
+
 .countdown-overlay::before,
 .countdown-overlay::after {
   display: none;

@@ -1,6 +1,4 @@
-/* ===========================================
-   GAME OVERLAYS (Win/Lose/Eliminated)
-   =========================================== */
+
 .game-overlay {
   position: fixed;
   inset: 0;
