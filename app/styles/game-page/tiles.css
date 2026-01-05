@@ -12,113 +12,111 @@
   min-height: 0;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+  overflow: visible;
 }
 
-/* Floor tile - retro checkered pattern */
+/* Tile with bomb - ensure fuse/spark visible above neighboring tiles */
+.tile.has-bomb {
+  z-index: 10;
+}
+
+/* Floor tile - retro grid pattern */
 .tile.floor {
-  background: linear-gradient(90deg, #1a2a1a 50%, #0f1a0f 50%);
-  background-size: 50% 100%;
-  box-shadow: inset 0 0 0 1px #0a0f0a;
-  animation: floor-ambient 4s ease-in-out infinite;
+  background: #1a1f2c;
+  box-shadow: inset 0 0 0 1px rgba(75, 243, 255, 0.05);
+  position: relative;
 }
 
-/* Ambient floor glow animation for smooth 60fps */
-@keyframes floor-ambient {
-  0%,
-  100% {
-    filter: brightness(1);
-  }
-  50% {
-    filter: brightness(1.03);
-  }
-}
-
-/* Staggered ambient for floor tiles - creates wave effect */
-.tile.floor:nth-child(odd) {
-  animation-delay: 0s;
-}
-.tile.floor:nth-child(even) {
-  animation-delay: 2s;
-}
-
-/* Alternate floor pattern for visual variety */
 .tile.floor::before {
   content: "";
   position: absolute;
-  inset: 15%;
-  background: #121a12;
-  opacity: 0.3;
+  inset: 2px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 2px;
 }
 
-/* Wall tile - retro steel/concrete block */
+.tile.floor::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 2px;
+  background: rgba(75, 243, 255, 0.1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Wall tile - solid metal block */
 .tile.wall {
-  background: #505860;
-  box-shadow: inset 3px 3px 0 #707880, inset -3px -3px 0 #303840,
-    inset 0 0 0 1px #202428;
-  border: none;
+  background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%);
+  box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.1),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.5), 0 4px 8px rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+  position: relative;
+  z-index: 1;
 }
 
-/* Wall retro highlight */
 .tile.wall::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.05) 0%,
+    transparent 70%
+  );
+}
+
+.tile.wall::after {
   content: "";
   position: absolute;
   top: 4px;
   left: 4px;
-  right: 50%;
-  bottom: 50%;
-  background: #808890;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  box-shadow: calc(100% - 8px) 0 0 rgba(255, 255, 255, 0.2),
+    0 calc(100% - 8px) 0 rgba(255, 255, 255, 0.2),
+    calc(100% - 8px) calc(100% - 8px) 0 rgba(255, 255, 255, 0.2);
 }
 
-/* Wall retro shadow corner */
-.tile.wall::after {
-  content: "";
-  position: absolute;
-  bottom: 4px;
-  right: 4px;
-  left: 50%;
-  top: 50%;
-  background: #282c30;
-}
-
-/* Block tile - retro destructible brick */
+/* Block tile - destructible crate */
 .tile.block {
-  background: #b85c38;
-  box-shadow: inset 3px 3px 0 #d87850, inset -3px -3px 0 #8a4428,
-    inset 0 0 0 1px #5a2a18;
-  border: none;
-  border-radius: 0;
+  background: linear-gradient(135deg, #d35400 0%, #a04000 100%);
+  box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.2),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+  position: relative;
+  z-index: 1;
 }
 
-/* Block retro brick pattern */
 .tile.block::before {
   content: "";
   position: absolute;
-  inset: 0;
-  background: linear-gradient(
-      0deg,
-      transparent 45%,
-      #6a3420 45%,
-      #6a3420 55%,
-      transparent 55%
-    ),
-    linear-gradient(
-      90deg,
-      transparent 45%,
-      #6a3420 45%,
-      #6a3420 55%,
-      transparent 55%
-    );
+  inset: 4px;
+  border: 2px dashed rgba(0, 0, 0, 0.3);
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 5px,
+    rgba(0, 0, 0, 0.1) 5px,
+    rgba(0, 0, 0, 0.1) 10px
+  );
 }
 
-/* Block highlight */
 .tile.block::after {
-  content: "";
+  content: "X";
   position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 30%;
-  height: 30%;
-  background: #e89068;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(0, 0, 0, 0.2);
+  font-family: monospace;
+  font-weight: bold;
+  font-size: 1.2em;
 }
 
 /* Animate block when about to be destroyed */
@@ -241,58 +239,58 @@
   z-index: 1;
 }
 
-/* Bomb - Pixel art style */
+/* Bomb - Retro round bomb */
 .tile .bomb {
   position: absolute;
-  inset: 10%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #1a1a1a;
+  inset: 15%;
+  background: radial-gradient(circle at 35% 35%, #555 0%, #222 40%, #000 100%);
   border-radius: 50%;
-  box-shadow: inset 4px 4px 0 #404040, inset -2px -2px 0 #000, 0 2px 0 #000;
-  animation: bombPulse 0.4s step-end infinite;
-  z-index: 4;
-  image-rendering: pixelated;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8), inset 0 -4px 8px rgba(0, 0, 0, 0.6),
+    inset 4px 4px 8px rgba(255, 255, 255, 0.2);
+  animation: bombPulse 0.5s ease-in-out infinite;
+  z-index: 20;
 }
 
 /* Bomb fuse */
 .tile .bomb::before {
   content: "";
   position: absolute;
-  top: -20%;
+  top: -6px;
   left: 50%;
-  width: 15%;
-  height: 25%;
-  background: linear-gradient(to top, #8b4513, #654321);
+  width: 4px;
+  height: 8px;
+  background: linear-gradient(to top, #5a3d1a, #8b5a2b);
   transform: translateX(-50%);
   border-radius: 2px;
+  z-index: 21;
 }
 
-/* Bomb spark/fuse fire */
+/* Bomb spark */
 .tile .bomb::after {
   content: "";
   position: absolute;
-  top: -35%;
+  top: -12px;
   left: 50%;
-  width: 20%;
-  height: 20%;
-  background: #ffd700;
-  transform: translateX(-50%);
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle, #ffff00 0%, #ffa500 50%, #ff6600 100%);
   border-radius: 50%;
-  box-shadow: 0 0 4px #ff6b35, 0 0 8px #ffd700;
-  animation: sparkFlicker 0.15s step-end infinite;
+  transform: translateX(-50%);
+  box-shadow: 0 0 6px 3px #ff6600, 0 0 12px 6px rgba(255, 200, 0, 0.6);
+  animation: sparkGlow 0.15s ease-in-out infinite alternate;
+  z-index: 22;
 }
 
-@keyframes sparkFlicker {
-  0%,
-  100% {
-    opacity: 1;
-    background: #ffd700;
+@keyframes sparkGlow {
+  0% {
+    background: #ffa500;
+    box-shadow: 0 0 4px 2px #ff6600, 0 0 8px 4px #ffcc00;
+    transform: translateX(-50%) scale(1);
   }
-  50% {
-    opacity: 0.7;
-    background: #ff6b35;
+  100% {
+    background: #ffff00;
+    box-shadow: 0 0 6px 3px #ff3300, 0 0 12px 6px #ffff00;
+    transform: translateX(-50%) scale(1.2);
   }
 }
 
@@ -302,260 +300,412 @@
     transform: scale(1);
   }
   50% {
-    transform: scale(1.1);
+    transform: scale(1.08);
   }
 }
 
 .tile.warning .bomb {
-  animation: bombWarning 0.25s step-end infinite;
-  background: #2a2020;
+  animation: bombWarning 0.2s ease-in-out infinite;
+  background: radial-gradient(
+    circle at 35% 35%,
+    #8a4040 0%,
+    #4a2020 40%,
+    #2a0000 100%
+  );
 }
 
 .tile.warning .bomb::after {
-  background: #ff4500;
-  box-shadow: 0 0 6px #ff4500, 0 0 12px #ffd700;
+  animation: sparkGlowFast 0.1s ease-in-out infinite alternate;
+}
+
+@keyframes sparkGlowFast {
+  0% {
+    background: #ff6600;
+    box-shadow: 0 0 6px 3px #ff3300, 0 0 12px 6px #ffcc00;
+  }
+  100% {
+    background: #ffffff;
+    box-shadow: 0 0 8px 4px #ff0000, 0 0 16px 8px #ffff00;
+  }
 }
 
 @keyframes bombWarning {
   0%,
   100% {
     transform: scale(1);
-    filter: none;
   }
   50% {
-    transform: scale(1.15);
-    filter: brightness(1.3);
+    transform: scale(1.12);
   }
 }
 
 .tile.critical .bomb {
-  animation: bombCritical 0.1s step-end infinite;
-  background: #3a2020;
+  animation: bombCritical 0.1s ease-in-out infinite;
+  background: radial-gradient(
+    circle at 35% 35%,
+    #aa4040 0%,
+    #6a2020 40%,
+    #4a0000 100%
+  );
 }
 
 .tile.critical .bomb::after {
-  background: #ff0000;
-  box-shadow: 0 0 8px #ff0000, 0 0 16px #ff4500;
+  animation: sparkGlowCritical 0.05s ease-in-out infinite alternate;
+}
+
+@keyframes sparkGlowCritical {
+  0% {
+    background: #ff0000;
+    box-shadow: 0 0 8px 4px #ff0000, 0 0 16px 8px #ffff00;
+  }
+  100% {
+    background: #ffffff;
+    box-shadow: 0 0 12px 6px #ffffff, 0 0 24px 12px #ffff00;
+  }
 }
 
 @keyframes bombCritical {
   0%,
   100% {
     transform: scale(1);
-    filter: brightness(1.5);
   }
   50% {
-    transform: scale(1.2);
-    filter: brightness(2);
+    transform: scale(1.15);
   }
 }
 
-/* Power-ups - Retro pixel art boxes */
+/* Power-ups - Enhanced Retro Items */
 .tile .powerup {
   position: absolute;
-  inset: 12%;
+  inset: 15%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #2a2a4a;
-  border: 3px solid #4a4a6a;
-  border-radius: 4px;
-  box-shadow: inset 2px 2px 0 #5a5a8a, inset -2px -2px 0 #1a1a2a,
-    0 2px 0 #0a0a1a;
-  animation: powerupBounce 0.5s step-end infinite;
-  z-index: 3;
-  image-rendering: pixelated;
+  border-radius: 6px;
+  animation: powerupFloat 1.2s ease-in-out infinite;
+  z-index: 15;
+  overflow: visible;
+  /* Default fallback style */
+  background: linear-gradient(145deg, #333 0%, #222 100%) !important;
+  border: 2px solid #666;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
 }
 
-@keyframes powerupBounce {
+@keyframes powerupFloat {
   0%,
   100% {
     transform: translateY(0) scale(1);
   }
   50% {
-    transform: translateY(-2px) scale(1.05);
+    transform: translateY(-4px) scale(1.08);
   }
 }
 
-/* Bomb powerup - shows mini bomb icon */
+/* Bomb powerup - Mini bomb with +1 indicator */
 .tile .powerup.bomb {
-  background: #1a1a1a;
-  border-color: #404040;
+  background: linear-gradient(
+    145deg,
+    #4a4420 0%,
+    #332e15 50%,
+    #1a1808 100%
+  ) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6),
+    inset 2px 2px 4px rgba(248, 231, 28, 0.15),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.4), 0 0 12px rgba(248, 231, 28, 0.3) !important;
+  border: 2px solid #f8e71c !important;
 }
 
+/* Bomb icon - matches game bomb design */
 .tile .powerup.bomb::after {
   content: "";
-  width: 60%;
-  height: 60%;
-  background: #2a2a2a;
-  border-radius: 50%;
-  box-shadow: inset 2px 2px 0 #404040;
-}
-
-.tile .powerup.bomb::before {
-  content: "+";
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40%;
+  height: 40%;
+  background: radial-gradient(circle at 35% 35%, #555 0%, #222 40%, #000 100%);
+  border-radius: 50%;
+  box-shadow: inset 4px 4px 6px rgba(255, 255, 255, 0.2),
+    inset 0 -4px 6px rgba(0, 0, 0, 0.6), 0 3px 6px rgba(0, 0, 0, 0.8),
+    /* Fuse */ 0 -10px 0 -4px #5a3d1a, 0 -14px 0 -4px #8b5a2b,
+    /* Spark */ 0 -18px 0 -2px #ffff00, 0 -18px 8px 0px rgba(255, 200, 0, 0.8);
+  animation: bombIconPulse 1.2s ease-in-out infinite;
+}
+
+/* +1 badge */
+.tile .powerup.bomb::before {
+  content: "+1";
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: auto;
+  height: auto;
+  padding: 2px 4px;
+  background: linear-gradient(135deg, #ffff66 0%, #f8e71c 100%);
+  border-radius: 4px;
   font-family: "Press Start 2P", monospace;
-  font-size: 8px;
-  color: #4ee59f;
-  text-shadow: 0 1px 0 #000;
+  font-size: 6px;
+  color: #2a2505;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 6px rgba(248, 231, 28, 0.5);
+  animation: badgePulse 1s ease-in-out infinite;
+  z-index: 2;
 }
 
-/* Flame powerup - shows fire pattern */
+@keyframes badgePulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 6px rgba(248, 231, 28, 0.5);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 10px rgba(248, 231, 28, 0.8);
+  }
+}
+
+@keyframes bombIconPulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+}
+
+/* Flame powerup - Fire icon with range boost */
 .tile .powerup.flame {
-  background: linear-gradient(to top, #8b2500, #ff4500);
-  border-color: #ff6347;
+  background: linear-gradient(
+    145deg,
+    #5c2a0a 0%,
+    #3d1a06 50%,
+    #1a0a02 100%
+  ) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6),
+    inset 2px 2px 4px rgba(255, 150, 50, 0.15),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.4), 0 0 12px rgba(255, 107, 0, 0.4) !important;
+  border: 2px solid #ff8c00 !important;
 }
 
+/* Fire icon */
 .tile .powerup.flame::after {
   content: "";
-  width: 40%;
-  height: 70%;
-  background: linear-gradient(to top, #ffd700, #ff4500 50%, #ff0000);
-  clip-path: polygon(50% 0%, 100% 50%, 80% 100%, 20% 100%, 0% 50%);
+  width: 45%;
+  height: 60%;
+  background: linear-gradient(
+    to top,
+    #ff0000 0%,
+    #ff4400 25%,
+    #ff8800 50%,
+    #ffcc00 75%,
+    #ffff66 100%
+  );
+  clip-path: polygon(
+    50% 0%,
+    65% 20%,
+    80% 35%,
+    70% 50%,
+    85% 65%,
+    65% 80%,
+    50% 100%,
+    35% 80%,
+    15% 65%,
+    30% 50%,
+    20% 35%,
+    35% 20%
+  );
+  filter: drop-shadow(0 0 4px #ff6600);
+  animation: flameFlicker 0.3s ease-in-out infinite alternate;
 }
 
+/* +1 badge */
 .tile .powerup.flame::before {
-  content: "+";
+  content: "+1";
   position: absolute;
-  top: 0;
-  right: 0;
+  top: -6px;
+  right: -6px;
+  padding: 2px 4px;
+  background: linear-gradient(135deg, #ffcc00 0%, #ff8800 100%);
+  border-radius: 4px;
   font-family: "Press Start 2P", monospace;
-  font-size: 8px;
-  color: #ffd700;
-  text-shadow: 0 1px 0 #000;
+  font-size: 6px;
+  color: #4a1a00;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 6px rgba(255, 150, 0, 0.5);
+  animation: badgePulse 1s ease-in-out infinite;
+  z-index: 2;
 }
 
-/* Speed powerup - shows lightning bolt */
+@keyframes flameFlicker {
+  0% {
+    transform: scaleY(1) scaleX(1);
+  }
+  100% {
+    transform: scaleY(1.1) scaleX(0.95);
+  }
+}
+
+/* Speed powerup - Lightning bolt icon */
 .tile .powerup.speed {
-  background: linear-gradient(135deg, #1a3a5a, #2a5a8a);
-  border-color: #4bf3ff;
+  background: linear-gradient(
+    145deg,
+    #2d4a3d 0%,
+    #1a2f26 50%,
+    #0d1a14 100%
+  ) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6),
+    inset 2px 2px 4px rgba(78, 229, 159, 0.15),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.4), 0 0 12px rgba(78, 229, 159, 0.3) !important;
+  border: 2px solid #4ee59f !important;
 }
 
+/* Lightning bolt icon */
 .tile .powerup.speed::after {
   content: "";
-  width: 50%;
-  height: 70%;
-  background: #ffd700;
+  width: 40%;
+  height: 65%;
+  background: linear-gradient(135deg, #ffffff 0%, #4ee59f 40%, #3cc973 100%);
   clip-path: polygon(
-    60% 0%,
+    55% 0%,
     100% 35%,
-    55% 35%,
-    80% 100%,
+    60% 35%,
+    100% 100%,
     0% 55%,
     45% 55%,
-    20% 0%
+    0% 0%
   );
+  filter: drop-shadow(0 0 4px #4ee59f) drop-shadow(0 0 8px #7aeba8);
+  animation: boltFlash 0.8s ease-in-out infinite;
 }
 
+/* +1 badge */
 .tile .powerup.speed::before {
-  content: "+";
+  content: "+1";
   position: absolute;
-  top: 0;
-  right: 0;
+  top: -6px;
+  right: -6px;
+  padding: 2px 4px;
+  background: linear-gradient(135deg, #7aeba8 0%, #4ee59f 100%);
+  border-radius: 4px;
   font-family: "Press Start 2P", monospace;
-  font-size: 8px;
-  color: #4bf3ff;
-  text-shadow: 0 1px 0 #000;
+  font-size: 6px;
+  color: #0a2015;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 6px rgba(78, 229, 159, 0.5);
+  animation: badgePulseSpeed 1s ease-in-out infinite;
+  z-index: 2;
 }
 
-/* Explosion - Retro pixel art fire */
+@keyframes boltFlash {
+  0%,
+  100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 4px #4ee59f) drop-shadow(0 0 8px #7aeba8);
+  }
+  50% {
+    opacity: 0.85;
+    filter: drop-shadow(0 0 6px #ffffff) drop-shadow(0 0 12px #4ee59f);
+  }
+}
+
+@keyframes badgePulseSpeed {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 6px rgba(78, 229, 159, 0.5);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 10px rgba(78, 229, 159, 0.8);
+  }
+}
+
+/* Tile with explosion - ensure overflow visible */
+.tile.has-explosion {
+  z-index: 100;
+  overflow: visible;
+}
+
+/* Explosion - Classic arcade fire blast */
 .tile .explosion {
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
+  inset: -10%;
+  z-index: 200;
   pointer-events: none;
   background: radial-gradient(
     circle,
-    rgba(255, 100, 0, 0.8) 0%,
-    rgba(255, 50, 0, 0.6) 40%,
-    transparent 70%
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 0, 0.9) 20%,
+    rgba(255, 150, 0, 0.8) 40%,
+    rgba(255, 80, 0, 0.6) 60%,
+    rgba(255, 0, 0, 0.3) 80%,
+    transparent 100%
   );
-  animation: explosionRetro 0.5s step-end forwards;
-  image-rendering: pixelated;
+  border-radius: 50%;
+  box-shadow: 0 0 15px 8px rgba(255, 150, 0, 0.8),
+    0 0 30px 15px rgba(255, 100, 0, 0.5), 0 0 45px 20px rgba(255, 50, 0, 0.3);
+  animation: explosionPulse 0.2s ease-in-out infinite alternate;
 }
 
-/* Fire core */
+/* Explosion inner core - bright white/yellow center */
 .tile .explosion::before {
   content: "";
   position: absolute;
-  width: 60%;
-  height: 60%;
+  inset: 25%;
   background: radial-gradient(
-    ellipse at center,
-    #ffff00 0%,
-    #ffa500 30%,
-    #ff4500 60%,
-    transparent 70%
+    circle,
+    #ffffff 0%,
+    #ffff00 40%,
+    #ff8800 80%,
+    transparent 100%
   );
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-  animation: fireFlicker 0.1s step-end infinite;
+  border-radius: 50%;
+  animation: explosionCore 0.15s ease-in-out infinite alternate;
 }
 
-/* Fire sparks */
+/* Explosion sparks */
 .tile .explosion::after {
   content: "";
   position: absolute;
-  width: 80%;
-  height: 80%;
-  background: radial-gradient(circle at 30% 30%, #ffd700 0%, transparent 30%),
-    radial-gradient(circle at 70% 30%, #ff6347 0%, transparent 25%),
-    radial-gradient(circle at 50% 70%, #ff4500 0%, transparent 35%),
-    radial-gradient(circle at 20% 60%, #ffa500 0%, transparent 20%),
-    radial-gradient(circle at 80% 60%, #ff0000 0%, transparent 25%);
-  animation: sparkMove 0.15s step-end infinite;
+  inset: 5%;
+  border: 4px solid rgba(255, 200, 50, 0.7);
+  border-radius: 50%;
+  animation: explosionRing 0.25s ease-in-out infinite alternate;
 }
 
-@keyframes fireFlicker {
-  0%,
-  100% {
-    transform: scale(1) rotate(-3deg);
+@keyframes explosionPulse {
+  0% {
+    transform: scale(0.95);
     opacity: 1;
   }
-  33% {
-    transform: scale(1.1) rotate(3deg);
+  100% {
+    transform: scale(1.05);
     opacity: 0.9;
   }
-  66% {
-    transform: scale(0.95) rotate(-2deg);
-    opacity: 1;
-  }
 }
 
-@keyframes sparkMove {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05) rotate(5deg);
-  }
-}
-
-@keyframes explosionRetro {
+@keyframes explosionCore {
   0% {
-    opacity: 1;
-    transform: scale(0.8);
-  }
-  20% {
-    transform: scale(1.1);
-  }
-  40% {
     transform: scale(1);
-  }
-  70% {
     opacity: 1;
-  }
-  85% {
-    opacity: 0.6;
   }
   100% {
-    opacity: 0;
-    transform: scale(0.9);
+    transform: scale(1.15);
+    opacity: 0.95;
+  }
+}
+
+@keyframes explosionRing {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+    border-width: 4px;
+  }
+  100% {
+    transform: scale(1.1);
+    opacity: 0.5;
+    border-width: 2px;
   }
 }

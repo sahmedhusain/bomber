@@ -1,42 +1,46 @@
 /* ===========================================
-   EXPLOSION EFFECTS
+   EXPLOSION EFFECTS - Retro Style
+   Additional explosion styling if needed
+   Main explosion styles are in tiles.css
    =========================================== */
-.game-explosion {
+
+/* Explosion particle effects (optional enhancement) */
+.explosion-particles {
   position: absolute;
   inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  background: radial-gradient(
-    circle at 50% 50%,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(255, 200, 50, 0.8) 20%,
-    rgba(255, 77, 109, 0.6) 40%,
-    rgba(255, 77, 109, 0) 70%
-  );
-  border-radius: 4px;
-  animation: explosionBoom 0.6s ease-out forwards;
-  mix-blend-mode: screen;
   pointer-events: none;
-  z-index: 10;
 }
 
-@keyframes explosionBoom {
+.explosion-particles::before,
+.explosion-particles::after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #ffcc00;
+  border-radius: 50%;
+  animation: particleFly 0.4s ease-out forwards;
+}
+
+.explosion-particles::before {
+  top: 20%;
+  left: 20%;
+  animation-delay: 0.05s;
+}
+
+.explosion-particles::after {
+  bottom: 20%;
+  right: 20%;
+  animation-delay: 0.1s;
+}
+
+@keyframes particleFly {
   0% {
-    transform: scale(0.3);
+    transform: scale(1) translate(0, 0);
     opacity: 1;
-    filter: brightness(3);
-  }
-  30% {
-    transform: scale(1.3);
-    opacity: 1;
-    filter: brightness(2);
   }
   100% {
-    transform: scale(1);
+    transform: scale(0.5) translate(20px, -20px);
     opacity: 0;
-    filter: brightness(1);
   }
 }
-
