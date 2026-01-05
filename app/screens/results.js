@@ -181,7 +181,7 @@ export function ResultsScreen(state, store) {
       createElement('div', { className: 'results-actions' },
         userIntention
           ? createElement('div', { className: 'action-confirmed' },
-            icon(userIntention === 'play_again' ? 'refresh' : userIntention === 'join_game' ? 'gamepad' : 'door'),
+            icon(userIntention === 'play_again' ? 'refresh' : userIntention === 'join_game' ? 'arrowRight' : 'door'),
             createElement('span', {},
               userIntention === 'play_again' ? 'READY TO PLAY!' :
                 userIntention === 'join_game' ? 'JOINING GAME...' : 'LEAVING...'
@@ -198,7 +198,7 @@ export function ResultsScreen(state, store) {
                 }
               }
             },
-              icon(wasPlayer ? 'refresh' : 'gamepad'),
+              icon(wasPlayer ? 'refresh' : 'arrowRight'),
               createElement('span', {}, wasPlayer ? 'PLAY AGAIN' : 'JOIN GAME')
             ),
             createElement('button', {

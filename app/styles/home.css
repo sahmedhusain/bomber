@@ -1,5 +1,5 @@
 /* ===========================================
-   HOME SCREEN - ENHANCED DESIGN
+   HOME SCREEN - ENHANCED WITH ANIMATIONS
    =========================================== */
 .screen.nickname {
   display: flex;
@@ -10,6 +10,18 @@
   background: transparent;
   min-height: 100vh;
   width: 100%;
+  animation: screenFadeIn 0.5s ease-out;
+}
+
+@keyframes screenFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .welcome-header {
@@ -24,6 +36,21 @@
   box-shadow: 0 6px 0 #050812, inset 0 1px 0 rgba(255, 255, 255, 0.05);
   position: relative;
   overflow: hidden;
+  animation: headerDropIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes headerDropIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.8);
+  }
+  60% {
+    transform: translateY(5px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .welcome-header::before {
@@ -79,6 +106,22 @@
   box-shadow: 0 8px 0 #050812, 0 0 40px rgba(75, 243, 255, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
   position: relative;
+  overflow: hidden;
+  animation: cardSlideUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s both;
+}
+
+@keyframes cardSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(50px) scale(0.95);
+  }
+  60% {
+    transform: translateY(-5px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .welcome-card::before {
@@ -92,13 +135,56 @@
     90deg,
     var(--accent-cool),
     var(--accent),
-    var(--accent-hot)
+    var(--accent-hot),
+    var(--accent-mint),
+    var(--accent-cool)
   );
+  background-size: 200% 100%;
+  animation: gradientFlow 3s linear infinite;
+}
+
+@keyframes gradientFlow {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
+}
+
+.welcome-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(75, 243, 255, 0.05),
+    transparent
+  );
+  animation: cardShimmer 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes cardShimmer {
+  0%,
+  100% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
 }
 
 .welcome-card h1 {
   font-size: clamp(24px, 4vw, 36px);
   margin-bottom: 0;
+  animation: titleGlow 2s ease-in-out infinite alternate;
+  position: relative;
+  z-index: 1;
 }
 
 .welcome-card .subtitle {
@@ -106,17 +192,73 @@
   margin-bottom: 8px;
   display: flex;
   justify-content: center;
+  animation: subtitleFadeIn 0.8s ease-out 0.4s both;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes subtitleFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .card-divider {
   height: 2px;
   background: linear-gradient(90deg, transparent, var(--line), transparent);
   margin: 4px 0;
+  animation: dividerExpand 0.6s ease-out 0.5s both;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes dividerExpand {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
 }
 
 /* Title icon override for home screen */
 .welcome-card .title-icon {
   font-size: clamp(56px, 12vw, 88px);
+  animation: iconFloat 3s ease-in-out infinite,
+    iconGlow 2s ease-in-out infinite alternate;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes iconFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-8px) rotate(-5deg);
+  }
+  75% {
+    transform: translateY(-8px) rotate(5deg);
+  }
+}
+
+@keyframes iconGlow {
+  0% {
+    filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.4))
+      drop-shadow(0 0 20px rgba(248, 231, 28, 0.3));
+  }
+  100% {
+    filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.4))
+      drop-shadow(0 0 40px rgba(248, 231, 28, 0.6));
+  }
 }
 
 .card-icon {
@@ -139,4 +281,332 @@
   font-size: 10px;
   line-height: 2.2;
   padding: 0 8px;
+  animation: descFadeIn 0.8s ease-out 0.6s both;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes descFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Form Animations */
+.welcome-card form {
+  position: relative;
+  z-index: 1;
+  animation: formSlideIn 0.7s ease-out 0.5s both;
+}
+
+@keyframes formSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.welcome-card label {
+  animation: labelGlow 2s ease-in-out infinite;
+}
+
+@keyframes labelGlow {
+  0%,
+  100% {
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3), 0 0 10px rgba(75, 243, 255, 0.3);
+  }
+  50% {
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3), 0 0 20px rgba(75, 243, 255, 0.5);
+  }
+}
+
+.welcome-card input {
+  transition: all 0.3s ease;
+  animation: inputReady 2s ease-in-out infinite;
+}
+
+@keyframes inputReady {
+  0%,
+  100% {
+    box-shadow: 0 4px 0 #050812, inset 0 -4px 0 #0b1425,
+      inset 2px 2px 0 rgba(255, 255, 255, 0.05);
+  }
+  50% {
+    box-shadow: 0 4px 0 #050812, inset 0 -4px 0 #0b1425,
+      inset 2px 2px 0 rgba(255, 255, 255, 0.05),
+      0 0 15px rgba(75, 243, 255, 0.2);
+  }
+}
+
+.welcome-card input:focus {
+  animation: none;
+  box-shadow: 0 6px 0 #050812, 0 0 30px rgba(75, 243, 255, 0.4),
+    inset 0 -4px 0 #0b1425;
+}
+
+/* Join Button - Enhanced */
+.welcome-card .join-button {
+  background: linear-gradient(180deg, var(--accent-mint) 0%, #3bba8a 100%);
+  color: #0a0f18;
+  border: 3px solid #1a5a50;
+  box-shadow: 0 6px 0 #1a5a50, inset 0 -3px 0 rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+  animation: buttonPulse 2s ease-in-out infinite;
+}
+
+@keyframes buttonPulse {
+  0%,
+  100% {
+    box-shadow: 0 6px 0 #1a5a50, inset 0 -3px 0 rgba(0, 0, 0, 0.2),
+      0 0 20px rgba(78, 229, 159, 0.3);
+  }
+  50% {
+    box-shadow: 0 6px 0 #1a5a50, inset 0 -3px 0 rgba(0, 0, 0, 0.2),
+      0 0 40px rgba(78, 229, 159, 0.5);
+  }
+}
+
+.welcome-card .join-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: buttonShimmer 2s ease-in-out infinite;
+}
+
+@keyframes buttonShimmer {
+  0%,
+  100% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
+}
+
+.welcome-card .join-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 9px 0 #1a5a50, 0 0 50px rgba(78, 229, 159, 0.5);
+}
+
+.welcome-card .join-button:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 0 #1a5a50;
+}
+
+/* ===========================================
+   COIN INSERTED POPUP - ARCADE STYLE
+   =========================================== */
+.coin-inserted-overlay {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(40, 30, 10, 0.95) 0%,
+    rgba(0, 0, 0, 0.98) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: coinOverlayFadeIn 0.3s ease-out;
+}
+
+@keyframes coinOverlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.coin-inserted-card {
+  text-align: center;
+  padding: 28px 40px;
+  background: linear-gradient(
+    180deg,
+    rgba(40, 35, 20, 0.98) 0%,
+    rgba(20, 18, 10, 0.99) 100%
+  );
+  border: 3px solid var(--accent);
+  border-radius: 12px;
+  box-shadow: 0 6px 0 rgba(139, 105, 20, 0.6), 0 0 50px rgba(255, 215, 0, 0.4),
+    0 0 100px rgba(255, 180, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  animation: coinCardPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes coinCardPop {
+  0% {
+    transform: scale(0.3) rotate(-10deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1) rotate(3deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.coin-inserted-card::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    from 0deg,
+    transparent,
+    rgba(255, 215, 0, 0.1),
+    transparent,
+    rgba(255, 180, 0, 0.1),
+    transparent
+  );
+  animation: coinRotate 3s linear infinite;
+}
+
+@keyframes coinRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.coin-inserted-card::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  background: linear-gradient(
+    180deg,
+    rgba(40, 35, 20, 0.99) 0%,
+    rgba(20, 18, 10, 1) 100%
+  );
+  border-radius: 12px;
+  z-index: 0;
+}
+
+.coin-inserted-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.coin-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  animation: coinDrop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    coinGlow 1s ease-in-out infinite;
+  filter: drop-shadow(0 4px 0 #8b6914) drop-shadow(0 6px 0 #5a4510);
+}
+
+.coin-icon-wrapper .icon-wrapper {
+  display: flex;
+}
+
+.coin-icon-wrapper svg {
+  width: 56px;
+  height: 56px;
+}
+
+@keyframes coinDrop {
+  0% {
+    transform: translateY(-100px) scale(0.5);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(10px) scale(1.1);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes coinSpin {
+  0% {
+    transform: rotateY(0deg);
+  }
+  100% {
+    transform: rotateY(720deg);
+  }
+}
+
+@keyframes coinGlow {
+  0%,
+  100% {
+    filter: drop-shadow(0 4px 0 #8b6914) drop-shadow(0 8px 0 #5a4510)
+      drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 4px 0 #8b6914) drop-shadow(0 8px 0 #5a4510)
+      drop-shadow(0 0 50px rgba(255, 215, 0, 0.9));
+  }
+}
+
+.coin-inserted-title {
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(14px, 4vw, 20px);
+  color: var(--accent);
+  text-shadow: 0 3px 0 #8b6914, 0 5px 0 #5a4510, 0 0 20px rgba(255, 215, 0, 0.6);
+  margin: 0 0 10px 0;
+  animation: titleFlash 0.5s ease-in-out infinite;
+  letter-spacing: 3px;
+}
+
+@keyframes titleFlash {
+  0%,
+  100% {
+    opacity: 1;
+    text-shadow: 0 4px 0 #8b6914, 0 6px 0 #5a4510,
+      0 0 30px rgba(255, 215, 0, 0.6);
+  }
+  50% {
+    opacity: 0.9;
+    text-shadow: 0 4px 0 #8b6914, 0 6px 0 #5a4510,
+      0 0 50px rgba(255, 215, 0, 0.9);
+  }
+}
+
+.coin-inserted-subtitle {
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(10px, 2vw, 14px);
+  color: var(--accent-cool);
+  margin: 0;
+  letter-spacing: 3px;
+  animation: subtitleBlink 1s ease-in-out infinite;
+  text-shadow: 0 0 10px rgba(75, 243, 255, 0.5);
+}
+
+@keyframes subtitleBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }

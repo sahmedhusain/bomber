@@ -63,6 +63,11 @@ export function patchAttrs(element, oldAttrs, newAttrs) {
       // Special handling for checked - ALWAYS sync for checkboxes/radios
       const targetChecked = newValue === true || newValue === 'true' || newValue === '';
       element.checked = targetChecked;
+    } else if (key === 'innerHTML') {
+      // Special handling for innerHTML - set as property, not attribute
+      if (oldValue !== newValue) {
+        element.innerHTML = newValue || '';
+      }
     } else if (knownProps.has(key)) {
       // Known property: set as element property for reactivity
       if (oldValue !== newValue) {

@@ -89,16 +89,28 @@ const SVG_ICONS = {
     <rect x="2" y="6" width="2" height="2" fill="#4ee59f"/>
   </svg>`,
 
+  notready: `<svg class="retro-icon icon-notready" viewBox="0 0 16 16" fill="none">
+    <rect x="2" y="2" width="3" height="3" fill="#ffffff"/>
+    <rect x="4" y="4" width="3" height="3" fill="#ffffff"/>
+    <rect x="6" y="6" width="4" height="4" fill="#ffffff"/>
+    <rect x="9" y="9" width="3" height="3" fill="#ffffff"/>
+    <rect x="11" y="11" width="3" height="3" fill="#ffffff"/>
+    <rect x="11" y="2" width="3" height="3" fill="#ffffff"/>
+    <rect x="9" y="4" width="3" height="3" fill="#ffffff"/>
+    <rect x="4" y="9" width="3" height="3" fill="#ffffff"/>
+    <rect x="2" y="11" width="3" height="3" fill="#ffffff"/>
+  </svg>`,
+
   cancel: `<svg class="retro-icon icon-cancel" viewBox="0 0 16 16" fill="none">
-    <rect x="3" y="3" width="2" height="2" fill="#ff4d6d"/>
-    <rect x="5" y="5" width="2" height="2" fill="#ff4d6d"/>
-    <rect x="7" y="7" width="2" height="2" fill="#ff4d6d"/>
-    <rect x="9" y="9" width="2" height="2" fill="#ff4d6d"/>
-    <rect x="11" y="11" width="2" height="2" fill="#ff4d6d"/>
-    <rect x="11" y="3" width="2" height="2" fill="#ff4d6d"/>
-    <rect x="9" y="5" width="2" height="2" fill="#ff4d6d"/>
-    <rect x="5" y="9" width="2" height="2" fill="#ff4d6d"/>
-    <rect x="3" y="11" width="2" height="2" fill="#ff4d6d"/>
+    <rect x="2" y="2" width="3" height="3" fill="#ff4d6d"/>
+    <rect x="4" y="4" width="3" height="3" fill="#ff4d6d"/>
+    <rect x="6" y="6" width="4" height="4" fill="#ff4d6d"/>
+    <rect x="9" y="9" width="3" height="3" fill="#ff4d6d"/>
+    <rect x="11" y="11" width="3" height="3" fill="#ff4d6d"/>
+    <rect x="11" y="2" width="3" height="3" fill="#ff4d6d"/>
+    <rect x="9" y="4" width="3" height="3" fill="#ff4d6d"/>
+    <rect x="4" y="9" width="3" height="3" fill="#ff4d6d"/>
+    <rect x="2" y="11" width="3" height="3" fill="#ff4d6d"/>
   </svg>`,
 
   chat: `<svg class="retro-icon icon-chat" viewBox="0 0 16 16" fill="none">
@@ -117,17 +129,13 @@ const SVG_ICONS = {
     <rect x="12" y="7" width="2" height="2" fill="#f8e71c"/>
   </svg>`,
 
-  refresh: `<svg class="retro-icon icon-refresh" viewBox="0 0 16 16" fill="none">
-    <rect x="6" y="2" width="6" height="2" fill="#4bf3ff"/>
-    <rect x="10" y="4" width="2" height="2" fill="#4bf3ff"/>
-    <rect x="12" y="5" width="2" height="4" fill="#4bf3ff"/>
-    <rect x="10" y="9" width="2" height="2" fill="#4bf3ff"/>
-    <rect x="4" y="10" width="6" height="2" fill="#4bf3ff"/>
-    <rect x="2" y="7" width="2" height="4" fill="#4bf3ff"/>
-    <rect x="4" y="5" width="2" height="3" fill="#4bf3ff"/>
-    <rect x="6" y="4" width="2" height="2" fill="#4bf3ff"/>
-    <rect x="2" y="11" width="4" height="2" fill="#4bf3ff"/>
-    <rect x="0" y="10" width="3" height="2" fill="#4bf3ff"/>
+refresh: `<svg class="retro-icon icon-refresh" viewBox="0 0 16 16" fill="none">
+    <rect x="10" y="1" width="4" height="2" fill="currentColor"/>
+    <rect x="12" y="3" width="2" height="2" fill="currentColor"/>
+    <rect x="5" y="3" width="5" height="2" fill="currentColor"/>
+    <rect x="3" y="5" width="2" height="6" fill="currentColor"/>
+    <rect x="5" y="11" width="6" height="2" fill="currentColor"/>
+    <rect x="11" y="6" width="2" height="5" fill="currentColor"/>
   </svg>`,
 
   star: `<svg class="retro-icon icon-star" viewBox="0 0 16 16" fill="none">
@@ -208,6 +216,18 @@ const SVG_ICONS = {
     <rect x="5" y="12" width="2" height="2" fill="#e8e8e8"/>
     <rect x="9" y="12" width="2" height="2" fill="#e8e8e8"/>
     <rect x="7" y="11" width="2" height="2" fill="#e8e8e8"/>
+  </svg>`,
+
+  coin: `<svg class="retro-icon icon-coin" viewBox="0 0 16 16" fill="none">
+    <rect x="5" y="1" width="6" height="2" fill="#ffd700"/>
+    <rect x="3" y="3" width="10" height="2" fill="#ffd700"/>
+    <rect x="2" y="5" width="12" height="6" fill="#ffd700"/>
+    <rect x="3" y="11" width="10" height="2" fill="#ffd700"/>
+    <rect x="5" y="13" width="6" height="2" fill="#ffd700"/>
+    <rect x="4" y="3" width="2" height="10" fill="#ffed4a"/>
+    <rect x="6" y="5" width="4" height="6" fill="#b8860b"/>
+    <rect x="7" y="6" width="2" height="4" fill="#ffd700"/>
+    <rect x="7" y="7" width="2" height="2" fill="#ffed4a"/>
   </svg>`
 };
 

@@ -64,7 +64,7 @@ const readyButton = (isReady, session, websocket) => createElement('button', {
   onclick: () => session.playerId && window.sendMessage({ type: 'ready', player_id: session.playerId }),
   disabled: !websocket.connected
 },
-  icon(isReady ? 'cancel' : 'check'),
+  icon(isReady ? 'notready' : 'check'),
   createElement('span', {}, isReady ? 'NOT READY' : 'READY')
 );
 

@@ -213,48 +213,196 @@
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(10, 15, 28, 0.9);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(10, 15, 28, 0.85) 0%,
+    rgba(5, 8, 18, 0.95) 100%
+  );
   display: grid;
   place-items: center;
   z-index: 2000;
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: modalBackdropFadeIn 0.3s ease-out;
+}
+
+@keyframes modalBackdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-card {
-  background: linear-gradient(135deg, #1a2a40, #152030);
+  background: linear-gradient(
+    180deg,
+    rgba(26, 42, 64, 0.98) 0%,
+    rgba(15, 25, 45, 0.99) 100%
+  );
   border: 4px solid var(--accent-cool);
-  border-radius: 12px;
-  padding: 32px 40px;
-  width: min(450px, 90vw);
-  box-shadow: 0 8px 0 #050812, 0 0 60px rgba(75, 243, 255, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 40px 48px;
+  width: min(480px, 90vw);
+  box-shadow: 0 8px 0 #050812, 0 0 80px rgba(75, 243, 255, 0.3),
+    0 0 120px rgba(75, 243, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   display: grid;
-  gap: 16px;
+  gap: 20px;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+  animation: modalCardPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes modalCardPop {
+  0% {
+    transform: scale(0.5) translateY(-30px);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.03) translateY(5px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--accent-cool),
+    var(--accent),
+    var(--accent-hot),
+    var(--accent-mint),
+    var(--accent-cool)
+  );
+  background-size: 200% 100%;
+  animation: modalGradientFlow 3s linear infinite;
+}
+
+@keyframes modalGradientFlow {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
+}
+
+.modal-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(75, 243, 255, 0.05),
+    transparent
+  );
+  animation: modalShimmer 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes modalShimmer {
+  0%,
+  100% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
 }
 
 .modal-card h2,
 .modal-card h3 {
   font-family: "Press Start 2P", monospace;
-  font-size: 18px;
+  font-size: clamp(16px, 3vw, 20px);
   color: var(--accent-cool);
-  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.4), 0 0 15px rgba(75, 243, 255, 0.4);
-  margin-bottom: 12px;
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.5), 0 0 20px rgba(75, 243, 255, 0.5);
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 1;
+  animation: modalTitleGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes modalTitleGlow {
+  0% {
+    text-shadow: 0 3px 0 rgba(0, 0, 0, 0.5), 0 0 15px rgba(75, 243, 255, 0.4);
+  }
+  100% {
+    text-shadow: 0 3px 0 rgba(0, 0, 0, 0.5), 0 0 30px rgba(75, 243, 255, 0.7);
+  }
 }
 
 .modal-text {
   color: var(--ink);
   font-family: "Press Start 2P", monospace;
-  font-size: 12px;
-  line-height: 2;
+  font-size: 11px;
+  line-height: 2.2;
+  position: relative;
+  z-index: 1;
+  opacity: 0.9;
 }
 
 .modal-actions {
   display: flex;
   gap: 16px;
   justify-content: center;
-  margin-top: 12px;
+  margin-top: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.modal-actions button {
+  padding: 16px 28px;
+  font-size: 11px;
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-actions .button-secondary {
+  background: linear-gradient(180deg, var(--accent-mint) 0%, #3bc67e 100%);
+  border: 3px solid #1a5a50;
+  color: #0a0f18;
+  box-shadow: 0 5px 0 #1a5a50;
+}
+
+.modal-actions .button-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #1a5a50, 0 0 25px rgba(78, 229, 159, 0.4);
+}
+
+.modal-actions .button-secondary:active {
+  transform: translateY(2px);
+  box-shadow: 0 3px 0 #1a5a50;
+}
+
+.modal-actions .button-danger {
+  background: linear-gradient(180deg, var(--accent-hot) 0%, #e03a57 100%);
+  border: 3px solid #5a1020;
+  color: #ffffff;
+  box-shadow: 0 5px 0 #5a1020;
+}
+
+.modal-actions .button-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #5a1020, 0 0 25px rgba(255, 77, 109, 0.4);
+}
+
+.modal-actions .button-danger:active {
+  transform: translateY(2px);
+  box-shadow: 0 3px 0 #5a1020;
 }
 
 .game-tile {
@@ -533,4 +681,3 @@
     transform: translateY(-5px);
   }
 }
-

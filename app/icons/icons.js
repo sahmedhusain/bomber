@@ -136,16 +136,16 @@ export const arrowRightIcon = (size = ICON_SIZE.MD) => createSVG(`
 `, size, '0 0 16 16', 'icon-arrow-right');
 
 export const refreshIcon = (size = ICON_SIZE.MD) => createSVG(`
-  <rect x="6" y="2" width="6" height="2" fill="#4bf3ff"/>
-  <rect x="10" y="4" width="2" height="2" fill="#4bf3ff"/>
-  <rect x="12" y="5" width="2" height="4" fill="#4bf3ff"/>
-  <rect x="10" y="9" width="2" height="2" fill="#4bf3ff"/>
-  <rect x="4" y="10" width="6" height="2" fill="#4bf3ff"/>
-  <rect x="2" y="7" width="2" height="4" fill="#4bf3ff"/>
-  <rect x="4" y="5" width="2" height="3" fill="#4bf3ff"/>
-  <rect x="6" y="4" width="2" height="2" fill="#4bf3ff"/>
-  <rect x="2" y="11" width="4" height="2" fill="#4bf3ff"/>
-  <rect x="0" y="10" width="3" height="2" fill="#4bf3ff"/>
+  <rect x="10" y="1" width="4" height="2" fill="currentColor"/>
+  <rect x="12" y="3" width="2" height="2" fill="currentColor"/>
+  
+  <rect x="5" y="3" width="5" height="2" fill="currentColor"/>
+  
+  <rect x="3" y="5" width="2" height="6" fill="currentColor"/>
+  
+  <rect x="5" y="11" width="6" height="2" fill="currentColor"/>
+  
+  <rect x="11" y="6" width="2" height="5" fill="currentColor"/>
 `, size, '0 0 16 16', 'icon-refresh');
 
 export const starIcon = (size = ICON_SIZE.MD) => createSVG(`
@@ -159,6 +159,18 @@ export const starIcon = (size = ICON_SIZE.MD) => createSVG(`
   <rect x="3" y="13" width="2" height="2" fill="#ffd700"/>
   <rect x="11" y="13" width="2" height="2" fill="#ffd700"/>
 `, size, '0 0 16 16', 'icon-star');
+
+export const coinIcon = (size = ICON_SIZE.MD) => createSVG(`
+  <rect x="5" y="1" width="6" height="2" fill="#ffd700"/>
+  <rect x="3" y="3" width="10" height="2" fill="#ffd700"/>
+  <rect x="2" y="5" width="12" height="6" fill="#ffd700"/>
+  <rect x="3" y="11" width="10" height="2" fill="#ffd700"/>
+  <rect x="5" y="13" width="6" height="2" fill="#ffd700"/>
+  <rect x="4" y="3" width="2" height="10" fill="#ffed4a"/>
+  <rect x="6" y="5" width="4" height="6" fill="#b8860b"/>
+  <rect x="7" y="6" width="2" height="4" fill="#ffd700"/>
+  <rect x="7" y="7" width="2" height="2" fill="#ffed4a"/>
+`, size, '0 0 16 16', 'icon-coin');
 
 export const createIconElement = (iconFn, size = ICON_SIZE.MD) => {
   return createElement('span', { className: 'icon-wrapper' }, iconFn(size));
@@ -187,7 +199,8 @@ export const ICONS = {
   send: arrowRightIcon,
   refresh: refreshIcon,
   replay: refreshIcon,
-  star: starIcon
+  star: starIcon,
+  coin: coinIcon
 };
 
 export const getIcon = (name, size = ICON_SIZE.MD) => {

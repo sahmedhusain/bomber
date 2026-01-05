@@ -3,6 +3,92 @@
    Classic retro game over / victory screen
    ======================================== */
 
+/* Entrance Animations */
+@keyframes resultsFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes resultsSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes resultsScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes resultsBounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(-50px);
+  }
+  50% {
+    transform: scale(1.05) translateY(0);
+  }
+  70% {
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes resultsGradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes resultsShimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 200%;
+  }
+}
+
+@keyframes sparkleFloat {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateY(0) scale(0);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(-40px) scale(0.8);
+  }
+}
+
 .screen.results-screen {
   display: flex;
   align-items: center;
@@ -97,6 +183,55 @@
     rgba(0, 0, 0, 0.12) 4px
   );
   z-index: 50;
+  animation: scanlineFlicker 0.1s infinite;
+}
+
+@keyframes scanlineFlicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.98;
+  }
+}
+
+/* Victory sparkles */
+.screen.results-screen.victory::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+      2px 2px at 10% 20%,
+      #ffd700 50%,
+      transparent 50%
+    ),
+    radial-gradient(2px 2px at 25% 35%, #fff 50%, transparent 50%),
+    radial-gradient(2px 2px at 40% 15%, #ffd700 50%, transparent 50%),
+    radial-gradient(2px 2px at 55% 40%, #fff 50%, transparent 50%),
+    radial-gradient(2px 2px at 70% 25%, #ffd700 50%, transparent 50%),
+    radial-gradient(2px 2px at 85% 45%, #fff 50%, transparent 50%),
+    radial-gradient(2px 2px at 15% 60%, #ffd700 50%, transparent 50%),
+    radial-gradient(2px 2px at 30% 75%, #fff 50%, transparent 50%),
+    radial-gradient(2px 2px at 60% 65%, #ffd700 50%, transparent 50%),
+    radial-gradient(2px 2px at 80% 80%, #fff 50%, transparent 50%),
+    radial-gradient(2px 2px at 90% 15%, #ffd700 50%, transparent 50%),
+    radial-gradient(2px 2px at 5% 85%, #fff 50%, transparent 50%);
+  animation: victorySparkle 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes victorySparkle {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
 }
 
 /* Main container */
@@ -108,6 +243,8 @@
   max-width: 700px;
   width: 100%;
   z-index: 1;
+  animation: resultsFadeIn 0.5s ease-out;
+  position: relative;
 }
 
 /* ========================================
@@ -120,6 +257,7 @@
   gap: 8px;
   margin-bottom: 16px;
   position: relative;
+  animation: resultsBounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .title-deco {
@@ -135,79 +273,151 @@
 
 .results-big-title {
   font-family: "Press Start 2P", monospace;
-  font-size: clamp(28px, 8vw, 52px);
+  font-size: clamp(32px, 10vw, 64px);
+  color: #fff;
   background: linear-gradient(
     180deg,
-    #ffd700 0%,
-    #ffb700 30%,
+    #ffffff 0%,
+    #fffacd 15%,
+    #ffd700 30%,
+    #ffb700 50%,
     #ff8c00 70%,
-    #ff6b00 100%
+    #ff6b00 85%,
+    #cc5500 100%
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 4px 0 #8b4513) drop-shadow(0 6px 0 #5a2d0a)
-    drop-shadow(0 0 30px rgba(255, 200, 0, 0.6));
-  letter-spacing: 6px;
-  animation: titleGlow 2s ease-in-out infinite,
-    titleFloat 3s ease-in-out infinite;
+  letter-spacing: 8px;
   text-align: center;
   margin: 0;
   position: relative;
+  text-shadow: none;
+  filter: drop-shadow(2px 2px 0 #8b4513) drop-shadow(4px 4px 0 #5a2d0a)
+    drop-shadow(6px 6px 0 #3d1f08) drop-shadow(8px 8px 0 rgba(0, 0, 0, 0.5))
+    drop-shadow(0 0 40px rgba(255, 200, 0, 0.8))
+    drop-shadow(0 0 80px rgba(255, 150, 0, 0.4));
+  animation: victoryTitlePulse 2s ease-in-out infinite,
+    victoryTitleFloat 3s ease-in-out infinite;
+  transform-style: preserve-3d;
+  perspective: 500px;
 }
 
-/* Game Over title - Red gradient */
+@keyframes victoryTitlePulse {
+  0%,
+  100% {
+    filter: drop-shadow(2px 2px 0 #8b4513) drop-shadow(4px 4px 0 #5a2d0a)
+      drop-shadow(6px 6px 0 #3d1f08) drop-shadow(8px 8px 0 rgba(0, 0, 0, 0.5))
+      drop-shadow(0 0 40px rgba(255, 200, 0, 0.8))
+      drop-shadow(0 0 80px rgba(255, 150, 0, 0.4));
+  }
+  50% {
+    filter: drop-shadow(2px 2px 0 #8b4513) drop-shadow(4px 4px 0 #5a2d0a)
+      drop-shadow(6px 6px 0 #3d1f08) drop-shadow(8px 8px 0 rgba(0, 0, 0, 0.5))
+      drop-shadow(0 0 60px rgba(255, 200, 0, 1))
+      drop-shadow(0 0 100px rgba(255, 150, 0, 0.6));
+  }
+}
+
+@keyframes victoryTitleFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotateX(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotateX(2deg);
+  }
+}
+
+/* Game Over title - Red gradient Bomberman style */
 .results-title-section.gameover .results-big-title {
   background: linear-gradient(
     180deg,
-    #ff6b6b 0%,
-    #ff4757 30%,
+    #ffffff 0%,
+    #ffcccc 15%,
+    #ff6b6b 30%,
+    #ff4757 50%,
     #c0392b 70%,
-    #8b0000 100%
+    #8b0000 85%,
+    #4a0000 100%
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 4px 0 #5c1a1a) drop-shadow(0 6px 0 #3d0f0f)
-    drop-shadow(0 0 30px rgba(255, 77, 109, 0.6));
-  animation: gameoverGlow 2s ease-in-out infinite, titleShake 0.5s ease-in-out;
+  filter: drop-shadow(2px 2px 0 #5c1a1a) drop-shadow(4px 4px 0 #3d0f0f)
+    drop-shadow(6px 6px 0 #2a0a0a) drop-shadow(8px 8px 0 rgba(0, 0, 0, 0.5))
+    drop-shadow(0 0 40px rgba(255, 77, 109, 0.8))
+    drop-shadow(0 0 80px rgba(255, 0, 0, 0.4));
+  animation: gameoverTitlePulse 2s ease-in-out infinite,
+    titleShake 0.5s ease-in-out;
 }
 
-/* Draw title - Purple gradient */
+@keyframes gameoverTitlePulse {
+  0%,
+  100% {
+    filter: drop-shadow(2px 2px 0 #5c1a1a) drop-shadow(4px 4px 0 #3d0f0f)
+      drop-shadow(6px 6px 0 #2a0a0a) drop-shadow(8px 8px 0 rgba(0, 0, 0, 0.5))
+      drop-shadow(0 0 40px rgba(255, 77, 109, 0.8))
+      drop-shadow(0 0 80px rgba(255, 0, 0, 0.4));
+  }
+  50% {
+    filter: drop-shadow(2px 2px 0 #5c1a1a) drop-shadow(4px 4px 0 #3d0f0f)
+      drop-shadow(6px 6px 0 #2a0a0a) drop-shadow(8px 8px 0 rgba(0, 0, 0, 0.5))
+      drop-shadow(0 0 60px rgba(255, 77, 109, 1))
+      drop-shadow(0 0 100px rgba(255, 0, 0, 0.6));
+  }
+}
+
+/* Draw title - Purple gradient Bomberman style */
 .results-title-section.draw .results-big-title {
   background: linear-gradient(
     180deg,
-    #a29bfe 0%,
-    #6c5ce7 30%,
+    #ffffff 0%,
+    #e8e0ff 15%,
+    #a29bfe 30%,
+    #6c5ce7 50%,
     #5f27cd 70%,
-    #341f97 100%
+    #341f97 85%,
+    #1a0f50 100%
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 4px 0 #2d1b69) drop-shadow(0 6px 0 #1a0f40)
-    drop-shadow(0 0 30px rgba(147, 112, 219, 0.6));
-  animation: drawGlow 2s ease-in-out infinite,
-    titleFloat 3s ease-in-out infinite;
+  filter: drop-shadow(2px 2px 0 #2d1b69) drop-shadow(4px 4px 0 #1a0f40)
+    drop-shadow(6px 6px 0 #0d0820) drop-shadow(8px 8px 0 rgba(0, 0, 0, 0.5))
+    drop-shadow(0 0 40px rgba(147, 112, 219, 0.8))
+    drop-shadow(0 0 80px rgba(100, 80, 200, 0.4));
+  animation: drawTitlePulse 2s ease-in-out infinite,
+    victoryTitleFloat 3s ease-in-out infinite;
 }
 
-/* Title underline decoration */
+@keyframes drawTitlePulse {
+  0%,
+  100% {
+    filter: drop-shadow(2px 2px 0 #2d1b69) drop-shadow(4px 4px 0 #1a0f40)
+      drop-shadow(6px 6px 0 #0d0820) drop-shadow(8px 8px 0 rgba(0, 0, 0, 0.5))
+      drop-shadow(0 0 40px rgba(147, 112, 219, 0.8))
+      drop-shadow(0 0 80px rgba(100, 80, 200, 0.4));
+  }
+  50% {
+    filter: drop-shadow(2px 2px 0 #2d1b69) drop-shadow(4px 4px 0 #1a0f40)
+      drop-shadow(6px 6px 0 #0d0820) drop-shadow(8px 8px 0 rgba(0, 0, 0, 0.5))
+      drop-shadow(0 0 60px rgba(147, 112, 219, 1))
+      drop-shadow(0 0 100px rgba(100, 80, 200, 0.6));
+  }
+}
+
+/* Title underline decoration - REMOVED */
 .results-title-section::after {
-  content: "";
-  width: 80%;
-  max-width: 300px;
-  height: 4px;
-  background: linear-gradient(90deg, transparent, var(--accent), transparent);
-  border-radius: 2px;
-  animation: underlineGlow 2s ease-in-out infinite;
+  display: none;
 }
 
 .results-title-section.gameover::after {
-  background: linear-gradient(90deg, transparent, #ff4757, transparent);
+  display: none;
 }
 
 .results-title-section.draw::after {
-  background: linear-gradient(90deg, transparent, #6c5ce7, transparent);
+  display: none;
 }
 
 @keyframes titleGlow {
@@ -313,55 +523,42 @@
 .winner-announce {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px 28px;
+  gap: 14px;
+  padding: 14px 20px;
   background: linear-gradient(
     135deg,
-    rgba(255, 215, 0, 0.2) 0%,
-    rgba(255, 140, 0, 0.15) 50%,
-    rgba(255, 107, 0, 0.1) 100%
+    rgba(20, 35, 60, 0.85) 0%,
+    rgba(15, 25, 45, 0.85) 100%
   );
-  border: 3px solid;
-  border-image: linear-gradient(135deg, #ffd700, #ff8c00, #ffd700) 1;
-  border-radius: 12px;
-  box-shadow: 0 0 30px rgba(255, 200, 0, 0.3), 0 0 60px rgba(255, 140, 0, 0.15),
-    inset 0 0 30px rgba(255, 215, 0, 0.1), 0 8px 0 rgba(0, 0, 0, 0.3);
+  border: 3px solid var(--accent);
+  border-radius: 10px;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 200, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
   position: relative;
-  overflow: visible;
-  animation: championBoxPulse 3s ease-in-out infinite;
+  overflow: hidden;
+  animation: resultsScaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.2s
+    both;
 }
 
-/* Animated border glow */
+/* Shimmer effect */
 .winner-announce::before {
   content: "";
   position: absolute;
-  inset: -3px;
-  border-radius: 14px;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
   background: linear-gradient(
-    135deg,
-    #ffd700,
-    #ff8c00,
-    #ff6b00,
-    #ff8c00,
-    #ffd700
+    90deg,
+    transparent,
+    rgba(255, 215, 0, 0.1),
+    transparent
   );
-  background-size: 300% 300%;
-  animation: borderGradient 4s ease infinite;
-  z-index: -1;
-  opacity: 0.8;
+  animation: resultsShimmer 3s ease-in-out infinite;
 }
 
 .winner-announce::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 12px;
-  background: linear-gradient(
-    135deg,
-    rgba(15, 25, 45, 0.95) 0%,
-    rgba(20, 35, 60, 0.9) 100%
-  );
-  z-index: -1;
+  display: none;
 }
 
 @keyframes championBoxPulse {
@@ -391,21 +588,12 @@
 }
 
 .winner-trophy {
-  width: 44px;
-  height: 44px;
-  animation: trophyBounce 1.5s ease-in-out infinite;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 215, 0, 0.3),
-    rgba(255, 140, 0, 0.2)
-  );
-  border-radius: 50%;
-  padding: 8px;
-  box-shadow: 0 0 20px rgba(255, 200, 0, 0.4);
 }
 
 .winner-trophy .icon-wrapper {
@@ -418,10 +606,9 @@
 
 .winner-trophy .icon-wrapper svg,
 .winner-trophy svg {
-  width: 28px;
-  height: 28px;
-  filter: drop-shadow(0 0 8px #ffd700)
-    drop-shadow(0 0 15px rgba(255, 200, 0, 0.8));
+  width: 32px;
+  height: 32px;
+  filter: drop-shadow(0 0 8px #ffd700);
 }
 
 @keyframes trophyBounce {
@@ -453,28 +640,21 @@
 .winner-text {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   font-family: "Press Start 2P", monospace;
 }
 
 .winner-prefix {
-  font-size: 9px;
-  color: #ffd700;
-  letter-spacing: 3px;
+  font-size: 8px;
+  color: var(--accent);
+  letter-spacing: 2px;
   text-transform: uppercase;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
 .winner-name {
-  font-size: 16px;
-  background: linear-gradient(90deg, #ffd700, #fff, #ffd700);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: shimmer 3s linear infinite;
-  text-shadow: none;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  font-size: 14px;
+  color: var(--ink);
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
 }
 
 @keyframes shimmer {
@@ -484,10 +664,9 @@
 }
 
 .winner-you {
-  font-size: 11px;
+  font-size: 8px;
   color: var(--accent-mint);
-  animation: youPulse 1s ease-in-out infinite;
-  text-shadow: 0 0 10px var(--accent-mint);
+  margin-top: 2px;
 }
 
 @keyframes youPulse {
@@ -517,24 +696,55 @@
    ======================================== */
 .standings-box {
   width: 100%;
-  background: linear-gradient(180deg, #12203a 0%, #0a1525 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(20, 35, 60, 0.85) 0%,
+    rgba(15, 25, 45, 0.85) 100%
+  );
   border: 3px solid var(--line);
-  border-radius: 8px;
+  border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 4px 0 #050812;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  animation: resultsSlideUp 0.6s ease-out 0.3s both;
+  position: relative;
+}
+
+/* Remove rainbow gradient top bar */
+.standings-box::before {
+  display: none;
+}
+
+/* Shimmer effect */
+.standings-box::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.02),
+    transparent
+  );
+  animation: resultsShimmer 4s ease-in-out infinite;
+  pointer-events: none;
 }
 
 .standings-header {
   display: grid;
   grid-template-columns: 50px 40px 1fr 100px 70px;
   gap: 8px;
-  padding: 10px 16px;
+  padding: 12px 16px;
   background: var(--line);
   font-family: "Press Start 2P", monospace;
   font-size: 7px;
   color: var(--muted);
   letter-spacing: 1px;
   text-transform: uppercase;
+  border-bottom: 2px solid var(--line);
 }
 
 .standings-list {
@@ -550,7 +760,21 @@
   align-items: center;
   padding: 12px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  transition: background 0.15s ease;
+  transition: background 0.2s ease;
+}
+
+/* Staggered entrance for rows */
+.standing-row:nth-child(1) {
+  animation-delay: 0.4s;
+}
+.standing-row:nth-child(2) {
+  animation-delay: 0.5s;
+}
+.standing-row:nth-child(3) {
+  animation-delay: 0.6s;
+}
+.standing-row:nth-child(4) {
+  animation-delay: 0.7s;
 }
 
 .standing-row:last-child {
@@ -564,6 +788,21 @@
 .standing-row.is-you {
   background: rgba(75, 243, 255, 0.08);
   border-left: 3px solid var(--accent-cool);
+}
+
+.standing-row.place-1 {
+  background: rgba(255, 215, 0, 0.08);
+  border-left: 3px solid #ffd700;
+}
+
+.standing-row.place-2 {
+  background: rgba(192, 192, 192, 0.06);
+  border-left: 3px solid #c0c0c0;
+}
+
+.standing-row.place-3 {
+  background: rgba(205, 127, 50, 0.06);
+  border-left: 3px solid #cd7f32;
 }
 
 .standing-row.rank-0 {
@@ -585,12 +824,17 @@
 }
 
 .standing-rank .icon-wrapper {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
+  transition: transform 0.3s ease;
+}
+
+.standing-row:hover .standing-rank .icon-wrapper {
+  transform: scale(1.1);
 }
 
 .standing-rank .icon-wrapper.gold svg {
-  filter: drop-shadow(0 0 6px var(--accent));
+  filter: drop-shadow(0 0 6px #ffd700);
 }
 
 .standing-rank .icon-wrapper.silver svg {
@@ -601,19 +845,30 @@
   filter: drop-shadow(0 0 4px #cd7f32);
 }
 
+/* Draw/Tied label in rank */
+.standing-draw-label {
+  font-size: 6px;
+  color: #a29bfe;
+  margin-left: 4px;
+}
+
 /* Avatar */
 .standing-avatar {
   width: 32px;
   height: 32px;
-  border-radius: 4px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: "Press Start 2P", monospace;
-  font-size: 12px;
+  font-size: 11px;
   color: white;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
   border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.standing-row:hover .standing-avatar {
+  transform: scale(1.05);
 }
 
 .standing-avatar.player-0 {
@@ -639,12 +894,16 @@
   color: var(--ink);
 }
 
+.standing-row.place-1 .standing-name {
+  color: #ffd700;
+}
+
 .you-label {
   font-size: 6px;
   background: var(--accent-cool);
   color: #0a1525;
   padding: 2px 6px;
-  border-radius: 2px;
+  border-radius: 3px;
 }
 
 /* Stats */
@@ -671,10 +930,10 @@
 /* Status */
 .standing-status {
   font-family: "Press Start 2P", monospace;
-  font-size: 8px;
+  font-size: 7px;
   text-align: center;
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 .standing-status.alive {
@@ -693,7 +952,8 @@
 .results-actions {
   display: flex;
   justify-content: center;
-  margin-top: 8px;
+  margin-top: 12px;
+  animation: resultsFadeIn 0.5s ease-out 0.6s both;
 }
 
 .action-buttons {
@@ -704,53 +964,94 @@
 .arcade-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  gap: 12px;
   padding: 14px 24px;
   font-family: "Press Start 2P", monospace;
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 1px;
-  border: 3px solid;
-  border-radius: 6px;
+  border: 3px solid var(--line);
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.1s ease;
-  box-shadow: 0 4px 0 #050812;
+  transition: all 0.2s ease;
   text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+  animation: resultsSlideUp 0.5s ease-out 0.5s both;
+}
+
+/* Shimmer effect */
+.arcade-btn::before {
+  display: none;
+}
+
+.arcade-btn::after {
+  display: none;
 }
 
 .arcade-btn .icon-wrapper {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arcade-btn .icon-wrapper .retro-icon {
+  width: 20px;
+  height: 20px;
 }
 
 .arcade-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 0 #050812;
 }
 
 .arcade-btn:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 #050812;
+  transform: translateY(1px);
 }
 
 .arcade-btn.primary {
-  background: linear-gradient(180deg, var(--accent-mint), #2ecc71);
-  border-color: #27ae60;
-  color: #0a1a12;
+  background: var(--accent-mint);
+  border-color: var(--accent-mint);
+  color: #0a0f18;
+}
+
+/* Primary button icon - dark color */
+.arcade-btn.primary .icon-wrapper .retro-icon rect {
+  fill: #0a0f18;
 }
 
 .arcade-btn.primary:hover {
-  background: linear-gradient(180deg, #5feda8, var(--accent-mint));
+  background: #5aeaa8;
+  border-color: #5aeaa8;
+}
+
+.arcade-btn.primary:active {
+  background: #3dd490;
 }
 
 .arcade-btn.secondary {
-  background: linear-gradient(180deg, #4a5a6a, #3a4a5a);
-  border-color: #5a6a7a;
+  background: var(--panel-strong);
+  border: 3px solid var(--line);
   color: var(--muted);
 }
 
+/* Secondary button icon */
+.arcade-btn.secondary .icon-wrapper .retro-icon rect {
+  fill: var(--muted);
+}
+
 .arcade-btn.secondary:hover {
-  background: linear-gradient(180deg, #5a6a7a, #4a5a6a);
-  color: var(--ink);
+  color: var(--accent-hot);
+  border-color: var(--accent-hot);
+}
+
+.arcade-btn.secondary:hover .icon-wrapper .retro-icon rect {
+  fill: var(--accent-hot);
+}
+
+.arcade-btn.secondary:active {
+  background: rgba(15, 25, 45, 0.9);
 }
 
 /* Confirmed action state */
@@ -758,18 +1059,38 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 28px;
+  padding: 16px 32px;
   background: linear-gradient(
     135deg,
-    rgba(78, 229, 159, 0.2),
-    rgba(78, 229, 159, 0.1)
+    rgba(78, 229, 159, 0.2) 0%,
+    rgba(78, 229, 159, 0.1) 100%
   );
   border: 2px solid var(--accent-mint);
-  border-radius: 8px;
+  border-radius: 12px;
   font-family: "Press Start 2P", monospace;
   font-size: 10px;
   color: var(--accent-mint);
-  animation: confirmGlow 1.5s ease-in-out infinite;
+  animation: resultsScaleIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+    confirmGlow 1.5s ease-in-out 0.4s infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Confirmed state shimmer */
+.action-confirmed::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(78, 229, 159, 0.2),
+    transparent
+  );
+  animation: resultsShimmer 2s ease-in-out infinite;
 }
 
 .action-confirmed .icon-wrapper {
@@ -854,13 +1175,23 @@
   }
 
   .arcade-btn {
-    padding: 12px 18px;
-    font-size: 8px;
+    padding: 14px 20px;
+    font-size: 9px;
+    border-width: 3px;
+    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3), 0 8px 15px rgba(0, 0, 0, 0.3);
   }
 
   .arcade-btn .icon-wrapper {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .arcade-btn.primary {
+    box-shadow: 0 6px 0 #1a5a50;
+  }
+
+  .arcade-btn.secondary {
+    box-shadow: 0 6px 0 #0a1322;
   }
 }
 
@@ -888,6 +1219,7 @@
 
   .results-big-title {
     font-size: 18px;
+    letter-spacing: 3px;
   }
 
   .winner-announce {
@@ -899,6 +1231,8 @@
   }
 
   .arcade-btn {
-    padding: 10px 16px;
+    padding: 12px 18px;
+    font-size: 8px;
+    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.3), 0 7px 12px rgba(0, 0, 0, 0.3);
   }
 }

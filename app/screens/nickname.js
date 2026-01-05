@@ -7,6 +7,84 @@ const icon = (name, className = '') => createElement('span', {
   innerHTML: getIconSVG(name)
 });
 
+// Coin sound using Web Audio API - Retro arcade coin drop
+const playCoinSound = () => {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    // Coin drop "clink" - metallic high frequency burst
+    const clink = audioCtx.createOscillator();
+    const clinkGain = audioCtx.createGain();
+    clink.connect(clinkGain);
+    clinkGain.connect(audioCtx.destination);
+    clink.frequency.setValueAtTime(2500, audioCtx.currentTime);
+    clink.frequency.exponentialRampToValueAtTime(1800, audioCtx.currentTime + 0.03);
+    clink.type = 'square';
+    clinkGain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+    clinkGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+    clink.start(audioCtx.currentTime);
+    clink.stop(audioCtx.currentTime + 0.05);
+
+    // First bounce - lower pitch
+    const bounce1 = audioCtx.createOscillator();
+    const bounce1Gain = audioCtx.createGain();
+    bounce1.connect(bounce1Gain);
+    bounce1Gain.connect(audioCtx.destination);
+    bounce1.frequency.setValueAtTime(1400, audioCtx.currentTime + 0.06);
+    bounce1.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1);
+    bounce1.type = 'square';
+    bounce1Gain.gain.setValueAtTime(0.12, audioCtx.currentTime + 0.06);
+    bounce1Gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+    bounce1.start(audioCtx.currentTime + 0.06);
+    bounce1.stop(audioCtx.currentTime + 0.1);
+
+    // Second bounce - even lower
+    const bounce2 = audioCtx.createOscillator();
+    const bounce2Gain = audioCtx.createGain();
+    bounce2.connect(bounce2Gain);
+    bounce2Gain.connect(audioCtx.destination);
+    bounce2.frequency.setValueAtTime(1000, audioCtx.currentTime + 0.12);
+    bounce2.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.16);
+    bounce2.type = 'square';
+    bounce2Gain.gain.setValueAtTime(0.1, audioCtx.currentTime + 0.12);
+    bounce2Gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.16);
+    bounce2.start(audioCtx.currentTime + 0.12);
+    bounce2.stop(audioCtx.currentTime + 0.16);
+
+    // Final settle - soft thud
+    const settle = audioCtx.createOscillator();
+    const settleGain = audioCtx.createGain();
+    settle.connect(settleGain);
+    settleGain.connect(audioCtx.destination);
+    settle.frequency.setValueAtTime(600, audioCtx.currentTime + 0.18);
+    settle.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.25);
+    settle.type = 'triangle';
+    settleGain.gain.setValueAtTime(0.08, audioCtx.currentTime + 0.18);
+    settleGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+    settle.start(audioCtx.currentTime + 0.18);
+    settle.stop(audioCtx.currentTime + 0.25);
+
+  } catch (e) {
+    console.log('Audio not supported');
+  }
+};
+
+const showCoinInsertedPopup = (store, callback) => {
+  // Show coin inserted overlay
+  const curr = store.getState();
+  store.setState({ ...curr, ui: { ...(curr.ui || {}), coinInserted: true } });
+
+  // Play coin sound
+  playCoinSound();
+
+  // After 1.2 seconds, hide popup and proceed
+  setTimeout(() => {
+    const state = store.getState();
+    store.setState({ ...state, ui: { ...(state.ui || {}), coinInserted: false } });
+    callback();
+  }, 1200);
+};
+
 const submitNickname = (store) => (e) => {
   e.preventDefault();
   const input = e.target.querySelector('input[name="nickname"]');
@@ -17,16 +95,21 @@ const submitNickname = (store) => (e) => {
   const curr = store.getState();
   const player = createPlayer({ id: playerId, nickname, x: 0, y: 0 });
 
-  window.sendMessage({ type: 'join', player_id: playerId, nickname });
-  store.setState({
-    ...upsertPlayer(curr, player),
-    session: { ...curr.session, nickname, playerId, connected: true },
-    route: '#/lobby'
+  // Show coin inserted popup first, then proceed
+  showCoinInsertedPopup(store, () => {
+    window.sendMessage({ type: 'join', player_id: playerId, nickname });
+    store.setState({
+      ...upsertPlayer(store.getState(), player),
+      session: { ...store.getState().session, nickname, playerId, connected: true },
+      route: '#/lobby'
+    });
+    window.location.hash = '#/lobby';
   });
-  window.location.hash = '#/lobby';
 };
 
 export function NicknameScreen(state, store) {
+  const showCoinPopup = state.ui?.coinInserted;
+
   return createElement('section', { className: 'screen nickname', key: 'screen-nickname' },
     createElement('div', { className: 'card welcome-card' },
       createElement('div', { className: 'title-icon hero-icon' }, icon('bomb')),
@@ -55,9 +138,18 @@ export function NicknameScreen(state, store) {
         }),
         createElement('button', { type: 'submit', className: 'join-button' },
           icon('arrowRight'),
-          createElement('span', {}, 'START GAME')
+          createElement('span', {}, 'JOIN GAME')
         )
       )
-    )
+    ),
+
+    // Coin Inserted Popup
+    showCoinPopup ? createElement('div', { className: 'coin-inserted-overlay' },
+      createElement('div', { className: 'coin-inserted-card' },
+        createElement('div', { className: 'coin-icon-wrapper' }, icon('coin')),
+        createElement('h2', { className: 'coin-inserted-title' }, 'COIN INSERTED'),
+        createElement('p', { className: 'coin-inserted-subtitle' }, 'GET READY TO PLAY!')
+      )
+    ) : null
   );
 }

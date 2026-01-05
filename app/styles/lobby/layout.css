@@ -583,6 +583,24 @@
   transition: all 0.2s ease;
 }
 
+/* Ready button icon styling */
+.lobby-ready-btn .icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lobby-ready-btn .icon-wrapper .retro-icon {
+  width: 24px;
+  height: 24px;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.3));
+}
+
+/* Check icon (READY button) - black color */
+.lobby-ready-btn .icon-wrapper .icon-check rect {
+  fill: #0a0f18;
+}
+
 .lobby-ready-btn::before {
   content: "";
   position: absolute;
@@ -626,6 +644,16 @@
   animation: readyBtnPulse 1.5s ease-in-out infinite;
 }
 
+/* Not ready icon styling */
+.lobby-ready-btn.is-ready .icon-wrapper .retro-icon {
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.4));
+}
+
+/* Cancel/X icon (NOT READY button) - white color */
+.lobby-ready-btn.is-ready .icon-wrapper .retro-icon rect {
+  fill: #ffffff;
+}
+
 @keyframes readyBtnPulse {
   0%,
   100% {
@@ -652,6 +680,38 @@
   color: var(--muted);
   box-shadow: 0 6px 0 #0a1322;
   transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Leave button icon styling */
+.lobby-leave-btn .icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lobby-leave-btn .icon-wrapper .retro-icon {
+  width: 22px;
+  height: 22px;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.3));
+}
+
+.lobby-leave-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    rgba(255, 77, 109, 0.05) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.lobby-leave-btn:hover::before {
+  opacity: 1;
 }
 
 .lobby-leave-btn:hover {
