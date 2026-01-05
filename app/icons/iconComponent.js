@@ -129,7 +129,7 @@ const SVG_ICONS = {
     <rect x="12" y="7" width="2" height="2" fill="#f8e71c"/>
   </svg>`,
 
-refresh: `<svg class="retro-icon icon-refresh" viewBox="0 0 16 16" fill="none">
+  refresh: `<svg class="retro-icon icon-refresh" viewBox="0 0 16 16" fill="none">
     <rect x="10" y="1" width="4" height="2" fill="currentColor"/>
     <rect x="12" y="3" width="2" height="2" fill="currentColor"/>
     <rect x="5" y="3" width="5" height="2" fill="currentColor"/>
@@ -228,6 +228,18 @@ refresh: `<svg class="retro-icon icon-refresh" viewBox="0 0 16 16" fill="none">
     <rect x="6" y="5" width="4" height="6" fill="#b8860b"/>
     <rect x="7" y="6" width="2" height="4" fill="#ffd700"/>
     <rect x="7" y="7" width="2" height="2" fill="#ffed4a"/>
+  </svg>`,
+
+  clock: `<svg class="retro-icon icon-clock" viewBox="0 0 16 16" fill="none">
+    <rect x="5" y="1" width="6" height="2" fill="#4ee59f"/>
+    <rect x="3" y="3" width="10" height="2" fill="#4ee59f"/>
+    <rect x="2" y="5" width="12" height="6" fill="#4ee59f"/>
+    <rect x="3" y="11" width="10" height="2" fill="#4ee59f"/>
+    <rect x="5" y="13" width="6" height="2" fill="#4ee59f"/>
+    <rect x="4" y="4" width="8" height="8" fill="#1a3a2a"/>
+    <rect x="7" y="5" width="2" height="4" fill="#4ee59f"/>
+    <rect x="9" y="7" width="2" height="2" fill="#4ee59f"/>
+    <rect x="7" y="7" width="2" height="2" fill="#7fff9f"/>
   </svg>`
 };
 
@@ -248,7 +260,9 @@ const ICON_ALIASES = {
   logo: 'bomberman',
   alive: 'checkmark',
   dead: 'skull',
-  eliminated: 'skull'
+  eliminated: 'skull',
+  timer: 'clock',
+  time: 'clock'
 };
 
 export function getIconSVG(name) {

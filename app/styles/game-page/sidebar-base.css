@@ -1,22 +1,53 @@
 /* ===========================================
-   SIDEBARS
+   SIDEBARS - Enhanced with Animations
    =========================================== */
 .sidebar {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 20px 16px;
+  gap: 16px;
+  padding: 16px;
   margin: 16px 0 16px 16px;
-  background: linear-gradient(180deg, var(--panel) 0%, var(--bg-2) 100%);
-  border: 3px solid var(--line);
-  border-radius: var(--radius);
+  background: transparent;
+  border: none;
+  box-shadow: none;
   overflow-y: auto;
-  box-shadow: 0 8px 0 #050812, inset 0 1px 0 rgba(255, 255, 255, 0.05);
   position: relative;
   height: calc(100% - 32px);
+  animation: sidebarSlideIn 0.5s ease-out;
 }
 
-.sidebar::before {
+@keyframes sidebarSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.sidebar::before,
+.sidebar::after {
+  display: none;
+}
+
+.sidebar-section {
+  background: linear-gradient(
+    180deg,
+    rgba(20, 35, 60, 0.95) 0%,
+    rgba(15, 25, 45, 0.95) 100%
+  );
+  border: 3px solid var(--line);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-section::before {
   content: "";
   position: absolute;
   top: 0;
@@ -27,53 +58,25 @@
     90deg,
     var(--accent-cool),
     var(--accent),
-    var(--accent-hot)
-  );
-  opacity: 0.9;
-}
-
-.sidebar::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(
-    90deg,
     var(--accent-hot),
-    var(--accent),
+    var(--accent-mint),
     var(--accent-cool)
   );
-  opacity: 0.6;
+  background-size: 200% 100%;
+  animation: gradientFlow 3s linear infinite;
+}
+
+@keyframes gradientFlow {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
 }
 
 .sidebar-left {
   width: 100%;
-}
-
-.sidebar-left::before {
-  border-radius: var(--radius) var(--radius) 0 0;
-}
-
-.sidebar-left::after {
-  border-radius: 0 0 var(--radius) var(--radius);
-}
-
-/* Remove right sidebar styles - no longer used */
-
-.sidebar-section {
-  background: var(--panel-strong);
-  border: 2px solid var(--line);
-  border-radius: 6px;
-  padding: 14px;
-  box-shadow: 0 4px 0 #0a1322, inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.sidebar-section:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 5px 0 #0a1322, inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .sidebar-title {
@@ -83,13 +86,23 @@
   color: var(--accent-cool);
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   padding-bottom: 8px;
   border-bottom: 2px solid var(--line);
-  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3), 0 0 10px rgba(75, 243, 255, 0.3);
+  text-shadow: 0 0 10px rgba(75, 243, 255, 0.4);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  animation: titleGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes titleGlow {
+  0% {
+    text-shadow: 0 0 10px rgba(75, 243, 255, 0.3);
+  }
+  100% {
+    text-shadow: 0 0 20px rgba(75, 243, 255, 0.6);
+  }
 }
 
 /* Section title icon styling */
@@ -122,4 +135,93 @@
     opacity: 0.6;
     transform: translateX(2px);
   }
+}
+
+/* ===========================================
+   SIDEBAR GAME HEADER - Matching Lobby Design (no box)
+   =========================================== */
+.sidebar-game-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 8px;
+  animation: headerDropIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes headerDropIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.8);
+  }
+  60% {
+    transform: translateY(3px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.sidebar-game-header .title-icon {
+  font-size: clamp(42px, 10vw, 56px);
+  animation: iconFloat 3s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-4px) rotate(-3deg);
+  }
+  75% {
+    transform: translateY(-4px) rotate(3deg);
+  }
+}
+
+.sidebar-game-header .title-icon .retro-icon,
+.sidebar-game-header .title-icon .icon-wrapper .retro-icon {
+  width: clamp(42px, 10vw, 56px);
+  height: clamp(42px, 10vw, 56px);
+  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.5))
+    drop-shadow(0 0 20px rgba(248, 231, 28, 0.5));
+}
+
+.sidebar-game-header h1 {
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(16px, 3vw, 22px);
+  color: var(--accent);
+  margin: 0;
+  animation: titleGlowGame 2s ease-in-out infinite alternate;
+}
+
+@keyframes titleGlowGame {
+  0% {
+    text-shadow: 0 4px 0 rgba(0, 0, 0, 0.4), 0 0 20px rgba(248, 231, 28, 0.3);
+  }
+  100% {
+    text-shadow: 0 4px 0 rgba(0, 0, 0, 0.4), 0 0 40px rgba(248, 231, 28, 0.6);
+  }
+}
+
+.sidebar-game-header .subtitle {
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  color: var(--accent-cool);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.sidebar-game-header .subtitle .icon-wrapper .retro-icon {
+  width: 12px;
+  height: 12px;
+  color: var(--accent-cool);
 }

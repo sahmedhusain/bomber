@@ -21,7 +21,12 @@
 }
 
 .game-overlay.eliminated {
-  background: rgba(45, 26, 35, 0.92);
+  background: radial-gradient(
+    circle,
+    rgba(45, 26, 35, 0.8) 0%,
+    rgba(10, 5, 8, 0.95) 100%
+  );
+  backdrop-filter: blur(4px);
 }
 .game-overlay.victory {
   background: rgba(22, 53, 35, 0.92);
@@ -52,9 +57,38 @@
 }
 
 .eliminated .overlay-box {
-  background: linear-gradient(135deg, #3d1f2b, #2d1a23);
+  background: linear-gradient(180deg, #2d1a23 0%, #1a0f14 100%);
   border: 4px solid var(--accent-hot);
-  box-shadow: 0 0 60px rgba(255, 77, 109, 0.4);
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.5), 0 0 60px rgba(255, 77, 109, 0.3),
+    inset 0 0 40px rgba(255, 77, 109, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.eliminated .overlay-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--accent-hot);
+  box-shadow: 0 0 20px var(--accent-hot);
+  animation: scanline 2s linear infinite;
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(400px);
+    opacity: 0;
+  }
 }
 
 .victory .overlay-box {
@@ -97,6 +131,49 @@
 
 .eliminated .overlay-box h2 {
   color: var(--accent-hot);
+  font-size: 32px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  animation: glitchText 3s infinite;
+  position: relative;
+}
+
+@keyframes glitchText {
+  0%,
+  100% {
+    text-shadow: 0 0 10px rgba(255, 77, 109, 0.5);
+    transform: translate(0);
+  }
+  2% {
+    text-shadow: 2px 0 var(--accent), -2px 0 var(--accent-cool);
+    transform: translate(-2px, 1px);
+  }
+  4% {
+    text-shadow: -2px 0 var(--accent), 2px 0 var(--accent-cool);
+    transform: translate(2px, -1px);
+  }
+  6% {
+    text-shadow: 0 0 10px rgba(255, 77, 109, 0.5);
+    transform: translate(0);
+  }
+}
+
+.eliminated .overlay-emoji {
+  color: var(--accent-hot);
+  filter: drop-shadow(0 0 15px rgba(255, 77, 109, 0.4));
+  animation: pulseEmoji 2s ease-in-out infinite;
+}
+
+@keyframes pulseEmoji {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
 }
 .victory .overlay-box h2 {
   color: var(--accent-mint);
@@ -111,4 +188,3 @@
   font-family: "Press Start 2P", monospace;
   line-height: 2;
 }
-

@@ -20,6 +20,18 @@ let frameCount = 0;
 let currentFPS = 0;
 let fpsInterval = null;
 
+// Game timer
+let gameStartTime = null;
+let gameTimerInterval = null;
+let currentGameTime = '00:00';
+
+const formatGameTime = (ms) => {
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+};
+
 const hitPlayers = new Set();
 
 let arenaResizeFrame = null;
@@ -37,6 +49,26 @@ function initFPS() {
     currentFPS = frameCount;
     frameCount = 0;
   }, 1000);
+}
+
+function initGameTimer() {
+  if (!gameStartTime) {
+    gameStartTime = Date.now();
+  }
+  if (!gameTimerInterval) {
+    gameTimerInterval = setInterval(() => {
+      currentGameTime = formatGameTime(Date.now() - gameStartTime);
+    }, 1000);
+  }
+}
+
+export function resetGameTimer() {
+  gameStartTime = null;
+  currentGameTime = '00:00:00';
+  if (gameTimerInterval) {
+    clearInterval(gameTimerInterval);
+    gameTimerInterval = null;
+  }
 }
 
 export function clearTileCache() {
@@ -100,22 +132,26 @@ const statDefs = [
   { iconName: 'speed', label: 'Speed', value: (p) => (p.speed || 1).toFixed(1) }
 ];
 
-const statsSection = (player) => !player ? null :
-  createElement('div', { className: 'sidebar-section my-stats' },
-    createElement('h3', { className: 'sidebar-title' },
-      icon('stats', 'section-title-icon'),
-      ' Your Stats'
-    ),
-    createElement('div', { className: 'stats-grid' },
-      ...statDefs.map(({ iconName, label, value }) =>
-        createElement('div', { className: 'stat-box' },
-          createElement('span', { className: 'stat-icon' }, icon(iconName)),
-          createElement('span', { className: 'stat-value' }, value(player)),
-          createElement('span', { className: 'stat-label' }, label)
-        )
+// Each powerup in its own container box
+const powerupsBar = (player) => !player ? null :
+  createElement('div', { className: 'powerups-bar' },
+    ...statDefs.map(({ iconName, label, value }) =>
+      createElement('div', { className: 'powerup-box', key: label },
+        icon(iconName, 'powerup-icon'),
+        createElement('span', { className: 'powerup-label' }, label),
+        createElement('span', { className: 'powerup-value' }, value(player))
       )
     )
   );
+
+// Sidebar title section (matching lobby design - no box)
+const sidebarTitle = () => createElement('div', { className: 'sidebar-game-header' },
+  createElement('div', { className: 'title-icon hero-icon' }, icon('bomb')),
+  createElement('h1', {}, 'Bomberman'),
+  createElement('p', { className: 'subtitle icon-text' },
+    createElement('span', {}, 'RETRO BATTLE ARENA')
+  )
+);
 
 const playerRow = (player, idx, sessionId) => {
   const hearts = player.status === 'alive'
@@ -131,7 +167,7 @@ const playerRow = (player, idx, sessionId) => {
     key: player.id
   },
     createElement('div', { className: `player-avatar p${idx}` },
-      player.nickname.charAt(0).toUpperCase()
+      player.nickname.substring(0, 2).toUpperCase()
     ),
     createElement('div', { className: 'player-details' },
       createElement('span', { className: 'player-name' },
@@ -155,7 +191,7 @@ const playersSection = (players, sessionId) => createElement('div', { className:
 );
 
 const chatMessages = (chat, sessionId) => chat.length === 0
-  ? createElement('p', { className: 'chat-empty' }, 'No messages yet...')
+  ? createElement('p', { className: 'chat-empty' }, 'Say hello to other players!')
   : chat.slice(-10).map((msg, i) =>
     createElement('div', {
       className: `chat-msg ${msg.player_id === sessionId ? 'own' : ''}`,
@@ -170,20 +206,31 @@ const chatForm = (session, websocket) => createElement('form', {
   className: 'chat-form',
   onsubmit: (e) => {
     e.preventDefault();
-    const inp = e.target.querySelector('input');
+    const inp = e.target.querySelector('textarea');
     const txt = inp.value.trim();
     if (txt && session?.playerId && websocket?.connected) {
       window.sendMessage({ type: 'chat', player_id: session.playerId, text: txt });
       inp.value = '';
+      inp.style.height = 'auto'; // Reset height
     }
   }
 },
-  createElement('input', {
-    type: 'text',
+  createElement('textarea', {
     className: 'chat-input',
     placeholder: 'Type message...',
     maxlength: 100,
-    disabled: !websocket?.connected
+    rows: 1,
+    disabled: !websocket?.connected,
+    oninput: (e) => {
+      e.target.style.height = 'auto';
+      e.target.style.height = Math.min(e.target.scrollHeight, 100) + 'px';
+    },
+    onkeydown: (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        e.target.form.dispatchEvent(new Event('submit'));
+      }
+    }
   }),
   createElement('button', { type: 'submit', className: 'chat-send btn-icon' }, icon('arrowRight'))
 );
@@ -198,7 +245,7 @@ const chatSection = (chat, session, websocket) => createElement('div', { classNa
 );
 
 const sidebar = (currentPlayer, isSpectator, playersArray, session, chat, websocket) => createElement('aside', { className: 'sidebar sidebar-left' },
-  currentPlayer && !isSpectator ? statsSection(currentPlayer) : null,
+  sidebarTitle(),
   playersSection(playersArray, session?.playerId),
   chatSection(chat, session, websocket)
 );
@@ -370,6 +417,7 @@ const overlays = ({ showLeaveConfirm, handleLeaveCancel, handleLeaveConfirm, isE
 
 export function GameScreen(state, store) {
   initFPS();
+  initGameTimer();
   frameCount++;
 
   const game = state.game || {};
@@ -433,13 +481,15 @@ export function GameScreen(state, store) {
 
     createElement('main', { className: 'game-main' },
       createElement('header', { className: 'game-header' },
-        createElement('h1', { className: 'game-title' },
-          createElement('span', { className: 'game-title-icon' }, icon('bomb')),
-          ' BOMBERMAN'
+        currentPlayer && !isSpectator ? powerupsBar(currentPlayer) : createElement('div', { className: 'powerups-bar-placeholder' }),
+        createElement('div', { className: 'timer-box' },
+          icon('clock', 'timer-icon'),
+          createElement('span', { className: 'timer-label' }, 'Time'),
+          createElement('span', { className: 'timer-value' }, currentGameTime)
         ),
-        createElement('button', { className: 'leave-btn btn-icon', onclick: () => setShowLeaveConfirm(true), title: 'Leave Game' },
-          icon('door'),
-          ' EXIT'
+        createElement('button', { className: 'exit-btn', onclick: () => setShowLeaveConfirm(true), title: 'Leave Game' },
+          icon('door', 'exit-icon'),
+          createElement('span', {}, 'EXIT')
         )
       ),
 

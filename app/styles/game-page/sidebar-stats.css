@@ -1,9 +1,9 @@
-/* My Stats Section */
+/* My Stats Section - Enhanced */
 .my-stats {
   background: linear-gradient(
     135deg,
-    rgba(75, 243, 255, 0.12),
-    rgba(75, 243, 255, 0.03)
+    rgba(75, 243, 255, 0.12) 0%,
+    rgba(75, 243, 255, 0.03) 100%
   );
   border-color: var(--accent-cool);
   position: relative;
@@ -23,21 +23,46 @@
     transparent 70%
   );
   pointer-events: none;
+  animation: statsGlow 4s ease-in-out infinite;
+}
+
+@keyframes statsGlow {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
 }
 
 .my-stats .sidebar-title {
   color: var(--accent-cool);
+  text-shadow: 0 0 12px rgba(75, 243, 255, 0.5);
 }
 
 .my-stats .sidebar-title::before {
   content: "★";
   color: var(--accent-cool);
+  animation: starSpin 3s ease-in-out infinite;
+}
+
+@keyframes starSpin {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.2);
+  }
 }
 
 .stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 10px;
   position: relative;
   z-index: 1;
 }
@@ -46,63 +71,67 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px 8px;
-  background: var(--panel);
-  border-radius: 6px;
+  padding: 12px 8px;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 35, 60, 0.8) 0%,
+    rgba(15, 25, 45, 0.9) 100%
+  );
+  border-radius: 8px;
   border: 2px solid var(--line);
-  box-shadow: 0 2px 0 #0a1322;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(75, 243, 255, 0.05),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.stat-box:hover::before {
+  left: 100%;
 }
 
 .stat-box:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 3px 0 #0a1322;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.3);
+  border-color: var(--accent-cool);
 }
 
 .stat-icon {
   font-family: "Press Start 2P", monospace;
-  font-size: 20px;
+  font-size: 22px;
   margin-bottom: 6px;
-  filter: drop-shadow(0 0 5px currentColor);
   color: var(--accent-cool);
-  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
-  animation: breathe-icon 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(75, 243, 255, 0.4));
+  animation: statIconBreathe 2s ease-in-out infinite;
 }
 
-/* Breathing animations for continuous rendering */
-@keyframes breathe-icon {
+@keyframes statIconBreathe {
   0%,
   100% {
     transform: scale(1);
-    opacity: 1;
+    filter: drop-shadow(0 0 5px rgba(75, 243, 255, 0.3));
   }
   50% {
-    transform: scale(1.08);
-    opacity: 0.85;
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 12px rgba(75, 243, 255, 0.6));
   }
 }
 
-@keyframes breathe-glow {
-  0%,
-  100% {
-    filter: drop-shadow(0 0 5px currentColor);
-  }
-  50% {
-    filter: drop-shadow(0 0 12px currentColor);
-  }
-}
-
-@keyframes pulse-value {
-  0%,
-  100% {
-    text-shadow: 0 3px 0 rgba(0, 0, 0, 0.4), 0 0 10px rgba(248, 231, 28, 0.5);
-  }
-  50% {
-    text-shadow: 0 3px 0 rgba(0, 0, 0, 0.4), 0 0 18px rgba(248, 231, 28, 0.8);
-  }
-}
-
-/* Staggered animations for each stat box */
 .stat-box:nth-child(1) .stat-icon {
   animation-delay: 0s;
 }
@@ -118,13 +147,22 @@
 
 .stat-value {
   font-family: "Press Start 2P", monospace;
-  font-size: 16px;
+  font-size: 18px;
   color: var(--accent);
-  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.4), 0 0 10px rgba(248, 231, 28, 0.5);
-  animation: pulse-value 2s ease-in-out infinite;
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.4), 0 0 15px rgba(248, 231, 28, 0.5);
+  animation: valuePulse 2s ease-in-out infinite;
 }
 
-/* Staggered value animations */
+@keyframes valuePulse {
+  0%,
+  100% {
+    text-shadow: 0 3px 0 rgba(0, 0, 0, 0.4), 0 0 10px rgba(248, 231, 28, 0.4);
+  }
+  50% {
+    text-shadow: 0 3px 0 rgba(0, 0, 0, 0.4), 0 0 20px rgba(248, 231, 28, 0.7);
+  }
+}
+
 .stat-box:nth-child(1) .stat-value {
   animation-delay: 0.25s;
 }
@@ -144,5 +182,5 @@
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-top: 3px;
+  margin-top: 4px;
 }

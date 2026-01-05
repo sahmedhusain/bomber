@@ -9,36 +9,134 @@
   min-height: 0;
 }
 
-/* Game Header - Enhanced Design */
+/* Game Header - Two Container Boxes */
 .game-header {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
-  padding: 14px 24px;
-  background: linear-gradient(180deg, var(--panel) 0%, var(--bg-2) 100%);
-  border: 3px solid var(--line);
-  border-radius: 8px;
+  gap: 16px;
   margin-bottom: 16px;
   flex-shrink: 0;
-  box-shadow: 0 6px 0 #050812, inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  position: relative;
-  overflow: hidden;
+  animation: headerSlideDown 0.5s ease-out;
 }
 
-.game-header::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
+/* Powerups Bar - Each powerup in its own box */
+.powerups-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.powerups-bar-placeholder {
+  flex: 1;
+}
+
+/* Individual Powerup Box */
+.powerup-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
   background: linear-gradient(
-    90deg,
-    var(--accent-cool),
-    var(--accent),
-    var(--accent-hot)
+    180deg,
+    rgba(20, 35, 60, 0.95) 0%,
+    rgba(15, 25, 45, 0.95) 100%
   );
-  opacity: 0.9;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.powerup-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.3);
+  border-color: var(--accent-cool);
+}
+
+.powerup-box .icon-wrapper,
+.powerup-box .powerup-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.powerup-box .retro-icon,
+.powerup-box .icon-wrapper .retro-icon {
+  width: 20px;
+  height: 20px;
+  filter: drop-shadow(0 0 6px currentColor);
+}
+
+/* Color each powerup box border and icon differently */
+.powerup-box:nth-child(1) {
+  border-color: var(--accent-hot);
+}
+.powerup-box:nth-child(1) .retro-icon {
+  color: var(--accent-hot);
+  filter: drop-shadow(0 0 8px rgba(255, 77, 109, 0.6));
+}
+
+.powerup-box:nth-child(2) {
+  border-color: var(--accent);
+}
+.powerup-box:nth-child(2) .retro-icon {
+  color: var(--accent);
+  filter: drop-shadow(0 0 8px rgba(248, 231, 28, 0.6));
+}
+
+.powerup-box:nth-child(3) {
+  border-color: #ff7744;
+}
+.powerup-box:nth-child(3) .retro-icon {
+  color: #ff7744;
+  filter: drop-shadow(0 0 8px rgba(255, 119, 68, 0.6));
+}
+
+.powerup-box:nth-child(4) {
+  border-color: var(--accent-mint);
+}
+.powerup-box:nth-child(4) .retro-icon {
+  color: var(--accent-mint);
+  filter: drop-shadow(0 0 8px rgba(78, 229, 159, 0.6));
+}
+
+.powerup-label {
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.powerup-value {
+  font-family: "Press Start 2P", monospace;
+  font-size: 12px;
+  color: #fff;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+@keyframes headerSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gradientFlow {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
 }
 
 .leave-btn {
@@ -55,59 +153,161 @@
   border-radius: 10px;
   color: var(--accent-hot);
   font-family: "Press Start 2P", monospace;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 400;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 0 rgba(255, 77, 109, 0.3);
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 0 rgba(255, 77, 109, 0.3);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.leave-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 77, 109, 0.2),
+    transparent
+  );
+  transition: left 0.4s ease;
+}
+
+.leave-btn:hover::before {
+  left: 100%;
 }
 
 .leave-btn:hover {
   background: linear-gradient(180deg, var(--accent-hot) 0%, #e03a57 100%);
   color: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 5px 0 rgba(255, 77, 109, 0.4),
-    0 8px 20px rgba(255, 77, 109, 0.3);
+  box-shadow: 0 5px 0 rgba(255, 77, 109, 0.4), 0 0 20px rgba(255, 77, 109, 0.3);
 }
 
 .leave-btn:active {
   transform: translateY(1px);
-  box-shadow: 0 1px 0 rgba(255, 77, 109, 0.3);
+  box-shadow: 0 2px 0 rgba(255, 77, 109, 0.3);
 }
 
-.game-title {
+/* Timer Box - Same style as powerup boxes */
+.timer-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 35, 60, 0.95) 0%,
+    rgba(15, 25, 45, 0.95) 100%
+  );
+  border: 2px solid var(--accent-mint);
+  border-radius: 10px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.timer-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.3);
+}
+
+.timer-box .timer-icon {
+  display: flex;
+  align-items: center;
+}
+
+.timer-box .timer-icon .retro-icon,
+.timer-box .icon-wrapper .retro-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--accent-mint);
+  filter: drop-shadow(0 0 8px rgba(78, 229, 159, 0.6));
+}
+
+.timer-label {
   font-family: "Press Start 2P", monospace;
-  font-size: 18px;
-  color: var(--accent);
-  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.5), 0 0 20px rgba(248, 231, 28, 0.3);
-  margin: 0;
-  letter-spacing: 2px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.game-title .game-title-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.timer-value {
+  font-family: "Press Start 2P", monospace;
+  font-size: 12px;
+  color: #fff;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
 }
 
-.game-title .game-title-icon .retro-icon,
-.game-title .game-title-icon .icon-wrapper .retro-icon {
-  width: 32px;
-  height: 32px;
-  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.5))
-    drop-shadow(0 0 10px rgba(248, 231, 28, 0.4));
+/* Exit Button - Standalone */
+.exit-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 35, 60, 0.95) 0%,
+    rgba(15, 25, 45, 0.95) 100%
+  );
+  border: 2px solid var(--accent-hot);
+  border-radius: 10px;
+  color: var(--accent-hot);
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.exit-btn .exit-icon {
+  display: flex;
+  align-items: center;
+}
+
+.exit-btn .exit-icon .retro-icon,
+.exit-btn .icon-wrapper .retro-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--accent-hot);
+  filter: drop-shadow(0 0 6px rgba(255, 77, 109, 0.5));
+  transition: filter 0.3s ease;
+}
+
+.exit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.3);
+  background: linear-gradient(180deg, var(--accent-hot) 0%, #e03a57 100%);
+  color: #fff;
+}
+
+.exit-btn:hover .exit-icon .retro-icon,
+.exit-btn:hover .icon-wrapper .retro-icon {
+  color: #fff;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+}
+
+.exit-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
 }
 
 .fps-display {
   background: linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0.6) 0%,
-    rgba(0, 0, 0, 0.4) 100%
+    rgba(78, 229, 159, 0.15) 0%,
+    rgba(78, 229, 159, 0.05) 100%
   );
   color: var(--accent-mint);
   padding: 8px 14px;
@@ -115,6 +315,17 @@
   font-family: "Press Start 2P", monospace;
   font-size: 9px;
   border: 2px solid var(--accent-mint);
-  box-shadow: 0 2px 0 rgba(78, 229, 159, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  box-shadow: 0 2px 0 rgba(78, 229, 159, 0.2);
+  animation: fpsPulse 2s ease-in-out infinite;
+}
+
+@keyframes fpsPulse {
+  0%,
+  100% {
+    box-shadow: 0 2px 0 rgba(78, 229, 159, 0.2);
+  }
+  50% {
+    box-shadow: 0 2px 0 rgba(78, 229, 159, 0.2),
+      0 0 15px rgba(78, 229, 159, 0.3);
+  }
 }

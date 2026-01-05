@@ -4,6 +4,7 @@ import { NicknameScreen } from './screens/nickname.js';
 import { LobbyScreen } from './screens/lobby.js';
 import { GameScreen, markPlayerHit, clearTileCache } from './screens/game.js';
 import { ResultsScreen } from './screens/results.js';
+import { playCountdownBeep } from './audio.js';
 
 let previousPlayerLives = {};
 
@@ -269,8 +270,14 @@ const messageHandlers = {
     store.setState({ ...state, lobby, session });
   },
   chat: (state, data) => store.setState({ ...state, ...pushChat(state, data.message) }),
-  countdown_start: (state, data) => setLobbyCountdown(state, 'pre-start', data.countdown * 1000),
-  countdown_update: (state, data) => setLobbyCountdown(state, 'pre-start', data.countdown * 1000),
+  countdown_start: (state, data) => {
+    playCountdownBeep(data.countdown);
+    return setLobbyCountdown(state, 'pre-start', data.countdown * 1000);
+  },
+  countdown_update: (state, data) => {
+    playCountdownBeep(data.countdown);
+    return setLobbyCountdown(state, 'pre-start', data.countdown * 1000);
+  },
   countdown_end: (state) => setLobbyCountdown(state, 'waiting', 0),
   lobby_timer_start: (state, data) => setLobbyTimerState(state, true, data.lobbyTimeLeft * 1000),
   lobby_timer_update: (state, data) => setLobbyTimerState(state, true, data.lobbyTimeLeft * 1000),

@@ -1,11 +1,17 @@
-/* Leave Confirmation Modal - Enhanced */
+/* ===========================================
+   LEAVE CONFIRMATION MODAL - ENHANCED
+   Matching lobby/welcome card design
+   =========================================== */
+
+/* Overlay Background */
 .game-overlay.leave-confirm {
   background: radial-gradient(
     ellipse at center,
-    rgba(10, 15, 28, 0.88) 0%,
-    rgba(5, 8, 18, 0.96) 100%
+    rgba(10, 15, 28, 0.92) 0%,
+    rgba(5, 8, 18, 0.98) 100%
   );
   animation: leaveConfirmFadeIn 0.3s ease-out;
+  backdrop-filter: blur(4px);
 }
 
 @keyframes leaveConfirmFadeIn {
@@ -17,10 +23,20 @@
   }
 }
 
+/* Confirm Box - Main Container */
 .confirm-box {
-  border-color: var(--accent-hot) !important;
-  box-shadow: 0 8px 0 #5a1020, 0 0 80px rgba(255, 77, 109, 0.35),
-    0 0 120px rgba(255, 77, 109, 0.15) !important;
+  max-width: 480px;
+  width: 90%;
+  padding: 48px 40px;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 35, 60, 0.98) 0%,
+    rgba(13, 21, 38, 0.98) 100%
+  );
+  border: 4px solid var(--accent-hot);
+  border-radius: 16px;
+  box-shadow: 0 8px 0 rgba(90, 16, 32, 0.8), 0 0 80px rgba(255, 77, 109, 0.3),
+    0 0 120px rgba(255, 77, 109, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   animation: confirmBoxPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   position: relative;
   overflow: hidden;
@@ -40,13 +56,14 @@
   }
 }
 
+/* Top Gradient Bar */
 .confirm-box::before {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
+  height: 5px;
   background: linear-gradient(
     90deg,
     var(--accent-hot),
@@ -68,48 +85,133 @@
   }
 }
 
-.leave-confirm .overlay-box h2 {
+/* Corner Decorations */
+.confirm-box::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 77, 109, 0.5) 50%,
+    transparent 100%
+  );
+}
+
+/* Icon Styling */
+.leave-confirm .overlay-emoji {
+  font-size: 64px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+.leave-confirm .overlay-emoji .retro-icon {
+  width: 72px;
+  height: 72px;
   color: var(--accent-hot);
-  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 77, 109, 0.5);
+  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.5))
+    drop-shadow(0 0 20px rgba(255, 77, 109, 0.5));
+}
+
+@keyframes iconPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.5))
+      drop-shadow(0 0 15px rgba(255, 77, 109, 0.4));
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.5))
+      drop-shadow(0 0 30px rgba(255, 77, 109, 0.7));
+  }
+}
+
+/* Title Styling */
+.leave-confirm .overlay-box h2 {
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(18px, 3vw, 24px);
+  color: var(--accent-hot);
+  margin-bottom: 16px;
+  text-shadow: 0 4px 0 rgba(0, 0, 0, 0.5), 0 0 25px rgba(255, 77, 109, 0.5);
   animation: leaveConfirmTitleGlow 2s ease-in-out infinite alternate;
+  letter-spacing: 1px;
 }
 
 @keyframes leaveConfirmTitleGlow {
   0% {
-    text-shadow: 0 3px 0 rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 77, 109, 0.4);
+    text-shadow: 0 4px 0 rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 77, 109, 0.4);
   }
   100% {
-    text-shadow: 0 3px 0 rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 77, 109, 0.7);
+    text-shadow: 0 4px 0 rgba(0, 0, 0, 0.5), 0 0 35px rgba(255, 77, 109, 0.7);
   }
 }
 
-.confirm-actions {
-  display: flex;
-  gap: 16px;
-  margin-top: 24px;
-  justify-content: center;
+/* Description Text */
+.leave-confirm .overlay-box p {
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 2;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
 }
 
+/* Actions Container */
+.confirm-actions {
+  display: flex;
+  gap: 20px;
+  margin-top: 32px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Button Base Styles */
 .btn-cancel,
 .btn-confirm {
-  padding: 16px 32px;
-  border-radius: 8px;
+  min-width: 140px;
+  padding: 18px 28px;
+  border-radius: 12px;
   font-family: "Press Start 2P", monospace;
   font-size: 11px;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 3px solid;
+  border: 4px solid;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
+/* Button Icons */
+.btn-cancel .retro-icon,
+.btn-confirm .retro-icon {
+  width: 16px;
+  height: 16px;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.3));
+  transition: transform 0.2s ease;
+}
+
+/* Stay Button (Cancel) */
 .btn-cancel {
   background: linear-gradient(180deg, var(--accent-mint) 0%, #3bc67e 100%);
   border-color: #1a5a50;
   color: #0a0f18;
-  box-shadow: 0 5px 0 #1a5a50;
+  box-shadow: 0 6px 0 #1a5a50, 0 0 0 transparent;
+}
+
+.btn-cancel .retro-icon {
+  color: #0a0f18;
 }
 
 .btn-cancel::before {
@@ -122,7 +224,7 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.3),
     transparent
   );
   animation: btnShimmer 2.5s ease-in-out infinite;
@@ -139,20 +241,29 @@
 }
 
 .btn-cancel:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 0 #1a5a50, 0 0 30px rgba(78, 229, 159, 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 0 #1a5a50, 0 0 40px rgba(78, 229, 159, 0.5);
+}
+
+.btn-cancel:hover .retro-icon {
+  transform: scale(1.1);
 }
 
 .btn-cancel:active {
   transform: translateY(2px);
-  box-shadow: 0 3px 0 #1a5a50;
+  box-shadow: 0 4px 0 #1a5a50;
 }
 
+/* Leave Button (Confirm) */
 .btn-confirm {
   background: linear-gradient(180deg, var(--accent-hot) 0%, #e03a57 100%);
   border-color: #5a1020;
   color: #ffffff;
-  box-shadow: 0 5px 0 #5a1020;
+  box-shadow: 0 6px 0 #5a1020, 0 0 0 transparent;
+}
+
+.btn-confirm .retro-icon {
+  color: #ffffff;
 }
 
 .btn-confirm::before {
@@ -165,18 +276,78 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.3),
     transparent
   );
   animation: btnShimmer 2.5s ease-in-out infinite;
+  animation-delay: 0.3s;
 }
 
 .btn-confirm:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 0 #5a1020, 0 0 30px rgba(255, 77, 109, 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 0 #5a1020, 0 0 40px rgba(255, 77, 109, 0.5);
+}
+
+.btn-confirm:hover .retro-icon {
+  transform: scale(1.1);
 }
 
 .btn-confirm:active {
   transform: translateY(2px);
-  box-shadow: 0 3px 0 #5a1020;
+  box-shadow: 0 4px 0 #5a1020;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 480px) {
+  .confirm-box {
+    padding: 36px 24px;
+  }
+
+  .leave-confirm .overlay-emoji .retro-icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .leave-confirm .overlay-box h2 {
+    font-size: 16px;
+  }
+
+  .leave-confirm .overlay-box p {
+    font-size: 9px;
+  }
+
+  .confirm-actions {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .btn-cancel,
+  .btn-confirm {
+    width: 100%;
+    min-width: unset;
+    padding: 16px 24px;
+    font-size: 10px;
+  }
+}
+
+/* Pixel Art Border Effect on Focus */
+.btn-cancel:focus,
+.btn-confirm:focus {
+  outline: none;
+  animation: buttonFocus 0.3s ease-out;
+}
+
+@keyframes buttonFocus {
+  0% {
+    outline: 3px solid transparent;
+    outline-offset: 0;
+  }
+  50% {
+    outline: 3px solid currentColor;
+    outline-offset: 4px;
+  }
+  100% {
+    outline: 3px solid transparent;
+    outline-offset: 6px;
+  }
 }
