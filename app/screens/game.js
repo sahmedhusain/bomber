@@ -20,7 +20,6 @@ let frameCount = 0;
 let currentFPS = 0;
 let fpsInterval = null;
 
-// Game timer
 let gameStartTime = null;
 let gameTimerInterval = null;
 let currentGameTime = '00:00';
@@ -39,7 +38,6 @@ let arenaResizeObserver = null;
 let arenaResizeListenerAttached = false;
 let lastArenaShape = { cols: MAP_WIDTH, rows: MAP_HEIGHT };
 
-// Cache for tile VNodes - only recreate when state changes
 let tileVNodeCache = new Map();
 let lastTileStates = new Map();
 
@@ -132,7 +130,6 @@ const statDefs = [
   { iconName: 'speed', label: 'Speed', value: (p) => (p.speed || 1).toFixed(1) }
 ];
 
-// Each powerup in its own container box
 const powerupsBar = (player) => !player ? null :
   createElement('div', { className: 'powerups-bar' },
     ...statDefs.map(({ iconName, label, value }) =>
@@ -144,7 +141,6 @@ const powerupsBar = (player) => !player ? null :
     )
   );
 
-// Sidebar title section (matching lobby design - no box)
 const sidebarTitle = () => createElement('div', { className: 'sidebar-game-header' },
   createElement('div', { className: 'title-icon hero-icon' }, icon('bomb')),
   createElement('h1', {}, 'Bomberman'),
@@ -250,9 +246,7 @@ const sidebar = (currentPlayer, isSpectator, playersArray, session, chat, websoc
   chatSection(chat, session, websocket)
 );
 
-// Generate a state key for a tile that captures all relevant state
 function getTileStateKey(tile, playerOnTile, bombOnTile, powerUpOnTile, explosionOnTile, playerIdx, isSelf, isHit, bombState) {
-  // Create a unique string representing the tile's current state
   let stateKey = `${tile.type}`;
   if (playerOnTile) {
     stateKey += `-p${playerIdx}-${isSelf ? 's' : 'o'}-${isHit ? 'h' : 'n'}`;
@@ -269,21 +263,11 @@ function getTileStateKey(tile, playerOnTile, bombOnTile, powerUpOnTile, explosio
   return stateKey;
 }
 
-// Simple and efficient tile builder - with caching
 const buildTileElements = (tiles, players, bombs, powerUps, explosions, sessionId, playersArray) => {
-  // Build lookup maps for O(1) entity access
-  const playerMap = new Map();
   const bombMap = new Map();
   const powerUpMap = new Map();
   const explosionMap = new Map();
-  const playerIndexMap = new Map();
 
-  playersArray.forEach((p, idx) => playerIndexMap.set(p.id, idx));
-
-  for (const id in players) {
-    const p = players[id];
-    if (p.status === 'alive') playerMap.set(`${p.x},${p.y}`, p);
-  }
   for (const id in bombs) {
     const b = bombs[id];
     bombMap.set(`${b.x},${b.y}`, b);
@@ -305,14 +289,9 @@ const buildTileElements = (tiles, players, bombs, powerUps, explosions, sessionI
     const { x, y, type } = tile;
     const key = `${x},${y}`;
 
-    const playerOnTile = playerMap.get(key);
     const bombOnTile = bombMap.get(key);
     const powerUpOnTile = powerUpMap.get(key);
     const explosionOnTile = explosionMap.get(key);
-
-    const playerIdx = playerOnTile ? (playerIndexMap.get(playerOnTile.id) ?? -1) : -1;
-    const isSelf = playerOnTile?.id === sessionId;
-    const isHit = playerOnTile ? hitPlayers.has(playerOnTile.id) : false;
 
     let bombState = '';
     if (bombOnTile) {
@@ -323,25 +302,19 @@ const buildTileElements = (tiles, players, bombs, powerUps, explosions, sessionI
       else bombState = 'n';
     }
 
-    const stateKey = getTileStateKey(tile, playerOnTile, bombOnTile, powerUpOnTile, explosionOnTile, playerIdx, isSelf, isHit, bombState);
+    const stateKey = getTileStateKey(tile, null, bombOnTile, powerUpOnTile, explosionOnTile, -1, false, false, bombState);
     const lastState = lastTileStates.get(key);
 
-    // If tile state hasn't changed, reuse cached VNode
     if (lastState === stateKey && tileVNodeCache.has(key)) {
       result[i] = tileVNodeCache.get(key);
       continue;
     }
 
-    // Build class string based on tile type
     let cls = 'tile';
     if (type === TileType.Wall) cls += ' wall';
     else if (type === TileType.Block) cls += ' block';
     else cls += ' floor';
 
-    if (playerOnTile) {
-      cls += ' has-player';
-      if (isHit) cls += ' hit';
-    }
     if (bombOnTile) {
       cls += ' has-bomb';
       if (bombState === 'c') cls += ' critical';
@@ -355,21 +328,41 @@ const buildTileElements = (tiles, players, bombs, powerUps, explosions, sessionI
       className: cls,
       style: { gridColumn: x + 1, gridRow: y + 1 }
     },
-      playerOnTile ? createElement('div', { className: `player p${playerIdx} ${isSelf ? 'me' : ''}` },
-        createElement('span', { className: 'initial' }, playerOnTile.nickname.substring(0, 2).toUpperCase())
-      ) : null,
       bombOnTile ? createElement('div', { className: 'bomb' }) : null,
       powerUpOnTile ? createElement('div', { className: `powerup ${powerUpOnTile.kind}` }) : null,
       explosionOnTile ? createElement('div', { className: 'explosion' }) : null
     );
 
-    // Cache the VNode and state
     tileVNodeCache.set(key, vNode);
     lastTileStates.set(key, stateKey);
     result[i] = vNode;
   }
 
   return result;
+};
+
+const buildPlayerElements = (playersArray, sessionId, tileWidth, tileHeight) => {
+  return playersArray
+    .filter(p => p.status === 'alive')
+    .map((player, idx) => {
+      const isSelf = player.id === sessionId;
+      const isHit = hitPlayers.has(player.id);
+      const translateX = player.x * tileWidth;
+      const translateY = player.y * tileHeight;
+
+      return createElement('div', {
+        key: `player-${player.id}`,
+        className: `player-entity p${idx} ${isSelf ? 'me' : ''} ${isHit ? 'hit' : ''}`,
+        style: {
+          transform: `translate(${translateX}px, ${translateY}px)`,
+          willChange: 'transform',
+          width: `${tileWidth}px`,
+          height: `${tileHeight}px`
+        }
+      },
+        createElement('span', { className: 'initial' }, player.nickname.substring(0, 2).toUpperCase())
+      );
+    });
 };
 
 const overlays = ({ showLeaveConfirm, handleLeaveCancel, handleLeaveConfirm, isEliminated, showEliminationOverlay, status, isWinner, isSpectator, winnerNames, isDraw }) => [
@@ -456,6 +449,16 @@ export function GameScreen(state, store) {
 
   const tileElements = buildTileElements(tiles, players, bombs, powerUps, explosions, session?.playerId, playersArray);
 
+  const arenaEl = document.querySelector('.arena');
+  let tileWidth = 32, tileHeight = 32;
+  if (arenaEl) {
+    const arenaWidth = arenaEl.clientWidth;
+    const arenaHeight = arenaEl.clientHeight;
+    tileWidth = arenaWidth / width;
+    tileHeight = arenaHeight / height;
+  }
+  const playerElements = buildPlayerElements(playersArray, session?.playerId, tileWidth, tileHeight);
+
   const [showLeaveConfirm, setShowLeaveConfirm] = [
     state.ui?.showLeaveConfirm || false,
     (val) => store.setState({ ui: { ...state.ui, showLeaveConfirm: val } })
@@ -497,7 +500,8 @@ export function GameScreen(state, store) {
         createElement('div', {
           className: 'arena',
           style: { '--cols': width, '--rows': height }
-        }, tileElements)
+        }, tileElements),
+        createElement('div', { className: 'players-layer' }, ...playerElements)
       )
     ),
 

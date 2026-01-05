@@ -7,6 +7,7 @@
 @import "./game-page/main.css";
 @import "./game-page/arena.css";
 @import "./game-page/tiles.css";
+@import "./game-page/players-layer.css";
 @import "./game-page/overlays.css";
 @import "./game-page/leave-confirm.css";
 @import "./game-page/responsive.css";

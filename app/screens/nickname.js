@@ -7,12 +7,10 @@ const icon = (name, className = '') => createElement('span', {
   innerHTML: getIconSVG(name)
 });
 
-// Coin sound using Web Audio API - Retro arcade coin drop
 const playCoinSound = () => {
   try {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    // Coin drop "clink" - metallic high frequency burst
     const clink = audioCtx.createOscillator();
     const clinkGain = audioCtx.createGain();
     clink.connect(clinkGain);
@@ -25,7 +23,6 @@ const playCoinSound = () => {
     clink.start(audioCtx.currentTime);
     clink.stop(audioCtx.currentTime + 0.05);
 
-    // First bounce - lower pitch
     const bounce1 = audioCtx.createOscillator();
     const bounce1Gain = audioCtx.createGain();
     bounce1.connect(bounce1Gain);
@@ -38,7 +35,6 @@ const playCoinSound = () => {
     bounce1.start(audioCtx.currentTime + 0.06);
     bounce1.stop(audioCtx.currentTime + 0.1);
 
-    // Second bounce - even lower
     const bounce2 = audioCtx.createOscillator();
     const bounce2Gain = audioCtx.createGain();
     bounce2.connect(bounce2Gain);
@@ -51,7 +47,6 @@ const playCoinSound = () => {
     bounce2.start(audioCtx.currentTime + 0.12);
     bounce2.stop(audioCtx.currentTime + 0.16);
 
-    // Final settle - soft thud
     const settle = audioCtx.createOscillator();
     const settleGain = audioCtx.createGain();
     settle.connect(settleGain);
@@ -70,14 +65,11 @@ const playCoinSound = () => {
 };
 
 const showCoinInsertedPopup = (store, callback) => {
-  // Show coin inserted overlay
   const curr = store.getState();
   store.setState({ ...curr, ui: { ...(curr.ui || {}), coinInserted: true } });
 
-  // Play coin sound
   playCoinSound();
 
-  // After 1.2 seconds, hide popup and proceed
   setTimeout(() => {
     const state = store.getState();
     store.setState({ ...state, ui: { ...(state.ui || {}), coinInserted: false } });
@@ -95,7 +87,6 @@ const submitNickname = (store) => (e) => {
   const curr = store.getState();
   const player = createPlayer({ id: playerId, nickname, x: 0, y: 0 });
 
-  // Show coin inserted popup first, then proceed
   showCoinInsertedPopup(store, () => {
     window.sendMessage({ type: 'join', player_id: playerId, nickname });
     store.setState({
@@ -143,7 +134,6 @@ export function NicknameScreen(state, store) {
       )
     ),
 
-    // Coin Inserted Popup
     showCoinPopup ? createElement('div', { className: 'coin-inserted-overlay' },
       createElement('div', { className: 'coin-inserted-card' },
         createElement('div', { className: 'coin-icon-wrapper' }, icon('coin')),

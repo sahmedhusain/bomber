@@ -6,7 +6,6 @@ export const playCountdownBeep = (remaining) => {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
 
-    // Resume context if suspended (browser autoplay policy)
     if (audioCtx.state === 'suspended') {
       audioCtx.resume();
     }
@@ -19,11 +18,9 @@ export const playCountdownBeep = (remaining) => {
 
     const isLastSecond = remaining === 0;
 
-    // Retro square wave for 8-bit feel
     osc.type = 'square';
 
     if (isLastSecond) {
-      // "GO!" sound: Higher pitch, sliding up
       osc.frequency.setValueAtTime(600, audioCtx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.3);
 
@@ -33,7 +30,6 @@ export const playCountdownBeep = (remaining) => {
       osc.start(audioCtx.currentTime);
       osc.stop(audioCtx.currentTime + 0.3);
     } else {
-      // Countdown tick: Lower pitch, short blip
       osc.frequency.setValueAtTime(440, audioCtx.currentTime);
 
       gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
@@ -47,7 +43,6 @@ export const playCountdownBeep = (remaining) => {
   }
 };
 
-// Bomb placement sound - Deep "thud" with metallic click
 export const playBombPlaceSound = () => {
   try {
     if (!audioCtx) {
@@ -57,7 +52,6 @@ export const playBombPlaceSound = () => {
       audioCtx.resume();
     }
 
-    // Deep thud
     const thud = audioCtx.createOscillator();
     const thudGain = audioCtx.createGain();
     thud.connect(thudGain);
@@ -70,7 +64,6 @@ export const playBombPlaceSound = () => {
     thud.start(audioCtx.currentTime);
     thud.stop(audioCtx.currentTime + 0.1);
 
-    // Metallic click
     const click = audioCtx.createOscillator();
     const clickGain = audioCtx.createGain();
     click.connect(clickGain);
@@ -87,7 +80,6 @@ export const playBombPlaceSound = () => {
   }
 };
 
-// Bomb ticking sound - Urgent beeping as it's about to explode
 export const playBombTickSound = () => {
   try {
     if (!audioCtx) {
@@ -112,7 +104,6 @@ export const playBombTickSound = () => {
   }
 };
 
-// Bomb explosion sound - Big boom with rumble
 export const playExplosionSound = () => {
   try {
     if (!audioCtx) {
@@ -122,7 +113,6 @@ export const playExplosionSound = () => {
       audioCtx.resume();
     }
 
-    // Initial blast - white noise burst
     const noiseBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.3, audioCtx.sampleRate);
     const data = noiseBuffer.getChannelData(0);
     for (let i = 0; i < data.length; i++) {
@@ -143,7 +133,6 @@ export const playExplosionSound = () => {
     noise.start(audioCtx.currentTime);
     noise.stop(audioCtx.currentTime + 0.3);
 
-    // Deep rumble
     const rumble = audioCtx.createOscillator();
     const rumbleGain = audioCtx.createGain();
     rumble.connect(rumbleGain);
@@ -156,7 +145,6 @@ export const playExplosionSound = () => {
     rumble.start(audioCtx.currentTime);
     rumble.stop(audioCtx.currentTime + 0.4);
 
-    // High-frequency crack
     const crack = audioCtx.createOscillator();
     const crackGain = audioCtx.createGain();
     crack.connect(crackGain);
