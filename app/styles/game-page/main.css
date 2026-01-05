@@ -329,3 +329,171 @@
       0 0 15px rgba(78, 229, 159, 0.3);
   }
 }
+
+/* ===========================================
+   CUSTOM POWERUP ICONS (Match Arena Design)
+   =========================================== */
+
+/* Hide default SVG icons and create container for custom icons */
+.powerup-box:nth-child(1) .icon-wrapper,
+.powerup-box:nth-child(2) .icon-wrapper,
+.powerup-box:nth-child(3) .icon-wrapper,
+.powerup-box:nth-child(4) .icon-wrapper {
+  position: relative;
+  width: 24px;
+  height: 24px;
+}
+
+.powerup-box:nth-child(1) .retro-icon,
+.powerup-box:nth-child(2) .retro-icon,
+.powerup-box:nth-child(3) .retro-icon,
+.powerup-box:nth-child(4) .retro-icon {
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
+/* Heart Icon (nth-child(1)) - Pixelated heart */
+.powerup-box:nth-child(1) .icon-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  background: 
+    /* Top left curves */ linear-gradient(#ff4d6d 0 0) 2px 4px /
+      4px 2px no-repeat,
+    linear-gradient(#ff4d6d 0 0) 1px 5px / 6px 4px no-repeat,
+    /* Top right curves */ linear-gradient(#ff4d6d 0 0) 10px 4px / 4px 2px
+      no-repeat,
+    linear-gradient(#ff4d6d 0 0) 9px 5px / 6px 4px no-repeat,
+    /* Middle body */ linear-gradient(#ff4d6d 0 0) 2px 9px / 12px 2px no-repeat,
+    /* Bottom part */ linear-gradient(#ff4d6d 0 0) 3px 11px / 10px 2px no-repeat,
+    linear-gradient(#ff4d6d 0 0) 5px 13px / 6px 2px no-repeat,
+    linear-gradient(#ff4d6d 0 0) 7px 15px / 2px 1px no-repeat;
+  filter: drop-shadow(0 0 8px rgba(255, 77, 109, 0.6));
+  animation: topBarHeartBeat 1.2s ease-in-out infinite;
+}
+
+@keyframes topBarHeartBeat {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  15% {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+  30% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Bomb Icon (nth-child(2)) - Spherical bomb with fuse and spark */
+.powerup-box:nth-child(2) .icon-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  background: radial-gradient(circle at 35% 35%, #555 0%, #222 40%, #000 100%);
+  border-radius: 50%;
+  box-shadow: inset 2px 2px 3px rgba(255, 255, 255, 0.2),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.6), 0 2px 4px rgba(0, 0, 0, 0.8),
+    /* Fuse */ 0 -6px 0 -3px #5a3d1a, 0 -9px 0 -3px #8b5a2b,
+    /* Spark */ 0 -11px 0 -1px #ffff00, 0 -11px 6px 0px rgba(248, 231, 28, 0.8);
+  animation: topBarBombPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes topBarBombPulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+}
+
+/* Flame Icon (nth-child(3)) - Fire shape */
+.powerup-box:nth-child(3) .icon-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 16px;
+  background: linear-gradient(
+    to top,
+    #ff0000 0%,
+    #ff4400 25%,
+    #ff8800 50%,
+    #ffcc00 75%,
+    #ffff66 100%
+  );
+  clip-path: polygon(
+    50% 0%,
+    65% 20%,
+    80% 35%,
+    70% 50%,
+    85% 65%,
+    65% 80%,
+    50% 100%,
+    35% 80%,
+    15% 65%,
+    30% 50%,
+    20% 35%,
+    35% 20%
+  );
+  filter: drop-shadow(0 0 4px #ff6600);
+  animation: topBarFlameFlicker 0.3s ease-in-out infinite alternate;
+}
+
+@keyframes topBarFlameFlicker {
+  0% {
+    transform: translate(-50%, -50%) scaleY(1) scaleX(1);
+  }
+  100% {
+    transform: translate(-50%, -50%) scaleY(1.1) scaleX(0.95);
+  }
+}
+
+/* Speed Icon (nth-child(4)) - Lightning bolt */
+.powerup-box:nth-child(4) .icon-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 16px;
+  background: linear-gradient(135deg, #ffffff 0%, #4ee59f 40%, #3cc973 100%);
+  clip-path: polygon(
+    55% 0%,
+    100% 35%,
+    60% 35%,
+    100% 100%,
+    0% 55%,
+    45% 55%,
+    0% 0%
+  );
+  filter: drop-shadow(0 0 4px #4ee59f) drop-shadow(0 0 6px #7aeba8);
+  animation: topBarBoltFlash 0.8s ease-in-out infinite;
+}
+
+@keyframes topBarBoltFlash {
+  0%,
+  100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 4px #4ee59f) drop-shadow(0 0 6px #7aeba8);
+  }
+  50% {
+    opacity: 0.85;
+    filter: drop-shadow(0 0 6px #ffffff) drop-shadow(0 0 10px #4ee59f);
+  }
+}

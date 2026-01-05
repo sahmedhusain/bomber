@@ -259,7 +259,40 @@
 
 .player-hearts .icon-wrapper {
   display: inline-block;
+  position: relative;
+  width: 14px;
+  height: 14px;
   animation: heartBeat 1.2s ease-in-out infinite;
+}
+
+/* Hide SVG heart and replace with CSS */
+.player-hearts .retro-icon,
+.player-hearts .icon-wrapper .retro-icon {
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
+.player-hearts .icon-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  background: 
+    /* Top left curves */ linear-gradient(#ff4d6d 0 0) 1px 3px /
+      3px 2px no-repeat,
+    linear-gradient(#ff4d6d 0 0) 1px 4px / 4px 3px no-repeat,
+    /* Top right curves */ linear-gradient(#ff4d6d 0 0) 8px 3px / 3px 2px
+      no-repeat,
+    linear-gradient(#ff4d6d 0 0) 7px 4px / 4px 3px no-repeat,
+    /* Middle body */ linear-gradient(#ff4d6d 0 0) 2px 7px / 8px 2px no-repeat,
+    /* Bottom part */ linear-gradient(#ff4d6d 0 0) 3px 9px / 6px 2px no-repeat,
+    linear-gradient(#ff4d6d 0 0) 4px 11px / 4px 1px no-repeat;
+  filter: drop-shadow(0 0 4px rgba(255, 77, 109, 0.4));
 }
 
 .player-hearts .icon-wrapper:nth-child(1) {

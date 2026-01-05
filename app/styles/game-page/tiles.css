@@ -159,12 +159,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: 6px;
   z-index: 5;
   image-rendering: pixelated;
+  transition: transform 0.1s ease;
+  border: 2px solid rgba(0, 0, 0, 0.6);
 }
 
-/* Player body - retro blocky style */
+/* Player body - retro blocky style with better depth */
 .tile .player::before {
   content: "";
   position: absolute;
@@ -172,61 +174,138 @@
   left: 15%;
   right: 15%;
   height: 45%;
-  border-radius: 4px 4px 0 0;
+  border-radius: 6px 6px 0 0;
+  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.3);
 }
 
-/* Player colors - retro palette */
+/* Player colors - enhanced retro palette */
 .tile .player.p0 {
-  background: #e8e8e8;
-  box-shadow: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #a0a0a0,
-    0 2px 0 #404040;
+  background: linear-gradient(145deg, #f5f5f5 0%, #e0e0e0 50%, #d0d0d0 100%);
+  box-shadow: inset 3px 3px 4px rgba(255, 255, 255, 0.6),
+    inset -3px -3px 4px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.4),
+    0 0 12px rgba(255, 77, 109, 0.3);
+  animation: playerGlow0 2s ease-in-out infinite;
 }
 .tile .player.p0::before {
-  background: #ff0000;
+  background: linear-gradient(145deg, #ff6b8a 0%, #ff4d6d 50%, #e04060 100%);
+  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.4),
+    0 2px 4px rgba(255, 77, 109, 0.4);
 }
 
 .tile .player.p1 {
-  background: #e8e8e8;
-  box-shadow: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #a0a0a0,
-    0 2px 0 #404040;
+  background: linear-gradient(145deg, #f5f5f5 0%, #e0e0e0 50%, #d0d0d0 100%);
+  box-shadow: inset 3px 3px 4px rgba(255, 255, 255, 0.6),
+    inset -3px -3px 4px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.4),
+    0 0 12px rgba(75, 243, 255, 0.3);
+  animation: playerGlow1 2s ease-in-out infinite;
 }
 .tile .player.p1::before {
-  background: #0088ff;
+  background: linear-gradient(145deg, #7af5ff 0%, #4bf3ff 50%, #3ad4e6 100%);
+  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.4),
+    0 2px 4px rgba(75, 243, 255, 0.4);
 }
 
 .tile .player.p2 {
-  background: #e8e8e8;
-  box-shadow: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #a0a0a0,
-    0 2px 0 #404040;
+  background: linear-gradient(145deg, #f5f5f5 0%, #e0e0e0 50%, #d0d0d0 100%);
+  box-shadow: inset 3px 3px 4px rgba(255, 255, 255, 0.6),
+    inset -3px -3px 4px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.4),
+    0 0 12px rgba(78, 229, 159, 0.3);
+  animation: playerGlow2 2s ease-in-out infinite;
 }
 .tile .player.p2::before {
-  background: #00cc00;
+  background: linear-gradient(145deg, #7aeba8 0%, #4ee59f 50%, #3cc980 100%);
+  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.4),
+    0 2px 4px rgba(78, 229, 159, 0.4);
 }
 
 .tile .player.p3 {
-  background: #e8e8e8;
-  box-shadow: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #a0a0a0,
-    0 2px 0 #404040;
+  background: linear-gradient(145deg, #f5f5f5 0%, #e0e0e0 50%, #d0d0d0 100%);
+  box-shadow: inset 3px 3px 4px rgba(255, 255, 255, 0.6),
+    inset -3px -3px 4px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.4),
+    0 0 12px rgba(248, 231, 28, 0.3);
+  animation: playerGlow3 2s ease-in-out infinite;
 }
 .tile .player.p3::before {
-  background: #ffcc00;
+  background: linear-gradient(145deg, #f9ec5a 0%, #f8e71c 50%, #d9c919 100%);
+  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.4),
+    0 2px 4px rgba(248, 231, 28, 0.4);
+}
+
+/* Player glow animations */
+@keyframes playerGlow0 {
+  0%,
+  100% {
+    box-shadow: inset 3px 3px 4px rgba(255, 255, 255, 0.6),
+      inset -3px -3px 4px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.4),
+      0 0 12px rgba(255, 77, 109, 0.3);
+  }
+  50% {
+    box-shadow: inset 3px 3px 4px rgba(255, 255, 255, 0.6),
+      inset -3px -3px 4px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.4),
+      0 0 18px rgba(255, 77, 109, 0.5);
+  }
+}
+
+@keyframes playerGlow1 {
+  0%,
+  100% {
+    box-shadow: inset 3px 3px 4px rgba(255, 255, 255, 0.6),
+      inset -3px -3px 4px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.4),
+      0 0 12px rgba(75, 243, 255, 0.3);
+  }
+  50% {
+    box-shadow: inset 3px 3px 4px rgba(255, 255, 255, 0.6),
+      inset -3px -3px 4px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.4),
+      0 0 18px rgba(75, 243, 255, 0.5);
+  }
+}
+
+@keyframes playerGlow2 {
+  0%,
+  100% {
+    box-shadow: inset 3px 3px 4px rgba(255, 255, 255, 0.6),
+      inset -3px -3px 4px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.4),
+      0 0 12px rgba(78, 229, 159, 0.3);
+  }
+  50% {
+    box-shadow: inset 3px 3px 4px rgba(255, 255, 255, 0.6),
+      inset -3px -3px 4px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.4),
+      0 0 18px rgba(78, 229, 159, 0.5);
+  }
+}
+
+@keyframes playerGlow3 {
+  0%,
+  100% {
+    box-shadow: inset 3px 3px 4px rgba(255, 255, 255, 0.6),
+      inset -3px -3px 4px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.4),
+      0 0 12px rgba(248, 231, 28, 0.3);
+  }
+  50% {
+    box-shadow: inset 3px 3px 4px rgba(255, 255, 255, 0.6),
+      inset -3px -3px 4px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.4),
+      0 0 18px rgba(248, 231, 28, 0.5);
+  }
 }
 
 .tile .player.me {
-  box-shadow: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #a0a0a0,
-    0 0 0 3px #00ffff, 0 2px 0 #404040;
-  animation: playerBlink 0.8s step-end infinite;
+  border: 3px solid #4bf3ff;
+  animation: playerMeBlink 0.8s ease-in-out infinite;
 }
 
-@keyframes playerBlink {
+@keyframes playerMeBlink {
   0%,
   100% {
-    box-shadow: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #a0a0a0,
-      0 0 0 3px #00ffff, 0 2px 0 #404040;
+    border-color: #4bf3ff;
+    box-shadow: inset 3px 3px 4px rgba(255, 255, 255, 0.6),
+      inset -3px -3px 4px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.4),
+      0 0 16px rgba(75, 243, 255, 0.6);
   }
   50% {
-    box-shadow: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #a0a0a0,
-      0 0 0 3px #ffffff, 0 2px 0 #404040;
+    border-color: #ffffff;
+    box-shadow: inset 3px 3px 4px rgba(255, 255, 255, 0.6),
+      inset -3px -3px 4px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.4),
+      0 0 20px rgba(255, 255, 255, 0.8);
   }
 }
 
@@ -234,8 +313,9 @@
   font-family: "Press Start 2P", monospace;
   font-size: clamp(5px, 1.8vw, 9px);
   font-weight: bold;
-  color: #000;
-  text-shadow: none;
+  color: #1a1a1a;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8),
+    0 0 4px rgba(255, 255, 255, 0.5);
   z-index: 1;
 }
 

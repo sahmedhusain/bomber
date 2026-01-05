@@ -356,7 +356,7 @@ const buildTileElements = (tiles, players, bombs, powerUps, explosions, sessionI
       style: { gridColumn: x + 1, gridRow: y + 1 }
     },
       playerOnTile ? createElement('div', { className: `player p${playerIdx} ${isSelf ? 'me' : ''}` },
-        createElement('span', { className: 'initial' }, playerOnTile.nickname.charAt(0).toUpperCase())
+        createElement('span', { className: 'initial' }, playerOnTile.nickname.substring(0, 2).toUpperCase())
       ) : null,
       bombOnTile ? createElement('div', { className: 'bomb' }) : null,
       powerUpOnTile ? createElement('div', { className: `powerup ${powerUpOnTile.kind}` }) : null,
