@@ -90,8 +90,6 @@ Bomberman DOM is a fast multiplayer bomberman arena built with plain JavaScript 
 
 ## 📸 Screenshots
 
-Add your captures under `screenshots/` and link them here.
-
 <div align="center">
 	<img src="screenshots/lobby.png" alt="Lobby" width="70%" />
 	<p><em>Lobby with ready states and chat</em></p>
