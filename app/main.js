@@ -4,9 +4,11 @@ import { NicknameScreen } from './screens/nickname.js';
 import { LobbyScreen } from './screens/lobby.js';
 import { GameScreen, markPlayerHit, clearTileCache } from './screens/game.js';
 import { ResultsScreen } from './screens/results.js';
-import { playCountdownBeep } from './audio.js';
+import { playCountdownBeep, playBombPlaceSound, playBombTickSound, playExplosionSound } from './audio.js';
 
 let previousPlayerLives = {};
+let previousBombs = {};
+let bombWarningTimers = {};
 
 function Routes(state, store) {
   return {
@@ -288,6 +290,14 @@ const messageHandlers = {
   game_start: (state, data) => {
     clearTileCache(); // Clear tile cache for fresh game
     previousPlayerLives = {};
+    previousBombs = {};
+    // Clear any existing bomb warning timers
+    Object.keys(bombWarningTimers).forEach(bombId => {
+      if (bombWarningTimers[bombId].warning) clearTimeout(bombWarningTimers[bombId].warning);
+      if (bombWarningTimers[bombId].critical) clearTimeout(bombWarningTimers[bombId].critical);
+    });
+    bombWarningTimers = {};
+
     Object.values(data.gameState?.players || {}).forEach(player => {
       previousPlayerLives[player.id] = player.lives;
     });
@@ -352,6 +362,69 @@ const messageHandlers = {
         delete previousPlayerLives[id];
       }
     });
+
+    // Track bombs for sound effects
+    const currentBombs = gameState?.bombs || {};
+    const currentExplosions = gameState?.explosions || {};
+    const currentPlayer = state.session?.playerId;
+
+    // Check for new bombs placed by current player
+    Object.keys(currentBombs).forEach(bombId => {
+      const bomb = currentBombs[bombId];
+      if (!previousBombs[bombId] && bomb.playerId === currentPlayer) {
+        // New bomb placed by current player
+        playBombPlaceSound();
+      }
+
+      // Set up warning sounds for bombs
+      if (!bombWarningTimers[bombId]) {
+        const now = Date.now();
+        const bombAge = now - bomb.placedAt;
+        const fuseMs = bomb.fuseMs || 3000;
+        const timeUntilWarning = fuseMs - 1500 - bombAge; // Start warning 1.5s before explosion
+        const timeUntilCritical = fuseMs - 500 - bombAge; // Critical warning 0.5s before explosion
+
+        if (timeUntilWarning > 0) {
+          bombWarningTimers[bombId] = {
+            warning: setTimeout(() => {
+              if (currentBombs[bombId]) {
+                playBombTickSound();
+              }
+            }, timeUntilWarning),
+            critical: setTimeout(() => {
+              if (currentBombs[bombId]) {
+                const criticalInterval = setInterval(() => {
+                  if (!currentBombs[bombId]) {
+                    clearInterval(criticalInterval);
+                  } else {
+                    playBombTickSound();
+                  }
+                }, 150); // Fast ticking
+                setTimeout(() => clearInterval(criticalInterval), 500);
+              }
+            }, timeUntilCritical)
+          };
+        }
+      }
+    });
+
+    // Check for exploded bombs (removed from bomb list)
+    Object.keys(previousBombs).forEach(bombId => {
+      if (!currentBombs[bombId]) {
+        // Bomb exploded
+        playExplosionSound();
+        // Clear timers for this bomb
+        if (bombWarningTimers[bombId]) {
+          clearTimeout(bombWarningTimers[bombId].warning);
+          clearTimeout(bombWarningTimers[bombId].critical);
+          delete bombWarningTimers[bombId];
+        }
+      }
+    });
+
+    // Update previousBombs
+    previousBombs = { ...currentBombs };
+
     let nextState = { ...state, game: gameState };
 
     const playerId = state.session?.playerId;
