@@ -1,7 +1,7 @@
 import { gameState, timers, GAME_TICK_MS, LOBBY_WAIT_TIME, COUNTDOWN_TIME, createGameState } from './state.js';
 import { broadcast, broadcastGameUpdate, broadcastPlayers, broadcastSpectators } from './broadcast.js';
 import { wsToPlayer, playerToWs } from './connections.js';
-import { processInputs, processBombs, cleanupExplosions } from './gameLogic.js';
+import { processInputs, processBombs, cleanupExplosions, computeMoveIntervalMs } from './gameLogic.js';
 import { MAP_WIDTH, MAP_HEIGHT, DEFAULT_LIVES, DEFAULT_BOMB_CAPACITY, DEFAULT_BOMB_RANGE } from '../game/models.js';
 
 export function startLobbyTimer() {
@@ -162,6 +162,8 @@ export function startGame() {
       y: spawn.y,
       dir: 'down',
       speed: 1,
+      moveIntervalMs: computeMoveIntervalMs(1),
+      nextMoveAllowedAt: 0,
       lives: DEFAULT_LIVES,
       bombCapacity: DEFAULT_BOMB_CAPACITY,
       bombRange: DEFAULT_BOMB_RANGE,

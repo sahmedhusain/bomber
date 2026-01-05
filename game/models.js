@@ -10,7 +10,8 @@ import {
   DEFAULT_BOMB_FUSE_MS,
   DEFAULT_BOMB_CAPACITY,
   DEFAULT_BOMB_RANGE,
-  DEFAULT_SPEED
+  DEFAULT_SPEED,
+  BASE_MOVE_INTERVAL_MS
 } from './constants.js';
 import {
   uid,
@@ -133,6 +134,7 @@ export {
   DEFAULT_BOMB_CAPACITY,
   DEFAULT_BOMB_RANGE,
   DEFAULT_SPEED,
+  BASE_MOVE_INTERVAL_MS,
   uid,
   now,
   clamp,

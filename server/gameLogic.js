@@ -12,9 +12,16 @@ import {
   DEFAULT_BOMB_RANGE,
   DEFAULT_BOMB_CAPACITY,
   DEFAULT_LIVES,
+  DEFAULT_SPEED,
+  BASE_MOVE_INTERVAL_MS,
   createBomb,
   createPowerUp
 } from '../game/models.js';
+
+const computeMoveIntervalMs = (speed = DEFAULT_SPEED) => {
+  const safeSpeed = Math.max(0.1, speed || DEFAULT_SPEED);
+  return Math.max(40, Math.floor(BASE_MOVE_INTERVAL_MS / safeSpeed));
+};
 
 export const getTile = (x, y) => {
   const { width, tiles } = gameState.game.map;
@@ -58,6 +65,8 @@ export function applyPowerUpToPlayer(player, powerUpKind) {
       break;
     case PowerUpKind.Speed:
       player.speed = (player.speed || 1) + 0.5;
+      player.moveIntervalMs = computeMoveIntervalMs(player.speed);
+      player.nextMoveAllowedAt = Math.min(player.nextMoveAllowedAt ?? 0, Date.now());
       break;
   }
 }
@@ -190,7 +199,17 @@ export function processInputs() {
     const player = gameState.game.players[playerId];
     if (!player || player.status !== 'alive') continue;
 
+    const now = Date.now();
+    if (player.moveIntervalMs == null) {
+      player.moveIntervalMs = computeMoveIntervalMs(player.speed || DEFAULT_SPEED);
+    }
+    if (player.nextMoveAllowedAt == null) {
+      player.nextMoveAllowedAt = 0;
+    }
+
     if (input.kind === 'move') {
+      if (now < player.nextMoveAllowedAt) continue;
+
       const dir = input.dir;
       let dx = 0, dy = 0;
       if (dir === 'up') dy = -1;
@@ -211,6 +230,7 @@ export function processInputs() {
         player.x = nx;
         player.y = ny;
         player.dir = dir;
+        player.nextMoveAllowedAt = now + player.moveIntervalMs;
       }
     } else if (input.kind === 'bomb') {
       placeBombForPlayer(player);
@@ -238,3 +258,5 @@ export function cleanupExplosions() {
     }
   });
 }
+
+export { computeMoveIntervalMs };

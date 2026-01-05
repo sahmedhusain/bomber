@@ -30,3 +30,4 @@ export const DEFAULT_BOMB_FUSE_MS = 2500;
 export const DEFAULT_BOMB_CAPACITY = 1;
 export const DEFAULT_BOMB_RANGE = 1;
 export const DEFAULT_SPEED = 1;
+export const BASE_MOVE_INTERVAL_MS = 150;
