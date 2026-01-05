@@ -17,11 +17,8 @@ const joinNames = (names) => {
 };
 
 let frameCount = 0;
-let currentFPS = 60;
+let currentFPS = 0;
 let fpsInterval = null;
-let lastFrameTime = 0;
-const TARGET_FPS = 60;
-const FRAME_TIME = 1000 / TARGET_FPS;
 
 const hitPlayers = new Set();
 
@@ -30,13 +27,21 @@ let arenaResizeObserver = null;
 let arenaResizeListenerAttached = false;
 let lastArenaShape = { cols: MAP_WIDTH, rows: MAP_HEIGHT };
 
+// Cache for tile VNodes - only recreate when state changes
+let tileVNodeCache = new Map();
+let lastTileStates = new Map();
+
 function initFPS() {
   if (fpsInterval) return;
-  lastFrameTime = performance.now();
   fpsInterval = setInterval(() => {
-    currentFPS = Math.max(frameCount, 60);
+    currentFPS = frameCount;
     frameCount = 0;
   }, 1000);
+}
+
+export function clearTileCache() {
+  tileVNodeCache.clear();
+  lastTileStates.clear();
 }
 
 export function markPlayerHit(playerId) {
@@ -198,49 +203,127 @@ const sidebar = (currentPlayer, isSpectator, playersArray, session, chat, websoc
   chatSection(chat, session, websocket)
 );
 
-const buildTileElements = (tiles, players, bombs, powerUps, explosions, sessionId, playersArray) => tiles.map((tile) => {
-  const { x, y, type } = tile;
-  let cls = 'tile';
-
-  if (type === TileType.Wall) cls += ' wall';
-  else if (type === TileType.Block) cls += ' block';
-  else cls += ' floor';
-
-  const playerOnTile = Object.values(players).find(p => p.x === x && p.y === y && p.status === 'alive');
-  const bombOnTile = Object.values(bombs).find(b => b.x === x && b.y === y);
-  const powerUpOnTile = Object.values(powerUps).find(pu => pu.x === x && pu.y === y);
-  const explosionOnTile = Object.values(explosions).find(ex => ex.x === x && ex.y === y);
-
+// Generate a state key for a tile that captures all relevant state
+function getTileStateKey(tile, playerOnTile, bombOnTile, powerUpOnTile, explosionOnTile, playerIdx, isSelf, isHit, bombState) {
+  // Create a unique string representing the tile's current state
+  let stateKey = `${tile.type}`;
   if (playerOnTile) {
-    cls += ' has-player';
-    if (hitPlayers.has(playerOnTile.id)) cls += ' hit';
+    stateKey += `-p${playerIdx}-${isSelf ? 's' : 'o'}-${isHit ? 'h' : 'n'}`;
   }
   if (bombOnTile) {
-    cls += ' has-bomb';
-    const age = Date.now() - bombOnTile.placedAt;
-    const fuse = bombOnTile.fuseMs || 2500;
-    if (age > fuse * 0.7) cls += ' critical';
-    else if (age > fuse * 0.4) cls += ' warning';
+    stateKey += `-b${bombState}`;
   }
-  if (powerUpOnTile) cls += ` has-powerup ${powerUpOnTile.kind}`;
-  if (explosionOnTile) cls += ' has-explosion';
+  if (powerUpOnTile) {
+    stateKey += `-pu${powerUpOnTile.kind}`;
+  }
+  if (explosionOnTile) {
+    stateKey += '-ex';
+  }
+  return stateKey;
+}
 
-  const playerIdx = playerOnTile ? playersArray.indexOf(playerOnTile) : -1;
-  const isSelf = playerOnTile?.id === sessionId;
+// Simple and efficient tile builder - with caching
+const buildTileElements = (tiles, players, bombs, powerUps, explosions, sessionId, playersArray) => {
+  // Build lookup maps for O(1) entity access
+  const playerMap = new Map();
+  const bombMap = new Map();
+  const powerUpMap = new Map();
+  const explosionMap = new Map();
+  const playerIndexMap = new Map();
 
-  return createElement('div', {
-    key: `t-${x}-${y}`,
-    className: cls,
-    style: { gridColumn: x + 1, gridRow: y + 1 }
-  },
-    playerOnTile ? createElement('div', { className: `player p${playerIdx} ${isSelf ? 'me' : ''}` },
-      createElement('span', { className: 'initial' }, playerOnTile.nickname.charAt(0).toUpperCase())
-    ) : null,
-    bombOnTile ? createElement('div', { className: 'bomb' }) : null,
-    powerUpOnTile ? createElement('div', { className: `powerup ${powerUpOnTile.kind}` }) : null,
-    explosionOnTile ? createElement('div', { className: 'explosion' }) : null
-  );
-});
+  playersArray.forEach((p, idx) => playerIndexMap.set(p.id, idx));
+
+  for (const id in players) {
+    const p = players[id];
+    if (p.status === 'alive') playerMap.set(`${p.x},${p.y}`, p);
+  }
+  for (const id in bombs) {
+    const b = bombs[id];
+    bombMap.set(`${b.x},${b.y}`, b);
+  }
+  for (const id in powerUps) {
+    const pu = powerUps[id];
+    powerUpMap.set(`${pu.x},${pu.y}`, pu);
+  }
+  for (const id in explosions) {
+    const ex = explosions[id];
+    explosionMap.set(`${ex.x},${ex.y}`, ex);
+  }
+
+  const now = Date.now();
+  const result = new Array(tiles.length);
+
+  for (let i = 0; i < tiles.length; i++) {
+    const tile = tiles[i];
+    const { x, y, type } = tile;
+    const key = `${x},${y}`;
+
+    const playerOnTile = playerMap.get(key);
+    const bombOnTile = bombMap.get(key);
+    const powerUpOnTile = powerUpMap.get(key);
+    const explosionOnTile = explosionMap.get(key);
+
+    const playerIdx = playerOnTile ? (playerIndexMap.get(playerOnTile.id) ?? -1) : -1;
+    const isSelf = playerOnTile?.id === sessionId;
+    const isHit = playerOnTile ? hitPlayers.has(playerOnTile.id) : false;
+
+    let bombState = '';
+    if (bombOnTile) {
+      const age = now - bombOnTile.placedAt;
+      const fuse = bombOnTile.fuseMs || 2500;
+      if (age > fuse * 0.7) bombState = 'c';
+      else if (age > fuse * 0.4) bombState = 'w';
+      else bombState = 'n';
+    }
+
+    const stateKey = getTileStateKey(tile, playerOnTile, bombOnTile, powerUpOnTile, explosionOnTile, playerIdx, isSelf, isHit, bombState);
+    const lastState = lastTileStates.get(key);
+
+    // If tile state hasn't changed, reuse cached VNode
+    if (lastState === stateKey && tileVNodeCache.has(key)) {
+      result[i] = tileVNodeCache.get(key);
+      continue;
+    }
+
+    // Build class string based on tile type
+    let cls = 'tile';
+    if (type === TileType.Wall) cls += ' wall';
+    else if (type === TileType.Block) cls += ' block';
+    else cls += ' floor';
+
+    if (playerOnTile) {
+      cls += ' has-player';
+      if (isHit) cls += ' hit';
+    }
+    if (bombOnTile) {
+      cls += ' has-bomb';
+      if (bombState === 'c') cls += ' critical';
+      else if (bombState === 'w') cls += ' warning';
+    }
+    if (powerUpOnTile) cls += ` has-powerup ${powerUpOnTile.kind}`;
+    if (explosionOnTile) cls += ' has-explosion';
+
+    const vNode = createElement('div', {
+      key: `t-${x}-${y}`,
+      className: cls,
+      style: { gridColumn: x + 1, gridRow: y + 1 }
+    },
+      playerOnTile ? createElement('div', { className: `player p${playerIdx} ${isSelf ? 'me' : ''}` },
+        createElement('span', { className: 'initial' }, playerOnTile.nickname.charAt(0).toUpperCase())
+      ) : null,
+      bombOnTile ? createElement('div', { className: 'bomb' }) : null,
+      powerUpOnTile ? createElement('div', { className: `powerup ${powerUpOnTile.kind}` }) : null,
+      explosionOnTile ? createElement('div', { className: 'explosion' }) : null
+    );
+
+    // Cache the VNode and state
+    tileVNodeCache.set(key, vNode);
+    lastTileStates.set(key, stateKey);
+    result[i] = vNode;
+  }
+
+  return result;
+};
 
 const overlays = ({ showLeaveConfirm, handleLeaveCancel, handleLeaveConfirm, isEliminated, showEliminationOverlay, status, isWinner, isSpectator, winnerNames, isDraw }) => [
   showLeaveConfirm ? createElement('div', { className: 'game-overlay leave-confirm' },

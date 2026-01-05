@@ -1,42 +1,169 @@
-/* Countdown Overlay */
+/* Countdown Overlay - Enhanced */
 .countdown-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(30, 20, 10, 0.95) 0%,
+    rgba(0, 0, 0, 0.98) 100%
+  );
   display: grid;
   place-items: center;
   z-index: 100;
+  animation: countdownFadeIn 0.4s ease-out;
+}
+
+@keyframes countdownFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .countdown-card {
   text-align: center;
-  padding: 32px 48px;
-  background: linear-gradient(180deg, var(--panel) 0%, #0d1526 100%);
-  border: 3px solid var(--accent);
+  padding: 40px 60px;
+  background: linear-gradient(
+    180deg,
+    rgba(30, 25, 15, 0.95) 0%,
+    rgba(15, 12, 8, 0.98) 100%
+  );
+  border: 4px solid var(--accent);
+  border-radius: 16px;
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.6), 0 0 80px rgba(248, 231, 28, 0.4),
+    0 0 150px rgba(255, 150, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  animation: cardPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes cardPop {
+  0% {
+    transform: scale(0.5) rotate(-5deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05) rotate(2deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.countdown-card::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    from 0deg,
+    transparent,
+    rgba(248, 231, 28, 0.1),
+    transparent,
+    rgba(255, 150, 0, 0.1),
+    transparent
+  );
+  animation: countdownRotate 4s linear infinite;
+}
+
+@keyframes countdownRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.countdown-card::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  background: linear-gradient(
+    180deg,
+    rgba(30, 25, 15, 0.98) 0%,
+    rgba(15, 12, 8, 0.99) 100%
+  );
   border-radius: 12px;
-  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.5), 0 0 60px rgba(248, 231, 28, 0.3);
+  z-index: 0;
+}
+
+.countdown-card > * {
+  position: relative;
+  z-index: 1;
 }
 
 .countdown-icon {
-  font-size: 48px;
+  font-size: 56px;
   color: var(--accent);
-  text-shadow: 0 4px 0 rgba(0, 0, 0, 0.5), 0 0 30px rgba(248, 231, 28, 0.5);
-  margin-bottom: 12px;
-  animation: bombPulse 0.8s ease-in-out infinite;
+  text-shadow: 0 5px 0 rgba(0, 0, 0, 0.6), 0 0 40px rgba(248, 231, 28, 0.6),
+    0 0 80px rgba(255, 150, 0, 0.4);
+  margin-bottom: 16px;
+  animation: bombPulse 0.8s ease-in-out infinite,
+    bombShake 0.15s ease-in-out infinite;
+}
+
+@keyframes bombPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 20px rgba(248, 231, 28, 0.5));
+  }
+  50% {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 40px rgba(255, 150, 0, 0.8));
+  }
+}
+
+@keyframes bombShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px) rotate(-2deg);
+  }
+  75% {
+    transform: translateX(2px) rotate(2deg);
+  }
 }
 
 .countdown-card h2 {
+  font-size: clamp(16px, 4vw, 22px);
   color: var(--accent);
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.5), 0 0 20px rgba(248, 231, 28, 0.5);
+  animation: textFlash 0.5s ease-in-out infinite;
+  letter-spacing: 4px;
+}
+
+@keyframes textFlash {
+  0%,
+  100% {
+    opacity: 1;
+    text-shadow: 0 3px 0 rgba(0, 0, 0, 0.5), 0 0 20px rgba(248, 231, 28, 0.5);
+  }
+  50% {
+    opacity: 0.9;
+    text-shadow: 0 3px 0 rgba(0, 0, 0, 0.5), 0 0 40px rgba(248, 231, 28, 0.8);
+  }
 }
 
 .countdown-timer {
-  font-size: 64px;
+  font-size: clamp(56px, 15vw, 80px);
   font-family: "Press Start 2P", monospace;
   color: var(--accent);
-  text-shadow: 0 5px 0 rgba(0, 0, 0, 0.5), 0 0 40px rgba(248, 231, 28, 0.6);
-  margin: 16px 0;
-  animation: countPulse 1s ease-in-out infinite;
+  text-shadow: 0 6px 0 #8b6914, 0 10px 0 #5a4510,
+    0 0 50px rgba(248, 231, 28, 0.7), 0 0 100px rgba(255, 150, 0, 0.5);
+  margin: 20px 0;
+  animation: countPulse 1s ease-in-out infinite,
+    countGlow 1s ease-in-out infinite;
+  position: relative;
 }
 
 @keyframes countPulse {
@@ -45,12 +172,67 @@
     transform: scale(1);
   }
   50% {
-    transform: scale(1.1);
+    transform: scale(1.12);
+  }
+}
+
+@keyframes countGlow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 30px rgba(248, 231, 28, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 60px rgba(255, 150, 0, 0.8));
   }
 }
 
 .countdown-card p {
   color: var(--muted);
-  font-size: 10px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  animation: subtextPulse 2s ease-in-out infinite;
 }
 
+@keyframes subtextPulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Particle effects around countdown */
+.countdown-overlay::before,
+.countdown-overlay::after {
+  content: "💥";
+  position: absolute;
+  font-size: 30px;
+  animation: particleFloat 3s ease-in-out infinite;
+  opacity: 0.6;
+}
+
+.countdown-overlay::before {
+  top: 20%;
+  left: 15%;
+  animation-delay: 0s;
+}
+
+.countdown-overlay::after {
+  bottom: 25%;
+  right: 15%;
+  animation-delay: 1.5s;
+}
+
+@keyframes particleFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+    opacity: 0.8;
+  }
+}

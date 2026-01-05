@@ -66,6 +66,54 @@
   filter: drop-shadow(0 0 5px currentColor);
   color: var(--accent-cool);
   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
+  animation: breathe-icon 2s ease-in-out infinite;
+}
+
+/* Breathing animations for continuous rendering */
+@keyframes breathe-icon {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.85;
+  }
+}
+
+@keyframes breathe-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 5px currentColor);
+  }
+  50% {
+    filter: drop-shadow(0 0 12px currentColor);
+  }
+}
+
+@keyframes pulse-value {
+  0%,
+  100% {
+    text-shadow: 0 3px 0 rgba(0, 0, 0, 0.4), 0 0 10px rgba(248, 231, 28, 0.5);
+  }
+  50% {
+    text-shadow: 0 3px 0 rgba(0, 0, 0, 0.4), 0 0 18px rgba(248, 231, 28, 0.8);
+  }
+}
+
+/* Staggered animations for each stat box */
+.stat-box:nth-child(1) .stat-icon {
+  animation-delay: 0s;
+}
+.stat-box:nth-child(2) .stat-icon {
+  animation-delay: 0.5s;
+}
+.stat-box:nth-child(3) .stat-icon {
+  animation-delay: 1s;
+}
+.stat-box:nth-child(4) .stat-icon {
+  animation-delay: 1.5s;
 }
 
 .stat-value {
@@ -73,6 +121,21 @@
   font-size: 16px;
   color: var(--accent);
   text-shadow: 0 3px 0 rgba(0, 0, 0, 0.4), 0 0 10px rgba(248, 231, 28, 0.5);
+  animation: pulse-value 2s ease-in-out infinite;
+}
+
+/* Staggered value animations */
+.stat-box:nth-child(1) .stat-value {
+  animation-delay: 0.25s;
+}
+.stat-box:nth-child(2) .stat-value {
+  animation-delay: 0.75s;
+}
+.stat-box:nth-child(3) .stat-value {
+  animation-delay: 1.25s;
+}
+.stat-box:nth-child(4) .stat-value {
+  animation-delay: 1.75s;
 }
 
 .stat-label {
@@ -83,4 +146,3 @@
   letter-spacing: 0.5px;
   margin-top: 3px;
 }
-

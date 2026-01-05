@@ -5,43 +5,38 @@ import { eventRegistry, attachDelegatedListener } from './events.js';
 // Initializes the application with state management and rendering
 // This is the main entry point that wires everything together
 export function createApp({ view, initialState, rootElement }) {
-    const store = createStore(initialState);
+  const store = createStore(initialState);
 
-    // Set up event delegation root
-    eventRegistry.root = rootElement;
-    eventRegistry.events.forEach(ev => attachDelegatedListener(rootElement, ev));
+  // Set up event delegation root
+  eventRegistry.root = rootElement;
+  eventRegistry.events.forEach(ev => attachDelegatedListener(rootElement, ev));
 
-    // Prevent concurrent renders to avoid race conditions
-    let isRendering = false;
-    let pendingRender = false;
+  // Continuous render loop for smooth 60fps
+  let isRunning = true;
+  let lastState = null;
 
-    function renderLoop() {
-        // If already rendering, schedule another render after this one
-        if (isRendering) {
-            pendingRender = true;
-            return;
-        }
+  function gameLoop() {
+    if (!isRunning) return;
 
-        isRendering = true;
+    const state = store.getState();
+    const vNode = view(state);
+    render(vNode, rootElement);
+    lastState = state;
 
-        const state = store.getState();
-        const vNode = view(state);
-        render(vNode, rootElement);
+    requestAnimationFrame(gameLoop);
+  }
 
-        isRendering = false;
+  // Start the continuous render loop
+  requestAnimationFrame(gameLoop);
 
-        // Process pending render if state changed during render
-        if (pendingRender) {
-            pendingRender = false;
-            requestAnimationFrame(renderLoop);
-        }
-    }
+  // Return store with stop method
+  const extendedStore = {
+    ...store,
+    getState: store.getState,
+    setState: store.setState,
+    subscribe: store.subscribe,
+    stop: () => { isRunning = false; }
+  };
 
-    // Subscribe to state changes to trigger re-renders
-    store.subscribe(renderLoop);
-
-    // Initial render
-    renderLoop();
-
-    return store;
+  return extendedStore;
 }

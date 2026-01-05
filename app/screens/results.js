@@ -139,14 +139,13 @@ export function ResultsScreen(state, store) {
   const userIntention = session?.intention;
   const standingsRows = buildStandings(game);
   const titleText = isDraw ? 'DRAW!' : (isWinner ? 'VICTORY!' : 'GAME OVER');
+  const titleClass = isDraw ? 'draw' : (isWinner ? 'victory' : 'gameover');
 
-  return createElement('section', { className: 'screen results-screen', key: 'screen-results' },
+  return createElement('section', { className: `screen results-screen ${titleClass}`, key: 'screen-results' },
     createElement('div', { className: 'results-container' },
 
-      createElement('div', { className: 'results-title-section' },
-        createElement('div', { className: 'title-deco left' }),
-        createElement('h1', { className: 'results-big-title' }, titleText),
-        createElement('div', { className: 'title-deco right' })
+      createElement('div', { className: `results-title-section ${titleClass}` },
+        createElement('h1', { className: 'results-big-title' }, titleText)
       ),
 
       winners.length ? createElement('div', { className: 'winner-announce' },

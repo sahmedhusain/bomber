@@ -33,6 +33,57 @@
   position: relative;
 }
 
+/* Victory screen - golden glow */
+.screen.results-screen.victory {
+  background-image: linear-gradient(
+      90deg,
+      rgba(255, 215, 0, 0.03) 1px,
+      transparent 1px
+    ),
+    linear-gradient(180deg, rgba(255, 215, 0, 0.02) 1px, transparent 1px),
+    radial-gradient(circle at 50% 30%, rgba(255, 200, 0, 0.15), transparent 50%),
+    radial-gradient(circle at 30% 70%, rgba(255, 140, 0, 0.1), transparent 40%),
+    linear-gradient(135deg, #1a1505 0%, #0a0f1c 100%);
+}
+
+/* Game Over screen - red tint */
+.screen.results-screen.gameover {
+  background-image: linear-gradient(
+      90deg,
+      rgba(255, 77, 109, 0.03) 1px,
+      transparent 1px
+    ),
+    linear-gradient(180deg, rgba(255, 77, 109, 0.02) 1px, transparent 1px),
+    radial-gradient(
+      circle at 50% 30%,
+      rgba(255, 77, 109, 0.12),
+      transparent 50%
+    ),
+    radial-gradient(circle at 70% 60%, rgba(139, 0, 0, 0.1), transparent 40%),
+    linear-gradient(135deg, #150a0a 0%, #0a0f1c 100%);
+}
+
+/* Draw screen - purple/blue tint */
+.screen.results-screen.draw {
+  background-image: linear-gradient(
+      90deg,
+      rgba(147, 112, 219, 0.03) 1px,
+      transparent 1px
+    ),
+    linear-gradient(180deg, rgba(147, 112, 219, 0.02) 1px, transparent 1px),
+    radial-gradient(
+      circle at 50% 30%,
+      rgba(147, 112, 219, 0.12),
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 30% 60%,
+      rgba(75, 243, 255, 0.08),
+      transparent 40%
+    ),
+    linear-gradient(135deg, #0d0a15 0%, #0a0f1c 100%);
+}
+
 /* CRT Scanlines */
 .scanlines {
   position: absolute;
@@ -64,36 +115,182 @@
    ======================================== */
 .results-title-section {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 8px;
+  gap: 8px;
+  margin-bottom: 16px;
+  position: relative;
 }
 
 .title-deco {
-  width: 40px;
-  height: 4px;
-  background: var(--accent);
-  box-shadow: 0 0 12px var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.title-deco.left {
-  background: linear-gradient(90deg, transparent, var(--accent));
-}
-
+.title-deco.left,
 .title-deco.right {
-  background: linear-gradient(90deg, var(--accent), transparent);
+  display: none;
 }
 
 .results-big-title {
   font-family: "Press Start 2P", monospace;
-  font-size: clamp(24px, 6vw, 42px);
-  color: var(--accent);
-  text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent), 0 4px 0 #8b6914,
-    0 6px 0 #5a4510;
-  letter-spacing: 4px;
-  animation: titleFlicker 3s ease-in-out infinite;
+  font-size: clamp(28px, 8vw, 52px);
+  background: linear-gradient(
+    180deg,
+    #ffd700 0%,
+    #ffb700 30%,
+    #ff8c00 70%,
+    #ff6b00 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 4px 0 #8b4513) drop-shadow(0 6px 0 #5a2d0a)
+    drop-shadow(0 0 30px rgba(255, 200, 0, 0.6));
+  letter-spacing: 6px;
+  animation: titleGlow 2s ease-in-out infinite,
+    titleFloat 3s ease-in-out infinite;
   text-align: center;
   margin: 0;
+  position: relative;
+}
+
+/* Game Over title - Red gradient */
+.results-title-section.gameover .results-big-title {
+  background: linear-gradient(
+    180deg,
+    #ff6b6b 0%,
+    #ff4757 30%,
+    #c0392b 70%,
+    #8b0000 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 4px 0 #5c1a1a) drop-shadow(0 6px 0 #3d0f0f)
+    drop-shadow(0 0 30px rgba(255, 77, 109, 0.6));
+  animation: gameoverGlow 2s ease-in-out infinite, titleShake 0.5s ease-in-out;
+}
+
+/* Draw title - Purple gradient */
+.results-title-section.draw .results-big-title {
+  background: linear-gradient(
+    180deg,
+    #a29bfe 0%,
+    #6c5ce7 30%,
+    #5f27cd 70%,
+    #341f97 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 4px 0 #2d1b69) drop-shadow(0 6px 0 #1a0f40)
+    drop-shadow(0 0 30px rgba(147, 112, 219, 0.6));
+  animation: drawGlow 2s ease-in-out infinite,
+    titleFloat 3s ease-in-out infinite;
+}
+
+/* Title underline decoration */
+.results-title-section::after {
+  content: "";
+  width: 80%;
+  max-width: 300px;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  border-radius: 2px;
+  animation: underlineGlow 2s ease-in-out infinite;
+}
+
+.results-title-section.gameover::after {
+  background: linear-gradient(90deg, transparent, #ff4757, transparent);
+}
+
+.results-title-section.draw::after {
+  background: linear-gradient(90deg, transparent, #6c5ce7, transparent);
+}
+
+@keyframes titleGlow {
+  0%,
+  100% {
+    filter: drop-shadow(0 4px 0 #8b4513) drop-shadow(0 6px 0 #5a2d0a)
+      drop-shadow(0 0 30px rgba(255, 200, 0, 0.6));
+  }
+  50% {
+    filter: drop-shadow(0 4px 0 #8b4513) drop-shadow(0 6px 0 #5a2d0a)
+      drop-shadow(0 0 50px rgba(255, 200, 0, 0.9));
+  }
+}
+
+@keyframes gameoverGlow {
+  0%,
+  100% {
+    filter: drop-shadow(0 4px 0 #5c1a1a) drop-shadow(0 6px 0 #3d0f0f)
+      drop-shadow(0 0 30px rgba(255, 77, 109, 0.6));
+  }
+  50% {
+    filter: drop-shadow(0 4px 0 #5c1a1a) drop-shadow(0 6px 0 #3d0f0f)
+      drop-shadow(0 0 50px rgba(255, 77, 109, 0.9));
+  }
+}
+
+@keyframes drawGlow {
+  0%,
+  100% {
+    filter: drop-shadow(0 4px 0 #2d1b69) drop-shadow(0 6px 0 #1a0f40)
+      drop-shadow(0 0 30px rgba(147, 112, 219, 0.6));
+  }
+  50% {
+    filter: drop-shadow(0 4px 0 #2d1b69) drop-shadow(0 6px 0 #1a0f40)
+      drop-shadow(0 0 50px rgba(147, 112, 219, 0.9));
+  }
+}
+
+@keyframes titleFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes titleShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-2px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes underlineGlow {
+  0%,
+  100% {
+    opacity: 0.7;
+    box-shadow: 0 0 10px var(--accent);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 20px var(--accent), 0 0 30px var(--accent);
+  }
+}
+
+/* Victory specific styling */
+.results-screen:has(.results-big-title:not(:empty)) .results-big-title {
+  position: relative;
 }
 
 @keyframes titleFlicker {
@@ -111,39 +308,136 @@
 }
 
 /* ========================================
-   WINNER ANNOUNCEMENT
+   WINNER ANNOUNCEMENT - Enhanced Champion Box
    ======================================== */
 .winner-announce {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 24px;
+  gap: 16px;
+  padding: 16px 28px;
   background: linear-gradient(
     135deg,
-    rgba(248, 231, 28, 0.15),
-    rgba(248, 231, 28, 0.05)
+    rgba(255, 215, 0, 0.2) 0%,
+    rgba(255, 140, 0, 0.15) 50%,
+    rgba(255, 107, 0, 0.1) 100%
   );
-  border: 2px solid var(--accent);
-  border-radius: 8px;
-  box-shadow: 0 0 20px rgba(248, 231, 28, 0.2),
-    inset 0 0 20px rgba(248, 231, 28, 0.05);
+  border: 3px solid;
+  border-image: linear-gradient(135deg, #ffd700, #ff8c00, #ffd700) 1;
+  border-radius: 12px;
+  box-shadow: 0 0 30px rgba(255, 200, 0, 0.3), 0 0 60px rgba(255, 140, 0, 0.15),
+    inset 0 0 30px rgba(255, 215, 0, 0.1), 0 8px 0 rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: visible;
+  animation: championBoxPulse 3s ease-in-out infinite;
+}
+
+/* Animated border glow */
+.winner-announce::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 14px;
+  background: linear-gradient(
+    135deg,
+    #ffd700,
+    #ff8c00,
+    #ff6b00,
+    #ff8c00,
+    #ffd700
+  );
+  background-size: 300% 300%;
+  animation: borderGradient 4s ease infinite;
+  z-index: -1;
+  opacity: 0.8;
+}
+
+.winner-announce::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: linear-gradient(
+    135deg,
+    rgba(15, 25, 45, 0.95) 0%,
+    rgba(20, 35, 60, 0.9) 100%
+  );
+  z-index: -1;
+}
+
+@keyframes championBoxPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 30px rgba(255, 200, 0, 0.3),
+      0 0 60px rgba(255, 140, 0, 0.15), inset 0 0 30px rgba(255, 215, 0, 0.1),
+      0 8px 0 rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(255, 200, 0, 0.5),
+      0 0 80px rgba(255, 140, 0, 0.25), inset 0 0 40px rgba(255, 215, 0, 0.15),
+      0 8px 0 rgba(0, 0, 0, 0.3);
+  }
+}
+
+@keyframes borderGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .winner-trophy {
-  width: 32px;
-  height: 32px;
-  animation: trophyPulse 1s ease-in-out infinite;
+  width: 44px;
+  height: 44px;
+  animation: trophyBounce 1.5s ease-in-out infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 215, 0, 0.3),
+    rgba(255, 140, 0, 0.2)
+  );
+  border-radius: 50%;
+  padding: 8px;
+  box-shadow: 0 0 20px rgba(255, 200, 0, 0.4);
 }
 
 .winner-trophy .icon-wrapper {
   width: 100%;
   height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+.winner-trophy .icon-wrapper svg,
 .winner-trophy svg {
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(0 0 8px var(--accent));
+  width: 28px;
+  height: 28px;
+  filter: drop-shadow(0 0 8px #ffd700)
+    drop-shadow(0 0 15px rgba(255, 200, 0, 0.8));
+}
+
+@keyframes trophyBounce {
+  0%,
+  100% {
+    transform: scale(1) rotate(-5deg);
+  }
+  25% {
+    transform: scale(1.1) rotate(5deg);
+  }
+  50% {
+    transform: scale(1) rotate(-5deg);
+  }
+  75% {
+    transform: scale(1.1) rotate(5deg);
+  }
 }
 
 @keyframes trophyPulse {
@@ -158,27 +452,54 @@
 
 .winner-text {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  flex-direction: column;
+  gap: 4px;
   font-family: "Press Start 2P", monospace;
 }
 
 .winner-prefix {
-  font-size: 8px;
-  color: var(--muted);
-  letter-spacing: 1px;
+  font-size: 9px;
+  color: #ffd700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
 .winner-name {
-  font-size: 14px;
-  color: var(--accent);
-  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.5);
+  font-size: 16px;
+  background: linear-gradient(90deg, #ffd700, #fff, #ffd700);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s linear infinite;
+  text-shadow: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+@keyframes shimmer {
+  to {
+    background-position: 200% center;
+  }
 }
 
 .winner-you {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--accent-mint);
-  animation: youBlink 0.8s ease-in-out infinite;
+  animation: youPulse 1s ease-in-out infinite;
+  text-shadow: 0 0 10px var(--accent-mint);
+}
+
+@keyframes youPulse {
+  0%,
+  100% {
+    opacity: 1;
+    text-shadow: 0 0 10px var(--accent-mint);
+  }
+  50% {
+    opacity: 0.7;
+    text-shadow: 0 0 20px var(--accent-mint), 0 0 30px var(--accent-mint);
+  }
 }
 
 @keyframes youBlink {

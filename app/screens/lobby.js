@@ -8,12 +8,20 @@ const icon = (name, className = '') => createElement('span', {
 
 const MAX_PLAYERS = 4;
 
+const getInitials = (nickname) => {
+  const parts = nickname.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+  }
+  return nickname.slice(0, 2).toUpperCase();
+};
+
 const playerCard = (player, idx, selfId) => createElement('div', {
   className: `lobby-player-card ${player.ready ? 'ready' : ''} ${player.id === selfId ? 'is-you' : ''}`,
   key: player.id
 },
   createElement('div', { className: `lobby-player-avatar p${idx}` },
-    player.nickname.charAt(0).toUpperCase()
+    getInitials(player.nickname)
   ),
   createElement('div', { className: 'lobby-player-info' },
     createElement('span', { className: 'lobby-player-name' },
@@ -144,6 +152,16 @@ export function LobbyScreen(state, store) {
   const lobbyTimeLeft = Math.ceil((lobby.lobbyTimer?.remainingMs || 0) / 1000);
 
   return createElement('section', { className: 'screen lobby', key: 'screen-lobby' },
+    createElement('div', { className: 'lobby-game-header' },
+      createElement('div', { className: 'title-icon hero-icon' }, icon('bomb')),
+      createElement('h1', {}, 'Bomberman'),
+      createElement('p', { className: 'subtitle icon-text' },
+        icon('gamepad'),
+        createElement('span', {}, 'RETRO BATTLE ARENA'),
+        icon('gamepad')
+      )
+    ),
+
     createElement('div', { className: 'lobby-container' },
       createElement('div', { className: 'lobby-title-section' },
         createElement('span', { className: 'lobby-icon' }, icon('gamepad')),

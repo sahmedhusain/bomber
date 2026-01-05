@@ -148,6 +148,73 @@
   font-family: "Press Start 2P", monospace;
   font-size: 12px;
   letter-spacing: 2px;
+  display: flex;
+  gap: 4px;
+}
+
+/* Breathing animation for hearts */
+.player-hearts .icon-wrapper {
+  animation: heart-beat 1.2s ease-in-out infinite;
+  display: inline-block;
+}
+
+/* Staggered heart animations */
+.player-hearts .icon-wrapper:nth-child(1) {
+  animation-delay: 0s;
+}
+.player-hearts .icon-wrapper:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.player-hearts .icon-wrapper:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes heart-beat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  15% {
+    transform: scale(1.15);
+  }
+  30% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.1);
+  }
+  60% {
+    transform: scale(1);
+  }
+}
+
+/* Player avatar breathing glow */
+.player-avatar {
+  animation: avatar-glow 3s ease-in-out infinite;
+}
+
+@keyframes avatar-glow {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.1);
+  }
+}
+
+/* Staggered avatar animations */
+.player-card:nth-child(1) .player-avatar {
+  animation-delay: 0s;
+}
+.player-card:nth-child(2) .player-avatar {
+  animation-delay: 0.75s;
+}
+.player-card:nth-child(3) .player-avatar {
+  animation-delay: 1.5s;
+}
+.player-card:nth-child(4) .player-avatar {
+  animation-delay: 2.25s;
 }
 
 .player-status-tag {
@@ -161,4 +228,3 @@
   color: var(--accent-hot);
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
 }
-

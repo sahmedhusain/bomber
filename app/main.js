@@ -2,7 +2,7 @@ import { createApp, createElement } from '../framework/core.js';
 import { initialRootState, setRoute } from '../game/models.js';
 import { NicknameScreen } from './screens/nickname.js';
 import { LobbyScreen } from './screens/lobby.js';
-import { GameScreen, markPlayerHit } from './screens/game.js';
+import { GameScreen, markPlayerHit, clearTileCache } from './screens/game.js';
 import { ResultsScreen } from './screens/results.js';
 
 let previousPlayerLives = {};
@@ -64,6 +64,7 @@ function view(state) {
   const currentRoute = validRoute;
   const screen = routes[currentRoute] || routes['#/'];
   const modal = state.ui?.modal;
+  const notification = state.ui?.notification;
 
   return createElement('main', { className: 'app' },
     screen(),
@@ -76,6 +77,16 @@ function view(state) {
           createElement('button', { className: 'button-danger', onclick: () => handleModalAction(modal.action, modal.payload) }, modal.confirmLabel || 'Confirm')
         )
       )
+    ) : null,
+    notification ? createElement('div', { className: `notification-overlay ${notification.type || 'info'}` },
+      createElement('div', { className: 'notification-box' },
+        createElement('div', { className: 'notification-icon' },
+          notification.type === 'warning' ? '⚠️' : notification.type === 'error' ? '❌' : 'ℹ️'
+        ),
+        createElement('h3', { className: 'notification-title' }, notification.title || 'Notice'),
+        createElement('p', { className: 'notification-message' }, notification.message),
+        createElement('button', { className: 'notification-btn', onclick: () => closeNotification() }, 'OK')
+      )
     ) : null
   );
 }
@@ -83,7 +94,7 @@ function view(state) {
 const rootEl = document.getElementById('root');
 const initial = initialRootState();
 initial.route = window.location.hash || '#/';
-initial.ui = { modal: null };
+initial.ui = { modal: null, notification: null };
 
 store = createApp({ view, initialState: initial, rootElement: rootEl });
 
@@ -111,6 +122,16 @@ function openModal(modal) {
 function closeModal() {
   const current = store.getState();
   store.setState({ ...current, ui: { ...(current.ui || {}), modal: null } });
+}
+
+function showNotification(notification) {
+  const current = store.getState();
+  store.setState({ ...current, ui: { ...(current.ui || {}), notification } });
+}
+
+function closeNotification() {
+  const current = store.getState();
+  store.setState({ ...current, ui: { ...(current.ui || {}), notification: null } });
 }
 
 function handleModalAction(action, payload) {
@@ -258,6 +279,7 @@ const messageHandlers = {
   game_cancelled: resetLobbyTimers,
   lobby_cancelled: resetLobbyTimers,
   game_start: (state, data) => {
+    clearTileCache(); // Clear tile cache for fresh game
     previousPlayerLives = {};
     Object.values(data.gameState?.players || {}).forEach(player => {
       previousPlayerLives[player.id] = player.lives;
@@ -283,9 +305,9 @@ const messageHandlers = {
     lobby: { ...state.lobby, countdown: { phase: 'waiting', remainingMs: 0 } },
     route: '#/lobby'
   }),
-  input_ack: () => {},
-  player_disconnected: () => {},
-  player_reconnected: () => {},
+  input_ack: () => { },
+  player_disconnected: () => { },
+  player_reconnected: () => { },
   player_eliminated: (state, data) => {
     if (!state.session?.playerId || state.session.playerId !== data.playerId) {
       return;
@@ -304,7 +326,9 @@ const messageHandlers = {
     routeTo(newState.route, newState);
   },
   game_update: (state, data) => {
-    const newPlayers = data.gameState?.players || {};
+    const gameState = data.gameState;
+
+    const newPlayers = gameState?.players || {};
     const seenIds = new Set();
 
     Object.values(newPlayers).forEach(player => {
@@ -321,7 +345,7 @@ const messageHandlers = {
         delete previousPlayerLives[id];
       }
     });
-    let nextState = { ...state, game: data.gameState };
+    let nextState = { ...state, game: gameState };
 
     const playerId = state.session?.playerId;
     if (playerId) {
@@ -379,7 +403,11 @@ const messageHandlers = {
     session: { ...state.session, isSpectator: data.isSpectator }
   }),
   forced_logout: (state, data) => {
-    alert(data.message);
+    showNotification({
+      type: 'warning',
+      title: 'Disconnected',
+      message: data.message
+    });
     routeTo('#/', {
       session: { connected: false },
       route: '#/',
