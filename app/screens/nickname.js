@@ -103,21 +103,13 @@ export function NicknameScreen(state, store) {
 
   return createElement('section', { className: 'screen nickname', key: 'screen-nickname' },
     createElement('div', { className: 'card welcome-card' },
-      createElement('div', { className: 'title-icon hero-icon' }, icon('bomb')),
+      createElement('div', { className: 'title-icon hero-icon', innerHTML: getIconSVG('bomb') }),
       createElement('h1', {}, 'Bomberman'),
-      createElement('p', { className: 'subtitle icon-text' },
-        icon('gamepad'),
-        createElement('span', {}, 'RETRO BATTLE ARENA'),
-        icon('gamepad')
-      ),
+      createElement('p', { className: 'subtitle icon-text' }, 'RETRO BATTLE ARENA'),
       createElement('div', { className: 'card-divider' }),
       createElement('p', { className: 'description' }, 'Enter your nickname to join the battle. Up to 16 characters.'),
       createElement('form', { onsubmit: submitNickname(store) },
-        createElement('label', { htmlFor: 'nickname-input', className: 'icon-text' },
-          icon('gamepad'),
-          createElement('span', {}, 'PLAYER NAME'),
-          icon('gamepad')
-        ),
+        createElement('label', { htmlFor: 'nickname-input', className: 'icon-text' }, 'PLAYER NAME'),
         createElement('input', {
           id: 'nickname-input',
           name: 'nickname',
@@ -127,16 +119,13 @@ export function NicknameScreen(state, store) {
           maxlength: 16,
           required: true
         }),
-        createElement('button', { type: 'submit', className: 'join-button' },
-          icon('arrowRight'),
-          createElement('span', {}, 'JOIN GAME')
-        )
+        createElement('button', { type: 'submit', className: 'join-button' }, 'JOIN GAME')
       )
     ),
 
     showCoinPopup ? createElement('div', { className: 'coin-inserted-overlay' },
       createElement('div', { className: 'coin-inserted-card' },
-        createElement('div', { className: 'coin-icon-wrapper' }, icon('coin')),
+        createElement('div', { className: 'coin-icon-wrapper', innerHTML: getIconSVG('coin') }),
         createElement('h2', { className: 'coin-inserted-title' }, 'COIN INSERTED'),
         createElement('p', { className: 'coin-inserted-subtitle' }, 'GET READY TO PLAY!')
       )

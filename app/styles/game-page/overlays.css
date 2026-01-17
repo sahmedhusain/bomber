@@ -1,11 +1,10 @@
-
 .game-overlay {
   position: fixed;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 100; /* Reduced from 1000 for layer optimization */
   animation: fadeIn 0.3s ease-out;
 }
 

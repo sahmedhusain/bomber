@@ -1,6 +1,3 @@
-
-
-
 .game-page {
   position: fixed;
   inset: 0;
@@ -8,7 +5,7 @@
   grid-template-columns: 340px 1fr;
   grid-template-rows: 1fr;
   padding: 16px 16px 16px 0;
-  
+
   background-color: var(--bg);
   background-image: linear-gradient(
       90deg,
@@ -32,7 +29,6 @@
   gap: 16px;
 }
 
-
 .game-page::after {
   content: "";
   position: fixed;
@@ -47,9 +43,8 @@
   );
   opacity: 0.35;
   mix-blend-mode: soft-light;
-  z-index: 1000;
+  z-index: 10; /* Reduced from 1000 for layer optimization */
 }
-
 
 .game-loading {
   grid-column: 1 / -1;
