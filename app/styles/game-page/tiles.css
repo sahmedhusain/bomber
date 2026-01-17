@@ -1,11 +1,11 @@
-
 .tile {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  
+  contain: layout style;
+
   width: 100%;
   height: 100%;
   min-width: 0;
@@ -14,12 +14,6 @@
   image-rendering: pixelated;
   overflow: visible;
 }
-
-
-.tile.has-bomb {
-  z-index: 10;
-}
-
 
 .tile.floor {
   background: #1a1f2c;
@@ -47,14 +41,13 @@
   transform: translate(-50%, -50%);
 }
 
-
 .tile.wall {
   background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%);
   box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.1),
     inset -2px -2px 0 rgba(0, 0, 0, 0.5), 0 4px 8px rgba(0, 0, 0, 0.4);
   border-radius: 4px;
   position: relative;
-  z-index: 1;
+  /* z-index removed for layer consolidation */
 }
 
 .tile.wall::before {
@@ -83,14 +76,13 @@
     calc(100% - 8px) calc(100% - 8px) 0 rgba(255, 255, 255, 0.2);
 }
 
-
 .tile.block {
   background: linear-gradient(135deg, #d35400 0%, #a04000 100%);
   box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.2),
     inset -2px -2px 0 rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
   border-radius: 3px;
   position: relative;
-  z-index: 1;
+  /* z-index removed for layer consolidation */
 }
 
 .tile.block::before {
@@ -118,7 +110,6 @@
   font-weight: bold;
   font-size: 1.2em;
 }
-
 
 .tile.block.destroying {
   animation: blockShake 0.1s ease-in-out infinite;
@@ -152,7 +143,6 @@
   }
 }
 
-
 .tile .player {
   position: absolute;
   inset: 8%;
@@ -166,7 +156,6 @@
   border: 2px solid rgba(0, 0, 0, 0.6);
 }
 
-
 .tile .player::before {
   content: "";
   position: absolute;
@@ -177,7 +166,6 @@
   border-radius: 6px 6px 0 0;
   box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.3);
 }
-
 
 .tile .player.p0 {
   background: linear-gradient(145deg, #f5f5f5 0%, #e0e0e0 50%, #d0d0d0 100%);
@@ -230,7 +218,6 @@
   box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.4),
     0 2px 4px rgba(248, 231, 28, 0.4);
 }
-
 
 @keyframes playerGlow0 {
   0%,
@@ -319,7 +306,6 @@
   z-index: 1;
 }
 
-
 .tile .bomb {
   position: absolute;
   inset: 15%;
@@ -330,7 +316,6 @@
   animation: bombPulse 0.5s ease-in-out infinite;
   z-index: 20;
 }
-
 
 .tile .bomb::before {
   content: "";
@@ -344,7 +329,6 @@
   border-radius: 2px;
   z-index: 21;
 }
-
 
 .tile .bomb::after {
   content: "";
@@ -454,7 +438,6 @@
   }
 }
 
-
 .tile .powerup {
   position: absolute;
   inset: 15%;
@@ -465,7 +448,7 @@
   animation: powerupFloat 1.2s ease-in-out infinite;
   z-index: 15;
   overflow: visible;
-  
+
   background: linear-gradient(145deg, #333 0%, #222 100%) !important;
   border: 2px solid #666;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
@@ -481,7 +464,6 @@
   }
 }
 
-
 .tile .powerup.bomb {
   background: linear-gradient(
     145deg,
@@ -495,7 +477,6 @@
   border: 2px solid #f8e71c !important;
 }
 
-
 .tile .powerup.bomb::after {
   content: "";
   position: absolute;
@@ -508,11 +489,10 @@
   border-radius: 50%;
   box-shadow: inset 4px 4px 6px rgba(255, 255, 255, 0.2),
     inset 0 -4px 6px rgba(0, 0, 0, 0.6), 0 3px 6px rgba(0, 0, 0, 0.8),
-     0 -10px 0 -4px #5a3d1a, 0 -14px 0 -4px #8b5a2b,
-     0 -18px 0 -2px #ffff00, 0 -18px 8px 0px rgba(255, 200, 0, 0.8);
+    0 -10px 0 -4px #5a3d1a, 0 -14px 0 -4px #8b5a2b, 0 -18px 0 -2px #ffff00,
+    0 -18px 8px 0px rgba(255, 200, 0, 0.8);
   animation: bombIconPulse 1.2s ease-in-out infinite;
 }
-
 
 .tile .powerup.bomb::before {
   content: "+1";
@@ -555,7 +535,6 @@
   }
 }
 
-
 .tile .powerup.flame {
   background: linear-gradient(
     145deg,
@@ -568,7 +547,6 @@
     inset -2px -2px 4px rgba(0, 0, 0, 0.4), 0 0 12px rgba(255, 107, 0, 0.4) !important;
   border: 2px solid #ff8c00 !important;
 }
-
 
 .tile .powerup.flame::after {
   content: "";
@@ -600,7 +578,6 @@
   animation: flameFlicker 0.3s ease-in-out infinite alternate;
 }
 
-
 .tile .powerup.flame::before {
   content: "+1";
   position: absolute;
@@ -627,7 +604,6 @@
   }
 }
 
-
 .tile .powerup.speed {
   background: linear-gradient(
     145deg,
@@ -640,7 +616,6 @@
     inset -2px -2px 4px rgba(0, 0, 0, 0.4), 0 0 12px rgba(78, 229, 159, 0.3) !important;
   border: 2px solid #4ee59f !important;
 }
-
 
 .tile .powerup.speed::after {
   content: "";
@@ -659,7 +634,6 @@
   filter: drop-shadow(0 0 4px #4ee59f) drop-shadow(0 0 8px #7aeba8);
   animation: boltFlash 0.8s ease-in-out infinite;
 }
-
 
 .tile .powerup.speed::before {
   content: "+1";
@@ -702,13 +676,6 @@
   }
 }
 
-
-.tile.has-explosion {
-  z-index: 100;
-  overflow: visible;
-}
-
-
 .tile .explosion {
   position: absolute;
   inset: -10%;
@@ -729,7 +696,6 @@
   animation: explosionPulse 0.2s ease-in-out infinite alternate;
 }
 
-
 .tile .explosion::before {
   content: "";
   position: absolute;
@@ -744,7 +710,6 @@
   border-radius: 50%;
   animation: explosionCore 0.15s ease-in-out infinite alternate;
 }
-
 
 .tile .explosion::after {
   content: "";

@@ -1,4 +1,3 @@
-
 .arena-container {
   position: relative;
   flex: 1;
@@ -14,7 +13,6 @@
   box-shadow: inset 4px 4px 0 #606060, inset -4px -4px 0 #202020;
   /* animation: arena-pulse 5s ease-in-out infinite; */
 }
-
 
 /* @keyframes arena-pulse {
   0%,
@@ -42,11 +40,13 @@
   border-radius: 0;
   box-shadow: inset 0 0 0 2px #080c08;
   position: relative;
+  z-index: 1;
+  contain: layout style paint;
+  will-change: auto;
   image-rendering: -webkit-optimize-contrast;
   image-rendering: pixelated;
   /* animation: arena-glow 3s ease-in-out infinite; */
 }
-
 
 /* @keyframes arena-glow {
   0%,
@@ -58,12 +58,11 @@
   }
 } */
 
-
 .arena::before {
   content: "";
   position: absolute;
   inset: 0;
   border: 2px solid #182018;
   pointer-events: none;
-  z-index: 100;
+  z-index: 2;
 }
