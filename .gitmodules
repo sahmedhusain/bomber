@@ -1,0 +1,3 @@
+[submodule "picojs"]
+	path = picojs
+	url = https://github.com/sahmedhusain/picojs-framework
