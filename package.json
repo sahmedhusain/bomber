@@ -1,7 +1,7 @@
 {
   "name": "blast-arena",
   "version": "1.0.0",
-  "description": "",
+  "description": "A fast-paced multiplayer bomb-battle arena built with plain JavaScript, CSS, and Node.js. Features 4-player lobbies, real-time WebSocket sync, destructible grids, and power-ups.",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -12,7 +12,16 @@
     "type": "git",
     "url": "https://github.com/sayedahmedhusain/blast-arena.git"
   },
-  "keywords": [],
+  "keywords": [
+    "multiplayer-game",
+    "bomberman",
+    "vanilla-js",
+    "websockets",
+    "nodejs",
+    "game-development",
+    "retro-gaming",
+    "real-time"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
