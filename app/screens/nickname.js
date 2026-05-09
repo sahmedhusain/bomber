@@ -104,7 +104,7 @@ export function NicknameScreen(state, store) {
   return createElement('section', { className: 'screen nickname', key: 'screen-nickname' },
     createElement('div', { className: 'card welcome-card' },
       createElement('div', { className: 'title-icon hero-icon', innerHTML: getIconSVG('bomb') }),
-      createElement('h1', {}, 'Bomberman'),
+      createElement('h1', {}, 'Blast Arena'),
       createElement('p', { className: 'subtitle icon-text' }, 'RETRO BATTLE ARENA'),
       createElement('div', { className: 'card-divider' }),
       createElement('p', { className: 'description' }, 'Enter your nickname to join the battle. Up to 16 characters.'),

@@ -154,7 +154,7 @@ export function LobbyScreen(state, store) {
   return createElement('section', { className: 'screen lobby', key: 'screen-lobby' },
     createElement('div', { className: 'lobby-game-header' },
       createElement('div', { className: 'title-icon hero-icon' }, icon('bomb')),
-      createElement('h1', {}, 'Bomberman'),
+      createElement('h1', {}, 'Blast Arena'),
       createElement('p', { className: 'subtitle icon-text' },
         icon('gamepad'),
         createElement('span', {}, 'RETRO BATTLE ARENA'),

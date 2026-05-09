@@ -18,7 +18,7 @@ fi
 HTTP_PORT=8080
 WS_PORT=8765
 
-echo -e "${BLUE}Starting Bomberman DOM server...${NC}"
+echo -e "${BLUE}Starting Blast Arena server...${NC}"
 echo -e "${YELLOW}HTTP Server: http://localhost:${HTTP_PORT}${NC}"
 echo -e "${YELLOW}WebSocket Server: ws://localhost:${WS_PORT}${NC}"
 echo ""

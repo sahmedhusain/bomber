@@ -143,7 +143,7 @@ const powerupsBar = (player) => !player ? null :
 
 const sidebarTitle = () => createElement('div', { className: 'sidebar-game-header' },
   createElement('div', { className: 'title-icon hero-icon' }, icon('bomb')),
-  createElement('h1', {}, 'Bomberman'),
+  createElement('h1', {}, 'Blast Arena'),
   createElement('p', { className: 'subtitle icon-text' },
     createElement('span', {}, 'RETRO BATTLE ARENA')
   )

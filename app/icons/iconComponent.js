@@ -182,7 +182,7 @@ const SVG_ICONS = {
     <rect x="4" y="8" width="4" height="1" fill="rgba(75,243,255,0.4)"/>
   </svg>`,
 
-  bomberman: `<svg class="retro-icon icon-bomberman" viewBox="0 0 16 16" fill="none">
+  blaster: `<svg class="retro-icon icon-blaster" viewBox="0 0 16 16" fill="none">
     <rect x="5" y="1" width="6" height="2" fill="#f8e71c"/>
     <rect x="4" y="3" width="8" height="3" fill="#e8e8e8"/>
     <rect x="5" y="3" width="2" height="2" fill="#1a1a1a"/>
@@ -257,7 +257,7 @@ const ICON_ALIASES = {
   users: 'players',
   chart: 'stats',
   chatTitle: 'chatBubble',
-  logo: 'bomberman',
+  logo: 'blaster',
   alive: 'checkmark',
   dead: 'skull',
   eliminated: 'skull',

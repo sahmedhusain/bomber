@@ -1,7 +1,7 @@
-# Bomberman DOM 💣
+# Blast Arena 💣
 
 <p align="center">
-	<img src="screenshots/logo.png" alt="Bomberman DOM" width="420" style="border:2px solid #0EA5E9; border-radius:16px;" />
+	<img src="screenshots/logo.png" alt="Blast Arena" width="420" style="border:2px solid #0EA5E9; border-radius:16px;" />
 </p>
 
 <p align="center">
@@ -39,7 +39,7 @@
 
 ---
 
-Bomberman DOM is a fast multiplayer bomberman arena built with plain JavaScript and CSS. Four players share one lobby, chat while they ready up, and drop bombs on a destructible grid while a Node.js server keeps everyone in sync over WebSocket.
+Blast Arena is a fast multiplayer bomb-battle arena built with plain JavaScript and CSS. Four players share one lobby, chat while they ready up, and drop bombs on a destructible grid while a Node.js server keeps everyone in sync over WebSocket.
 
 <p align="center">
 	<img src="https://capsule-render.vercel.app/api?type=rect&color=0:0EA5E9,100:111827&height=4&section=footer" width="100%" alt="Divider" />
@@ -259,4 +259,4 @@ Open `http://localhost:8080` in your browser. Keep at least two clients open to 
 - Qassim Aljaffer
 - Salah Yuksel
 
-MIT licensed (see `LICENSE.md`). Have fun bombing.
+MIT licensed (see `LICENSE.md`). Have fun blasting.

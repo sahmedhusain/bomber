@@ -1,5 +1,5 @@
 {
-  "name": "bomberman-dom",
+  "name": "blast-arena",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://learn.reboot01.com/git/sayehusain/bomberman-dom.git"
+    "url": "https://github.com/sayedahmedhusain/blast-arena.git"
   },
   "keywords": [],
   "author": "",
