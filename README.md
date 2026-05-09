@@ -105,7 +105,7 @@ Blast Arena is a fast multiplayer bomb-battle arena built with plain JavaScript 
 ## 🛠 Tech Stack
 
 - **Node.js + ws**: HTTP server plus WebSocket host for live play (`server.js`).
-- **Vanilla JS DOM client**: Minimal reactive layer in `framework/`, screens in `app/`.
+- **Vanilla JS DOM client**: Minimal reactive layer in `picojs/`, screens in `app/`.
 - **CSS-only styling**: Custom sheets in `app/styles/` with responsive arena sizing.
 - **No bundler**: Direct ES module imports in the browser; dependencies kept lean.
 
@@ -251,7 +251,7 @@ Open `http://localhost:8080` in your browser. Keep at least two clients open to 
 - `server/` — lobby, timers, game loop, and power-up logic (`gameLogic.js`, `match.js`).
 - `game/` — shared constants, map generation, and entity factories.
 - `app/` — DOM screens (`screens/`), icons, audio hooks, and styling.
-- `framework/` — minimal reactive/rendering helpers for the client.
+- `picojs/` — minimal reactive/rendering helpers for the client (git submodule).
 
 ## 👥 Authors
 

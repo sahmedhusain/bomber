@@ -1,4 +1,4 @@
-import { createElement } from '../../framework/core.js';
+import { createElement } from '../../picojs/framework/core.js';
 
 export const ICON_SIZE = {
   XS: 12,

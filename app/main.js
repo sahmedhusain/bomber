@@ -1,4 +1,4 @@
-import { createApp, createElement } from '../framework/core.js';
+import { createApp, createElement } from '../picojs/framework/core.js';
 import { initialRootState, setRoute } from '../game/models.js';
 import { NicknameScreen } from './screens/nickname.js';
 import { LobbyScreen } from './screens/lobby.js';

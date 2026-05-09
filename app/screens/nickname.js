@@ -1,4 +1,4 @@
-import { createElement } from '../../framework/core.js';
+import { createElement } from '../../picojs/framework/core.js';
 import { createPlayer, upsertPlayer, uid } from '../../game/models.js';
 import { getIconSVG } from '../icons/iconComponent.js';
 
